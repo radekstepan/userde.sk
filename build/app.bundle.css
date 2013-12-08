@@ -405,13 +405,13 @@ table {
     border-spacing: 0;
 }
 
-body{color:#121004;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#374044;background:#f8f8f8}
+body{color:#121004;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#374044;background:url("img/patterns/squairy_light.png")}
 ul{list-style-type:none;margin:0;padding:0;}
 ul li{display:inline-block}
 a{cursor:pointer;}
 a.link{color:#66c6f8;border-bottom:1px solid #66c6f8}
 h2{font-size:22px;color:#424d52}
-h3{margin:10px 0}
+h3{margin:0 0 10px 0}
 #header{background:#fedb27;border-bottom:1px solid #cdac19;padding:20px;}
 #header .title,#header .menu{display:inline-block}
 #header .title{font-weight:bold;margin-right:20px;color:#121004}
@@ -419,37 +419,38 @@ h3{margin:10px 0}
 #header .menu ul li a{color:#6f5f11;padding:10px;}
 #header .menu ul li a:hover{color:#374044}
 #content{border:1px solid #cecece;background:#fff;margin:0 auto;margin-top:20px;margin-bottom:20px;width:800px;}
-#content .input{border:1px solid #ccc;padding:8px 7px 7px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}
-#content .input:focus{border:1px solid #66c6f8;outline:none}
+#content .input{padding:8px 7px 7px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;border:1px solid #ccc;-webkit-box-shadow:inset 2px 2px 4px rgba(0,0,0,0.05);box-shadow:inset 2px 2px 4px rgba(0,0,0,0.05);}
+#content .input:focus{outline:none;border:1px solid #66c6f8;-webkit-box-shadow:inset 2px 2px 4px rgba(102,198,248,0.1);box-shadow:inset 2px 2px 4px rgba(102,198,248,0.1)}
 #content .button{background:rgba(255,255,255,0.75);padding:8px 22px;-webkit-transition:opacity 0.1s;-moz-transition:opacity 0.1s;-o-transition:opacity 0.1s;-ms-transition:opacity 0.1s;transition:opacity 0.1s;border:1px solid #bfbfbf;-webkit-border-radius:2px;border-radius:2px;font-weight:bold;color:#374044;font-size:14px;cursor:pointer;display:inline-block;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;text-align:center;}
 #content .button:hover{background:rgba(0,0,0,0.05)}
 #content .button.primary{color:#fff;border-color:rgba(0,0,0,0.15);background:#0079ff;}
 #content .button.primary:hover{background:#006de6}
 #content .button.github{color:#fff;border-color:rgba(0,0,0,0.15);background:#646464;}
 #content .button.github:hover{background:#535353}
-#content .header{border-bottom:2px solid #fedb27;padding:20px;}
+#content .header{border-bottom:2px solid #fedb27;padding:20px;margin-bottom:10px;}
 #content .header h2{margin:0}
 #content .form{padding:20px;}
-#content .form .field:not(:last-child){margin-bottom:30px}
-#content .form .field:after{clear:both;display:block;content:""}
+#content .form .box:not(:first-child){border-top:1px dotted #ccc;margin-top:32px;padding-top:26px}
+#content .form .field:after{clear:both;display:block;content:''}
 #content .form .field label,#content .form .field input,#content .form .field textarea{display:block;width:100%}
 #content .form .field label{margin:10px 0}
 #content .form .field .half{width:50%;float:left;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:relative;}
 #content .form .field .half.first{padding-right:40px;border-right:1px solid #ccc;}
-#content .form .field .half.first:after{content:"or";color:#ccc;position:absolute;top:7px;right:-7px;font-style:italic;padding:2px 0;background:#fff}
+#content .form .field .half.first:after{content:'or';color:#ccc;position:absolute;top:7px;right:-7px;font-style:italic;padding:2px 0;background:#fff}
 #content .form .field .half.second{padding-left:40px}
 #content .form .field .preview{float:right;cursor:pointer;}
-#content .form .field .preview:before{content:"";background:url("img/icomoon/16px/eye.png");opacity:.5;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";filter:alpha(opacity=50);-webkit-transition:opacity 0.1s;-moz-transition:opacity 0.1s;-o-transition:opacity 0.1s;-ms-transition:opacity 0.1s;transition:opacity 0.1s;display:inline-block;width:16px;height:14px;cursor:pointer;margin-right:6px}
+#content .form .field .preview:before{content:'';background:url("img/icomoon/16px/eye.png");opacity:.5;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";filter:alpha(opacity=50);-webkit-transition:opacity 0.1s;-moz-transition:opacity 0.1s;-o-transition:opacity 0.1s;-ms-transition:opacity 0.1s;transition:opacity 0.1s;display:inline-block;width:16px;height:14px;cursor:pointer;margin-right:6px}
 #content .form .field .preview:hover:before{opacity:.75;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=75)";filter:alpha(opacity=75)}
 #content .footer{border-top:1px solid #e2e2e2;padding:20px;}
 #content .footer .button.primary{float:right}
-#content .footer:after{clear:both;display:block;content:""}
-#results{display:block;max-height:100px;overflow-y:scroll;margin:-20px 0 30px 0;-webkit-box-shadow:inset -2px -2px 4px rgba(0,0,0,0.05);box-shadow:inset -2px -2px 4px rgba(0,0,0,0.05);border-bottom:1px solid #ccc;}
+#content .footer:after{clear:both;display:block;content:''}
+#results{display:block;max-height:100px;overflow-y:scroll;-webkit-box-shadow:inset -2px -2px 4px rgba(0,0,0,0.05);box-shadow:inset -2px -2px 4px rgba(0,0,0,0.05);border-bottom:1px solid #ccc;margin-top:6px;}
 #results ul li{display:block;padding:8px 4px;}
 #results ul li:not(:last-child){border-bottom:1px solid rgba(204,204,204,0.5)}
-#results ul li:nth-child(even){background:rgba(0,0,0,0.02)}
-#results ul li:after{clear:both;display:block;content:""}
-#results ul li span{background:rgba(254,219,39,0.5)}
+#results ul li:nth-child(even){background:rgba(0,0,0,0.01)}
+#results ul li:after{clear:both;display:block;content:''}
+#results ul li a span{background:rgba(254,219,39,0.5)}
+#results ul li .ago{margin-left:6px;font-size:12px;color:#aaa}
 #results .tag{padding:2px 8px;border-color:rgba(0,0,0,0.15);-webkit-border-radius:2px;border-radius:2px;font-weight:bold;display:inline-block;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;font-size:12px;float:right;}
-#results .tag.solved{color:#fff;background:#bcd570}
+#results .tag.solved{background:#fedb27}
 #results .tag.discussed{color:#fff;background:#cacaca}

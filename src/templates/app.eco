@@ -15,43 +15,49 @@
     </div>
 
     <div class="form">
-        <div class="field">
-            <h3>Title</h3>
-            <label>What question would you like to ask?</label>
-            <input class="input" type="text" placeholder="Type your question here" autofocus />
-        </div>
-
-        <div id="results">
-            <ul>
-                <li><a class="link"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a></li>
-                <li><span class="tag solved">solved</span><a class="link">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a></li>
-                <li><span class="tag discussed">discussed</span><a class="link">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a></li>
-                <li><a class="link"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>
-                <li><a class="link"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>
-                <li><a class="link"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>
-                <li><a class="link">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>
-                <li><a class="link">always getting error in <code>StagePickLevel</code> class</a></li>
-                <li><a class="link"><span>jquery</span> select all parents</a></li>
-            </ul>
-        </div>
-
-        <div class="field">
-            <h3>Description</h3>
-            <div>
-                <span class="preview">Preview</span>
-                <label>Describe the question you are asking. You can use <a class="link">GitHub Flavored Markdown</a>.</label>
+        <div class="box">
+            <div class="field">
+                <h3>Title</h3>
+                <label>What question would you like to ask?</label>
+                <input class="input" type="text" placeholder="Type your question here" autofocus />
             </div>
-            <textarea class="input" rows=4 placeholder="Make it simple and easy to understand"></textarea>
+
+            <div id="results">
+                <ul>
+                    <li><a class="link"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class="ago">3 weeks ago</span></li>
+                    <li><span class="tag solved">solved</span><a class="link">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class="ago">Today</span></li>
+                    <li><span class="tag discussed">discussed</span><a class="link">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class="ago">A year ago</span></li>
+                    <li><a class="link"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>
+                    <li><a class="link"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>
+                    <li><a class="link"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>
+                    <li><a class="link">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>
+                    <li><a class="link">always getting error in <code>StagePickLevel</code> class</a></li>
+                    <li><a class="link"><span>jquery</span> select all parents</a></li>
+                </ul>
+            </div>
         </div>
 
-        <div class="field">
-            <h3>Contact</h3>
-            <label>Provide either an email or connect with <a class="link">GitHub</a>.</label>
-            <div class="half first">
-                <input class="input" type="text" placeholder="Email address" />
+        <div class="box">
+            <div class="field">
+                <h3>Description</h3>
+                <div>
+                    <span class="preview">Preview</span>
+                    <label>Describe the question you are asking. You can use <a class="link">GitHub Flavored Markdown</a>.</label>
+                </div>
+                <textarea class="input" rows=4 placeholder="Make it simple and easy to understand"></textarea>
             </div>
-            <div class="half second">
-                <div class="button github">Connect with GitHub</div>
+        </div>
+
+        <div class="box">
+            <div class="field">
+                <h3>Contact</h3>
+                <label>Provide either an email or connect with <a class="link">GitHub</a>.</label>
+                <div class="half first">
+                    <input class="input" type="text" placeholder="Email address" />
+                </div>
+                <div class="half second">
+                    <div class="button github">Connect with GitHub</div>
+                </div>
             </div>
         </div>
     </div>
