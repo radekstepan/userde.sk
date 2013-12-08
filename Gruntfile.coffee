@@ -1,14 +1,14 @@
 module.exports = (grunt) ->
     grunt.initConfig
         pkg: grunt.file.readJSON("package.json")
-        
+
         apps_c:
             commonjs:
                 src: [ 'src/**/*.{coffee,js,eco}' ]
                 dest: 'build/app.js'
                 options:
-                    main: 'src/views/app.coffee'
-                    name: 'deadmonton'
+                    main: 'src/app.coffee'
+                    name: 'app'
 
         stylus:
             compile:
@@ -24,11 +24,7 @@ module.exports = (grunt) ->
                     'vendor/jquery/jquery.js'
                     'vendor/lodash/dist/lodash.js'
                     'vendor/backbone/backbone.js'
-                    'vendor/leaflet-dist/leaflet.js'
-                    'vendor/leaflet-providers/leaflet-providers.js'
-                    'vendor/lzma-js/index.js'
                     'vendor/async/lib/async.js'
-                    'vendor/moment/moment.js'
                     # Our app.
                     'build/app.js'
                 ]
@@ -40,7 +36,6 @@ module.exports = (grunt) ->
                 src: [
                     # Vendor dependencies.
                     'vendor/normalize-css/normalize.css'
-                    'vendor/leaflet-dist/leaflet.css'
                     # Our style.
                     'build/app.css'
                 ]
@@ -58,11 +53,18 @@ module.exports = (grunt) ->
                     'build/app.min.css': 'build/app.css'
                     'build/app.bundle.min.css': 'build/app.bundle.css'
 
+        notify_hooks:
+            options:
+                duration: 1
+
     grunt.loadNpmTasks('grunt-apps-c')
     grunt.loadNpmTasks('grunt-contrib-stylus')
     grunt.loadNpmTasks('grunt-contrib-concat')
     grunt.loadNpmTasks('grunt-contrib-uglify')
     grunt.loadNpmTasks('grunt-contrib-cssmin')
+    grunt.loadNpmTasks('grunt-notify')
+
+    grunt.task.run('notify_hooks')
 
     grunt.registerTask('default', [
         'apps_c'
