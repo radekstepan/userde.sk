@@ -1,12 +1,14 @@
 @import 'nib'
 
 body
-    color: #121004
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif
-    font-size: 14px
+    font-family: 'Source Sans Pro', sans-serif
+    font-size: 16px
     color: #374044
-    //background: #F8F8F8
+    // background: #F8F8F8
     background: url('img/patterns/squairy_light.png')
+    // background-image: url('img/unsplash.jpg')
+    // background-repeat: no-repeat
+    // background-size: cover
 
 ul
     list-style-type: none
@@ -16,16 +18,20 @@ ul
     li
         display: inline-block
 
+::-webkit-input-placeholder {
+    font-weight: normal
+}
+
 a
     cursor: pointer
 
     &.link
-        color: #66C6F8
-        border-bottom: 1px solid #66C6F8
+        color: #0079FF
+        border-bottom: 1px solid rgba(#0079FF, 0.5)
 
 h2
     font-size: 22px
-    color: #424D52
+    // color: #424D52
 
 h3
     margin: 0 0 10px 0
@@ -35,6 +41,10 @@ h3
     border-bottom: 1px solid #CDAC19
     padding: 20px
 
+    .wrapper
+        width: 800px
+        margin: 0 auto
+
     .title, .menu
         display: inline-block
 
@@ -42,8 +52,11 @@ h3
         font-weight: bold
         margin-right: 20px
         color: #121004
+        font-size: 20px
 
     .menu
+        // display: none
+
         ul
             li
                 &:not(:last-child)
@@ -60,20 +73,26 @@ h3
     border: 1px solid #CECECE
     background: #FFF
     margin: 0 auto
-    margin-top: 20px
-    margin-bottom: 20px
+    margin-top: 40px
+    margin-bottom: 40px
     width: 800px
+    // box-shadow: 0px 0px 0px 6px rgba(255,255,255,0.2)
 
     .input
-        padding: 8px 7px 7px
+        padding: 10px
         box-sizing: border-box
         border: 1px solid #CCC
-        box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05)
+        // box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05)
+        background: lighten(#FAF8F5, 40%)
+        color: #374044
 
         &:focus
             outline: none
-            border: 1px solid #66C6F8
-            box-shadow: inset 2px 2px 4px rgba(#66C6F8, 0.1)
+            // border: 1px solid #66C6F8
+            border: 1px solid rgba(#66C6F8, 40%)
+            // box-shadow: inset 2px 2px 4px rgba(#66C6F8, 0.1)
+            // background: rgba(#66C6F8, 0.02)
+            font-weight: bold
 
     .button
         background: rgba(255, 255, 255, 0.75)
@@ -109,12 +128,13 @@ h3
                 background: #535353
 
     .header
-        border-bottom: 2px solid #FEDB27
         padding: 20px
         margin-bottom: 10px
+        background: #535353
 
         h2
             margin: 0
+            color: #FFF
 
     .form
         padding: 20px
@@ -194,23 +214,24 @@ h3
 
 #results
     display: block
-    //display: none
-    max-height: 100px
+    max-height: 126px
     overflow-y: scroll
-    box-shadow: inset -2px -2px 4px rgba(0,0,0,0.05)
-    border-bottom: 1px solid #CCC
-    margin-top: 6px
+    // box-shadow: inset -2px -2px 4px rgba(0,0,0,0.05)
+    // border-bottom: 1px solid #CCC
+    border: 1px solid rgba(#66C6F8, 40%)
+    border-top: 0
+    // margin-top: 6px
 
     ul
         li
             display: block
-            padding: 8px 4px
+            padding: 8px
 
             &:not(:last-child)
                 border-bottom: 1px solid rgba(#CCC, 0.5)
 
             &:nth-child(even)
-                background: rgba(0,0,0,0.01)
+                background: rgba(0,0,0,0.004)
 
             &:after
                 clear: both
@@ -220,6 +241,9 @@ h3
             a
                 span
                     background: rgba(#FEDB27, 0.5)
+                    color: #374044
+                    padding: 0 2px
+                    margin: 0 -2px
 
             .ago
                 margin-left: 6px

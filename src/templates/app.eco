@@ -1,25 +1,27 @@
 <div id="header">
-    <div class="title">help.as</div>
-    <div class="menu">
-        <ul>
-            <li><a>Link 1</a></li>
-            <li><a>Link 2</a></li>
-            <li><a>Link 3</a></li>
-        </ul>
+    <div class="wrapper">
+        <div class="title">help.as/intermine</div>
+        <div class="menu">
+            <ul>
+                <li><a>Is this safe?</a></li>
+                <li><a>Contact in person</a></li>
+                <li><a>See a map</a></li>
+            </ul>
+        </div>
     </div>
 </div>
 
 <div id="content">
     <div class="header">
-        <h2>Ask a Question</h2>
+        <h2>How can we help?</h2>
     </div>
 
     <div class="form">
         <div class="box">
             <div class="field">
-                <h3>Title</h3>
+                <h3>1. Title</h3>
                 <label>What question would you like to ask?</label>
-                <input class="input" type="text" placeholder="Type your question here" autofocus />
+                <input class="input" type="text" placeholder="Type your question here" value="jquery second parent" autofocus />
             </div>
 
             <div id="results">
@@ -39,7 +41,7 @@
 
         <div class="box">
             <div class="field">
-                <h3>Description</h3>
+                <h3>2. Description</h3>
                 <div>
                     <span class="preview">Preview</span>
                     <label>Describe the question you are asking. You can use <a class="link">GitHub Flavored Markdown</a>.</label>
@@ -50,7 +52,7 @@
 
         <div class="box">
             <div class="field">
-                <h3>Contact</h3>
+                <h3>3. Contact</h3>
                 <label>Provide either an email or connect with <a class="link">GitHub</a>.</label>
                 <div class="half first">
                     <input class="input" type="text" placeholder="Email address" />
