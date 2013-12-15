@@ -1,5 +1,5 @@
 {
-    "name": "help.as",
+    "name": "userde.sk",
     "version": "0.0.0",
     "description": "Useable UI for GitHub Issues",
     "dependencies": {
@@ -19,7 +19,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/radekstepan/help.as.git"
+        "url": "git://github.com/radekstepan/userde.sk.git"
     },
     "author": "Radek <dev@radekstepan.com>"
 }

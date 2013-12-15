@@ -452,7 +452,7 @@ h3{margin:0 0 10px 0}
 #content .form .field label{margin:10px 0;opacity:.8;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";filter:alpha(opacity=80)}
 #content .form .field .half{width:50%;float:left;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:relative;}
 #content .form .field .half.first{padding-right:40px;border-right:1px solid #ccc;}
-#content .form .field .half.first:after{content:'or';color:#ccc;position:absolute;top:7px;right:-7px;font-style:italic;padding:2px 0;background:#fff}
+#content .form .field .half.first:after{content:'or';color:#ccc;position:absolute;top:9px;right:-7px;font-style:italic;padding:2px 0;background:#fff}
 #content .form .field .half.second{padding-left:40px}
 #content .form .field .preview{float:right;cursor:pointer;}
 #content .form .field .preview:before{content:'';background:url("img/icomoon/16px/eye.png");opacity:.5;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";filter:alpha(opacity=50);-webkit-transition:opacity 0.1s;-moz-transition:opacity 0.1s;-o-transition:opacity 0.1s;-ms-transition:opacity 0.1s;transition:opacity 0.1s;display:inline-block;width:16px;height:14px;cursor:pointer;margin-right:6px}
