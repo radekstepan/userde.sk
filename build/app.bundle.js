@@ -18168,7 +18168,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     root.require.register('app/src/app.js', function(exports, require, module) {
     
       module.exports = function() {
-        return $('body').html(require('./templates/app')());
+        var template;
+        template = './templates/app';
+        template = './templates/signup';
+        return $('body').html(require(template)());
       };
       
     });
@@ -18216,7 +18219,60 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         (function() {
           (function() {
-            __out.push('<div id="header">\n    <div class="wrapper">\n        <div class="title">userde.sk/intermine</div>\n        <div class="menu">\n            <ul>\n                <li><a>Is this safe?</a></li>\n                <li><a>Contact in person</a></li>\n                <li><a>See a map</a></li>\n            </ul>\n        </div>\n    </div>\n</div>\n\n<div id="content">\n    <div class="header">\n        <h2>How can we help?</h2>\n        <p>Send us bugs you have encountered or suggestions.</p>\n    </div>\n\n    <div class="form">\n        <div class="box">\n            <div class="field">\n                <h3>1. Title</h3>\n                <label>What question would you like to ask?</label>\n                <input class="input" type="text" placeholder="Type your question here" value="jquery second parent" autofocus />\n            </div>\n\n            <div id="results">\n                <ul>\n                    <li><a class="link"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class="ago">3 weeks ago</span></li>\n                    <li><span class="tag solved">solved</span><a class="link">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class="ago">Today</span></li>\n                    <li><span class="tag discussed">discussed</span><a class="link">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class="ago">A year ago</span></li>\n                    <li><a class="link"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>\n                    <li><a class="link"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>\n                    <li><a class="link"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>\n                    <li><a class="link">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>\n                    <li><a class="link">always getting error in <code>StagePickLevel</code> class</a></li>\n                    <li><a class="link"><span>jquery</span> select all parents</a></li>\n                </ul>\n            </div>\n        </div>\n\n        <div class="box">\n            <div class="field">\n                <h3>2. Description</h3>\n                <div>\n                    <span class="preview">Preview</span>\n                    <label>Describe the question you are asking. You can use <a class="link">GitHub Flavored Markdown</a>.</label>\n                </div>\n                <textarea class="input" rows=4 placeholder="Make it simple and easy to understand"></textarea>\n            </div>\n        </div>\n\n        <div class="box">\n            <div class="field">\n                <h3>3. Contact</h3>\n                <label>Provide either an email or connect with <a class="link">GitHub</a>.</label>\n                <div class="half first">\n                    <input class="input" type="text" placeholder="Email address" />\n                </div>\n                <div class="half second">\n                    <div class="button github">Connect with GitHub</div>\n                </div>\n            </div>\n        </div>\n    </div>\n\n    <div class="footer">\n        <div class="button primary">Finish</div>\n    </div>\n</div>');
+            __out.push('<div id="header">\n    <div class="wrapper">\n        <div class="title">userde.sk/intermine</div>\n        <div class="menu">\n            <ul>\n                <li class="active"><a>Contact support</a></li>\n                <li><a>Signup</a></li>\n            </ul>\n        </div>\n    </div>\n</div>\n\n<div id="content">\n    <div class="header">\n        <h2>How can we help?</h2>\n        <p>Send us bugs you have encountered or suggestions.</p>\n    </div>\n\n    <div class="form">\n        <div class="box">\n            <div class="field">\n                <h3>1. Title</h3>\n                <label>What question would you like to ask?</label>\n                <input class="input" type="text" placeholder="Type your question here" value="jquery second parent" autofocus />\n            </div>\n\n            <div id="results">\n                <ul>\n                    <li><a class="link"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class="ago">3 weeks ago</span></li>\n                    <li><span class="tag solved">solved</span><a class="link">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class="ago">Today</span></li>\n                    <li><span class="tag discussed">discussed</span><a class="link">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class="ago">A year ago</span></li>\n                    <li><a class="link"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>\n                    <li><a class="link"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>\n                    <li><a class="link"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>\n                    <li><a class="link">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>\n                    <li><a class="link">always getting error in <code>StagePickLevel</code> class</a></li>\n                    <li><a class="link"><span>jquery</span> select all parents</a></li>\n                </ul>\n            </div>\n        </div>\n\n        <div class="box">\n            <div class="field">\n                <h3>2. Description</h3>\n                <div>\n                    <span class="preview">Preview</span>\n                    <label>Describe the question you are asking. You can use <a class="link">GitHub Flavored Markdown</a>.</label>\n                </div>\n                <textarea class="input" rows=4 placeholder="Make it simple and easy to understand"></textarea>\n            </div>\n        </div>\n\n        <div class="box">\n            <div class="field">\n                <h3>3. Contact</h3>\n                <label>Provide either an email or connect with <a class="link">GitHub</a>.</label>\n                <div class="half first">\n                    <input class="input" type="text" placeholder="Email address" />\n                </div>\n                <div class="half second">\n                    <div class="button github">Connect with GitHub</div>\n                </div>\n            </div>\n        </div>\n    </div>\n\n    <div class="footer">\n        <div class="button primary">Finish</div>\n    </div>\n</div>');
+          
+          }).call(this);
+          
+        }).call(__obj);
+        __obj.safe = __objSafe, __obj.escape = __escape;
+        return __out.join('');
+      }
+    });
+
+    
+    // signup.eco
+    root.require.register('app/src/templates/signup.js', function(exports, require, module) {
+    
+      module.exports = function(__obj) {
+        if (!__obj) __obj = {};
+        var __out = [], __capture = function(callback) {
+          var out = __out, result;
+          __out = [];
+          callback.call(this);
+          result = __out.join('');
+          __out = out;
+          return __safe(result);
+        }, __sanitize = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else if (typeof value !== 'undefined' && value != null) {
+            return __escape(value);
+          } else {
+            return '';
+          }
+        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+        __safe = __obj.safe = function(value) {
+          if (value && value.ecoSafe) {
+            return value;
+          } else {
+            if (!(typeof value !== 'undefined' && value != null)) value = '';
+            var result = new String(value);
+            result.ecoSafe = true;
+            return result;
+          }
+        };
+        if (!__escape) {
+          __escape = __obj.escape = function(value) {
+            return ('' + value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+          };
+        }
+        (function() {
+          (function() {
+            __out.push('<div id="header">\n    <div class="wrapper">\n        <div class="title">userde.sk</div>\n        <div class="menu">\n            <ul>\n                <li><a>Contact support</a></li>\n                <li class="active"><a>Signup</a></li>\n            </ul>\n        </div>\n    </div>\n</div>\n\n<div id="content">\n    <div class="header">\n        <h2>Signup</h2>\n        <p>While we are in private beta, the number of accounts is limited.</p>\n    </div>\n\n    <div class="form">\n        <div class="box">\n            <div class="field">\n                <h3>1. GitHub Username</h3>\n                <label>We will populate all the other fields automagically.</label>\n                <input class="input" type="text" placeholder="Type your username here" value="radekstepan" autofocus />\n            </div>\n        </div>\n\n        <div class="box">\n            <div class="field">\n                <h3>2. Your name</h3>\n                <label>So that we know how to call you.</label>\n                <input class="input" type="text" placeholder="Type your name here" />\n            </div>\n        </div>\n\n        <div class="box">\n            <div class="field">\n                <h3>3. Contact</h3>\n                <label>Provide an email so that we can contact you when your account is ready.</label>\n                <input class="input" type="text" placeholder="Email address" />\n            </div>\n        </div>\n\n        <div class="box">\n            <div class="field">\n                <h3>4. Message (optional)</h3>\n                <label>Do you have a special request? Anything we should know?</label>\n                <textarea class="input" rows=4 placeholder="Let me in, thanks."></textarea>\n            </div>\n        </div>\n    </div>\n\n    <div class="footer">\n        <div class="button primary">Finish</div>\n    </div>\n</div>');
           
           }).call(this);
           

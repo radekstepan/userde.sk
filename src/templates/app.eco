@@ -3,9 +3,8 @@
         <div class="title">userde.sk/intermine</div>
         <div class="menu">
             <ul>
-                <li><a>Is this safe?</a></li>
-                <li><a>Contact in person</a></li>
-                <li><a>See a map</a></li>
+                <li class="active"><a>Contact support</a></li>
+                <li><a>Signup</a></li>
             </ul>
         </div>
     </div>
