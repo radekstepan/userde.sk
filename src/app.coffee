@@ -1,6 +1,7 @@
-module.exports = ->
-    template = './templates/app'
-    template = './templates/signup'
-    # template = './templates/login'
+{ Ember } = require './core/deps'
 
-    $('body').html do require template
+module.exports = ->
+    App = do Ember.Application.create
+
+    App.Router.map ->
+        @resource('index', { path: '/' })

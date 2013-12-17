@@ -15,7 +15,8 @@
         "grunt-contrib-concat": "~0.3.0",
         "grunt-contrib-uglify": "~0.2.5",
         "grunt-contrib-cssmin": "~0.6.2",
-        "grunt-notify": "git://github.com/vohof/grunt-notify.git#patch/01-ttl"
+        "grunt-notify": "git://github.com/vohof/grunt-notify.git#patch/01-ttl",
+        "grunt-contrib-connect": "~0.5.0"
     },
     "repository": {
         "type": "git",

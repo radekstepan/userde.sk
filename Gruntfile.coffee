@@ -24,8 +24,10 @@ module.exports = (grunt) ->
                 src: [
                     # Vendor dependencies.
                     'vendor/jquery/jquery.js'
+                    'vendor/handlebars/handlebars.js'
+                    'vendor/ember/ember.js'
+                    
                     'vendor/lodash/dist/lodash.js'
-                    'vendor/backbone/backbone.js'
                     'vendor/async/lib/async.js'
                     # Our app.
                     'build/app.js'
@@ -61,12 +63,27 @@ module.exports = (grunt) ->
             options:
                 duration: 1
 
+        connect:
+            server:
+                options:
+                    # Random port number.
+                    port: 9001
+                    # Access from anywhere.
+                    hostname: '*'
+                    # Serve this.
+                    base: './public'
+                    # Keep running.
+                    keepalive: yes
+                    # Debug.
+                    debug: yes
+
     grunt.loadNpmTasks('grunt-apps-c')
     grunt.loadNpmTasks('grunt-contrib-stylus')
     grunt.loadNpmTasks('grunt-contrib-concat')
     grunt.loadNpmTasks('grunt-contrib-uglify')
     grunt.loadNpmTasks('grunt-contrib-cssmin')
     grunt.loadNpmTasks('grunt-notify')
+    grunt.loadNpmTasks('grunt-contrib-connect')
 
     grunt.task.run('notify_hooks')
 
@@ -79,4 +96,8 @@ module.exports = (grunt) ->
     grunt.registerTask('minify', [
         'uglify'
         'cssmin'
+    ])
+
+    grunt.registerTask('server', [
+        'connect'
     ])

@@ -211,11 +211,67 @@
     // app.coffee
     root.require.register('app/src/app.js', function(exports, require, module) {
     
+      var Ember;
+      
+      Ember = require('./core/deps').Ember;
+      
       module.exports = function() {
-        var template;
-        template = './templates/app';
-        template = './templates/signup';
-        return $('body').html(require(template)());
+        var App;
+        App = Ember.Application.create();
+        return App.Router.map(function() {
+          return this.resource('index', {
+            path: '/'
+          });
+        });
+      };
+      
+    });
+
+    
+    // deps.coffee
+    root.require.register('app/src/core/deps.js', function(exports, require, module) {
+    
+      module.exports = {
+        _: _,
+        $: $,
+        Backbone: Backbone,
+        Ember: Ember
+      };
+      
+    });
+
+    
+    // router.coffee
+    root.require.register('app/src/core/router.js', function(exports, require, module) {
+    
+      var Backbone;
+      
+      Backbone = require('./deps').Backbone;
+      
+      module.exports = function() {
+        var router;
+        router = new Backbone.Router({
+          routes: {
+            'issues/new': 'issue',
+            'account/new': 'signup',
+            'account/login': 'login',
+            '': 'index'
+          },
+          index: function() {
+            return console.log('/');
+          },
+          issue: function() {
+            return console.log('/issue');
+          },
+          signup: function() {
+            return console.log('/signup');
+          },
+          login: function() {
+            return console.log('/login');
+          }
+        });
+        Backbone.history.start();
+        return router;
       };
       
     });
