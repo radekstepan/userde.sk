@@ -1,10 +1,12 @@
 @import 'nib'
 
+$whitespace = 20px
+
 // Header duh.
 #header
     background: #FEDB27
     border-bottom: 1px solid #CDAC19
-    padding: 20px
+    padding: $whitespace
 
     .wrapper
         width: 800px
@@ -15,7 +17,7 @@
 
     .title
         font-weight: bold
-        margin-right: 20px
+        margin-right: $whitespace
         color: #121004
         font-size: 20px
 
@@ -59,7 +61,7 @@
 
     $box_top_height = 50px
 
-    // Login.
+    // Login page.
     &.login
         .left, .right
             height: 360px
@@ -69,7 +71,7 @@
             background-position: 0 -40px
             background-size: 140% auto
 
-    // Signup.
+    // Signup page.
     &.signup
         .left, .right
             height: 800px
@@ -83,6 +85,7 @@
         border-right: 1px solid #CECECE
         width: 450px
 
+        // Title & link on a dark background.
         .title, .link
             background: rgba(0,0,0,0.5)
             padding: 4px 6px
@@ -92,7 +95,7 @@
             color: #FFF
             font-size: 20px
             margin-top: $box_top_height
-            margin-bottom: 20px
+            margin-bottom: $whitespace
             display: inline-block
 
         .link
@@ -116,10 +119,10 @@
 
         h1
             margin: 0
-            margin-bottom: 20px
+            margin-bottom: $whitespace
 
         .form
-            margin-bottom: 20px
+            margin-bottom: $whitespace
 
         // Links and content at the foot.
         .bottom
@@ -140,10 +143,9 @@
     margin-top: 40px
 
     .header
-        padding: 20px
+        padding: $whitespace
         margin-bottom: 10px
         background: #F7F7F7
-        // border-top: 2px solid #52A7D3
         border-bottom: 1px solid rgba(102, 198, 248, 0.2)
 
         h2
@@ -154,7 +156,7 @@
             margin-bottom: 0
 
     .form
-        padding: 20px
+        padding: $whitespace
 
         .field
             // Either-or field.
@@ -204,7 +206,7 @@
     // Footer showing a submit button.
     .footer
         border-top: 1px solid #E2E2E2
-        padding: 20px
+        padding: $whitespace
 
         .button.primary
             float: right
@@ -245,11 +247,13 @@
                     padding: 0 2px
                     margin: 0 -2px
 
+            // Time ago.
             .ago
                 margin-left: 6px
                 font-size: 12px
                 color: #AAA
 
+    // Tags.
     .tag
         padding: 2px 8px
         border-color: rgba(0,0,0,0.15)
