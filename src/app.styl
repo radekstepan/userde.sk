@@ -4,11 +4,8 @@ body
     font-family: 'Source Sans Pro', sans-serif
     font-size: 16px
     color: #374044
-    // background: #F8F8F8
+    background: #F8F8F8
     background: url('img/patterns/squairy_light.png')
-    // background-image: url('img/unsplash.jpg')
-    // background-repeat: no-repeat
-    // background-size: cover
 
 ul
     list-style-type: none
@@ -75,13 +72,89 @@ h3
                     &:hover
                         color: #374044
 
-#content
-    border: 1px solid #CECECE
+#promo
     background: #FFF
+    border: 1px solid #CECECE
     margin: 0 auto
+    width: 800px
+    margin-top: 80px
+    margin-bottom: 40px
+    border-top: 3px solid #FEDB27
+
+    $box_padding = 35px
+
+    .left, .right
+        float: left
+        padding: $box_padding
+        height: 360px
+        box-sizing: border-box
+        position: relative
+
+    $box_top_height = 50px
+
+    .left
+        background-image: url('img/hires/lighthouse.jpg')
+        background-position: 0 -40px
+        background-size: 140% auto
+        background-repeat: no-repeat
+        border-right: 1px solid #CECECE
+        width: 450px
+
+        .title, .link
+            background: rgba(0,0,0,0.5)
+            padding: 4px 6px
+
+        .title
+            font-weight: bold
+            // color: #121004
+            color: #FFF
+            font-size: 20px
+            margin-top: $box_top_height
+            margin-bottom: 20px
+            display: inline-block
+
+        .link
+            color: #FFF
+            border-bottom: 1px solid rgba(#FFF, 0.5)
+
+        .bottom
+                bottom: $box_padding - 4px
+                left: $box_padding - 6px
+                position: absolute
+
+                *:not(:last-child)
+                    margin-right: 30px
+
+    .right
+        width: 350px
+
+        .header
+            margin-top: $box_top_height
+
+        h1
+            margin: 0
+            margin-bottom: 20px
+
+        .bottom
+            bottom: $box_padding
+            left: $box_padding
+            position: absolute
+
+            *:not(:last-child)
+                margin-right: 30px
+
+    &:after
+        clear: both
+        content: ""
+        display: block
+
+#content
+    background: #FFF
+    border: 1px solid #CECECE
+    margin: 0 auto
+    width: 800px
     margin-top: 40px
     margin-bottom: 40px
-    width: 800px
     // box-shadow: 0px 0px 0px 6px rgba(255,255,255,0.2)
 
     .input
@@ -101,39 +174,6 @@ h3
             // background: rgba(#66C6F8, 0.02)
             font-weight: bold
             color: #0079FF
-
-    .button
-        background: rgba(255, 255, 255, 0.75)
-        padding: 8px 22px
-        transition: opacity 0.1s
-        border: 1px solid #BFBFBF
-        border-radius: 2px
-        font-weight: bold
-        color: #374044
-        font-size: 14px
-        cursor: pointer
-        display: inline-block
-        user-select: none
-        text-align: center
-
-        &:hover
-            background: rgba(0,0,0,0.05)
-
-        &.primary
-            color: #FFF
-            border-color: rgba(0,0,0,0.15)
-            background: #0079FF
-
-            &:hover
-                background: #006DE6
-
-        &.github
-            color: #FFF
-            border-color: rgba(0,0,0,0.15)
-            background: lighten(#535353, 10%)
-
-            &:hover
-                background: #535353
 
     .header
         padding: 20px
@@ -225,6 +265,39 @@ h3
             clear: both
             display: block
             content: ''
+
+.button
+    background: rgba(255, 255, 255, 0.75)
+    padding: 8px 22px
+    transition: opacity 0.1s
+    border: 1px solid #BFBFBF
+    border-radius: 2px
+    font-weight: bold
+    color: #374044
+    font-size: 14px
+    cursor: pointer
+    display: inline-block
+    user-select: none
+    text-align: center
+
+    &:hover
+        background: rgba(0,0,0,0.05)
+
+    &.primary
+        color: #FFF
+        border-color: rgba(0,0,0,0.15)
+        background: #0079FF
+
+        &:hover
+            background: #006DE6
+
+    &.github
+        color: #FFF
+        border-color: rgba(0,0,0,0.15)
+        background: lighten(#535353, 10%)
+
+        &:hover
+            background: #535353
 
 #results
     display: block

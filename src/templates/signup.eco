@@ -5,6 +5,7 @@
             <ul>
                 <li><a>Contact support</a></li>
                 <li class="active"><a>Signup</a></li>
+                <li><a>Login</a></li>
             </ul>
         </div>
     </div>

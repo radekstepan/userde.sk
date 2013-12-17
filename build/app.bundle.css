@@ -417,7 +417,7 @@ table {
     font-weight: 700;
     src: local('Source Sans Pro Bold'), local('SourceSansPro-Bold'), url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v6/toadOcfmlt9b38dHJxOBGFkQc6VGVFSmCnC_l7QZG60.woff) format('woff');
 }
-body{font-family:'Source Sans Pro',sans-serif;font-size:16px;color:#374044;background:url("img/patterns/squairy_light.png")}
+body{font-family:'Source Sans Pro',sans-serif;font-size:16px;color:#374044;background:#f8f8f8;background:url("img/patterns/squairy_light.png")}
 ul{list-style-type:none;margin:0;padding:0;}
 ul li{display:inline-block}
 ::-webkit-input-placeholder{font-weight:normal}
@@ -434,15 +434,23 @@ h3{margin:0 0 10px 0}
 #header .menu ul li.active{font-weight:bold}
 #header .menu ul li a{color:#6f5f11;padding:10px;}
 #header .menu ul li a:hover{color:#374044}
-#content{border:1px solid #cecece;background:#fff;margin:0 auto;margin-top:40px;margin-bottom:40px;width:800px;}
+#promo{background:#fff;border:1px solid #cecece;margin:0 auto;width:800px;margin-top:80px;margin-bottom:40px;border-top:3px solid #fedb27;}
+#promo .left,#promo .right{float:left;padding:35px;height:360px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:relative}
+#promo .left{background-image:url("img/hires/lighthouse.jpg");background-position:0 -40px;-webkit-background-size:140% auto;-moz-background-size:140% auto;background-size:140% auto;background-repeat:no-repeat;border-right:1px solid #cecece;width:450px;}
+#promo .left .title,#promo .left .link{background:rgba(0,0,0,0.5);padding:4px 6px}
+#promo .left .title{font-weight:bold;color:#fff;font-size:20px;margin-top:50px;margin-bottom:20px;display:inline-block}
+#promo .left .link{color:#fff;border-bottom:1px solid rgba(255,255,255,0.5)}
+#promo .left .bottom{bottom:31px;left:29px;position:absolute;}
+#promo .left .bottom *:not(:last-child){margin-right:30px}
+#promo .right{width:350px;}
+#promo .right .header{margin-top:50px}
+#promo .right h1{margin:0;margin-bottom:20px}
+#promo .right .bottom{bottom:35px;left:35px;position:absolute;}
+#promo .right .bottom *:not(:last-child){margin-right:30px}
+#promo:after{clear:both;content:"";display:block}
+#content{background:#fff;border:1px solid #cecece;margin:0 auto;width:800px;margin-top:40px;margin-bottom:40px;}
 #content .input{padding:10px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;border:1px solid #ccc;background:#fcfbf9;color:#374044;}
 #content .input:focus{outline:none;border:1px solid rgba(102,198,248,0.4);font-weight:bold;color:#0079ff}
-#content .button{background:rgba(255,255,255,0.75);padding:8px 22px;-webkit-transition:opacity 0.1s;-moz-transition:opacity 0.1s;-o-transition:opacity 0.1s;-ms-transition:opacity 0.1s;transition:opacity 0.1s;border:1px solid #bfbfbf;-webkit-border-radius:2px;border-radius:2px;font-weight:bold;color:#374044;font-size:14px;cursor:pointer;display:inline-block;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;text-align:center;}
-#content .button:hover{background:rgba(0,0,0,0.05)}
-#content .button.primary{color:#fff;border-color:rgba(0,0,0,0.15);background:#0079ff;}
-#content .button.primary:hover{background:#006de6}
-#content .button.github{color:#fff;border-color:rgba(0,0,0,0.15);background:#646464;}
-#content .button.github:hover{background:#535353}
 #content .header{padding:20px;margin-bottom:10px;background:#f7f7f7;border-bottom:1px solid rgba(102,198,248,0.2);}
 #content .header h2{margin:0}
 #content .header p{opacity:.8;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";filter:alpha(opacity=80);margin-bottom:0}
@@ -461,6 +469,12 @@ h3{margin:0 0 10px 0}
 #content .footer{border-top:1px solid #e2e2e2;padding:20px;}
 #content .footer .button.primary{float:right}
 #content .footer:after{clear:both;display:block;content:''}
+.button{background:rgba(255,255,255,0.75);padding:8px 22px;-webkit-transition:opacity 0.1s;-moz-transition:opacity 0.1s;-o-transition:opacity 0.1s;-ms-transition:opacity 0.1s;transition:opacity 0.1s;border:1px solid #bfbfbf;-webkit-border-radius:2px;border-radius:2px;font-weight:bold;color:#374044;font-size:14px;cursor:pointer;display:inline-block;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;text-align:center;}
+.button:hover{background:rgba(0,0,0,0.05)}
+.button.primary{color:#fff;border-color:rgba(0,0,0,0.15);background:#0079ff;}
+.button.primary:hover{background:#006de6}
+.button.github{color:#fff;border-color:rgba(0,0,0,0.15);background:#646464;}
+.button.github:hover{background:#535353}
 #results{display:block;max-height:126px;overflow-y:scroll;border:1px solid rgba(102,198,248,0.4);border-top:0;}
 #results ul li{display:block;padding:8px;}
 #results ul li:not(:last-child){border-bottom:1px solid rgba(204,204,204,0.5)}
