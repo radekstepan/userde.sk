@@ -1,57 +1,43 @@
-<div id="header">
-    <div class="wrapper">
+<div id="promo" class="tall">
+    <div class="left">
         <div class="title">userde.sk</div>
-        <div class="menu">
-            <ul>
-                <li><a>Contact support</a></li>
-                <li class="active"><a>Signup</a></li>
-                <li><a>Login</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-<div id="content">
-    <div class="header">
-        <h2>Signup</h2>
-        <p>While we are in private beta, the number of accounts is limited.</p>
+        <a class="link bottom">About the service</a>
     </div>
 
-    <div class="form">
-        <div class="box">
-            <div class="field">
-                <h3>1. GitHub Username</h3>
-                <label>We will populate all the other fields automagically.</label>
-                <input class="input" type="text" placeholder="Type your username here" value="radekstepan" autofocus />
+    <div class="right">
+        <div class="header">
+            <h1>Signup</h1>
+        </div>
+        
+        <div class="form">
+            <div class="box">
+                <div class="field">
+                    <h3>1. GitHub Username</h3>
+                    <input class="input" type="text" placeholder="Type your username here" value="@radekstepan" autofocus />
+                </div>
+            </div>
+            
+            <div class="box">
+                <div class="field">
+                    <h3>2. Contact</h3>
+                    <label>Provide an email so that we can contact you when your account is ready.</label>
+                    <input class="input" type="text" placeholder="Email address" />
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="field">
+                    <h3>3. Message (optional)</h3>
+                    <label>Do you have a special request? Anything we should know?</label>
+                    <textarea class="input" rows=4></textarea>
+                </div>
             </div>
         </div>
 
-        <div class="box">
-            <div class="field">
-                <h3>2. Your name</h3>
-                <label>So that we know how to call you.</label>
-                <input class="input" type="text" placeholder="Type your name here" />
-            </div>
-        </div>
+        <div class="button primary">Send</div>
 
-        <div class="box">
-            <div class="field">
-                <h3>3. Contact</h3>
-                <label>Provide an email so that we can contact you when your account is ready.</label>
-                <input class="input" type="text" placeholder="Email address" />
-            </div>
+        <div class="bottom">
+            <a class="link">Check application status</a>
         </div>
-
-        <div class="box">
-            <div class="field">
-                <h3>4. Message (optional)</h3>
-                <label>Do you have a special request? Anything we should know?</label>
-                <textarea class="input" rows=4 placeholder="Let me in, thanks."></textarea>
-            </div>
-        </div>
-    </div>
-
-    <div class="footer">
-        <div class="button primary">Finish</div>
     </div>
 </div>

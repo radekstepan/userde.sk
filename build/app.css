@@ -16,8 +16,12 @@ h3{margin:0 0 10px 0}
 #header .menu ul li a{color:#6f5f11;padding:10px;}
 #header .menu ul li a:hover{color:#374044}
 #promo{background:#fff;border:1px solid #cecece;margin:0 auto;width:800px;margin-top:80px;margin-bottom:40px;border-top:3px solid #fedb27;}
-#promo .left,#promo .right{float:left;padding:35px;height:360px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:relative}
-#promo .left{background-image:url("img/hires/lighthouse.jpg");background-position:0 -40px;-webkit-background-size:140% auto;-moz-background-size:140% auto;background-size:140% auto;background-repeat:no-repeat;border-right:1px solid #cecece;width:450px;}
+#promo .left,#promo .right{float:left;padding:35px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:relative}
+#promo.short .left,#promo.short .right{height:360px}
+#promo.short .left{background-image:url("img/hires/lighthouse.jpg");background-position:0 -40px;-webkit-background-size:140% auto;-moz-background-size:140% auto;background-size:140% auto}
+#promo.tall .left,#promo.tall .right{height:800px}
+#promo.tall .left{background-image:url("img/hires/traffic.jpg");-webkit-background-size:140% auto;-moz-background-size:140% auto;background-size:140% auto}
+#promo .left{background-repeat:no-repeat;border-right:1px solid #cecece;width:450px;}
 #promo .left .title,#promo .left .link{background:rgba(0,0,0,0.5);padding:4px 6px}
 #promo .left .title{font-weight:bold;color:#fff;font-size:20px;margin-top:50px;margin-bottom:20px;display:inline-block}
 #promo .left .link{color:#fff;border-bottom:1px solid rgba(255,255,255,0.5)}
@@ -26,20 +30,15 @@ h3{margin:0 0 10px 0}
 #promo .right{width:350px;}
 #promo .right .header{margin-top:50px}
 #promo .right h1{margin:0;margin-bottom:20px}
+#promo .right .form{margin-bottom:20px}
 #promo .right .bottom{bottom:35px;left:35px;position:absolute;}
 #promo .right .bottom *:not(:last-child){margin-right:30px}
 #promo:after{clear:both;content:"";display:block}
 #content{background:#fff;border:1px solid #cecece;margin:0 auto;width:800px;margin-top:40px;margin-bottom:40px;}
-#content .input{padding:10px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;border:1px solid #ccc;background:#fcfbf9;color:#374044;}
-#content .input:focus{outline:none;border:1px solid rgba(102,198,248,0.4);font-weight:bold;color:#0079ff}
 #content .header{padding:20px;margin-bottom:10px;background:#f7f7f7;border-bottom:1px solid rgba(102,198,248,0.2);}
 #content .header h2{margin:0}
 #content .header p{opacity:.8;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";filter:alpha(opacity=80);margin-bottom:0}
 #content .form{padding:20px;}
-#content .form .box:not(:first-child){border-top:1px dotted #ccc;margin-top:32px;padding-top:26px}
-#content .form .field:after{clear:both;display:block;content:''}
-#content .form .field label,#content .form .field input,#content .form .field textarea{display:block;width:100%}
-#content .form .field label{margin:10px 0;opacity:.8;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";filter:alpha(opacity=80)}
 #content .form .field .half{width:50%;float:left;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:relative;}
 #content .form .field .half.first{padding-right:40px;border-right:1px solid #ccc;}
 #content .form .field .half.first:after{content:'or';color:#ccc;position:absolute;top:9px;right:-7px;font-style:italic;padding:2px 0;background:#fff}
@@ -50,12 +49,18 @@ h3{margin:0 0 10px 0}
 #content .footer{border-top:1px solid #e2e2e2;padding:20px;}
 #content .footer .button.primary{float:right}
 #content .footer:after{clear:both;display:block;content:''}
+.form .box:not(:first-child){border-top:1px dotted #ccc;margin-top:32px;padding-top:26px}
+.form .field:after{clear:both;display:block;content:''}
+.form .field label,.form .field input,.form .field textarea{display:block;width:100%}
+.form .field label{margin-bottom:10px}
 .button{background:rgba(255,255,255,0.75);padding:8px 22px;-webkit-transition:opacity 0.1s;-moz-transition:opacity 0.1s;-o-transition:opacity 0.1s;-ms-transition:opacity 0.1s;transition:opacity 0.1s;border:1px solid #bfbfbf;-webkit-border-radius:2px;border-radius:2px;font-weight:bold;color:#374044;font-size:14px;cursor:pointer;display:inline-block;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;text-align:center;}
 .button:hover{background:rgba(0,0,0,0.05)}
 .button.primary{color:#fff;border-color:rgba(0,0,0,0.15);background:#0079ff;}
 .button.primary:hover{background:#006de6}
 .button.github{color:#fff;border-color:rgba(0,0,0,0.15);background:#646464;}
 .button.github:hover{background:#535353}
+.input{padding:10px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;border:1px solid #ccc;background:#fcfbf9;color:#374044;}
+.input:focus{outline:none;border:1px solid rgba(102,198,248,0.4);font-weight:bold;color:#0079ff}
 #results{display:block;max-height:126px;overflow-y:scroll;border:1px solid rgba(102,198,248,0.4);border-top:0;}
 #results ul li{display:block;padding:8px;}
 #results ul li:not(:last-child){border-bottom:1px solid rgba(204,204,204,0.5)}
