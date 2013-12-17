@@ -12,10 +12,12 @@ module.exports = (grunt) ->
 
         stylus:
             compile:
-                options:
-                    paths: [ 'src/app.styl' ]
-                files:
-                    'build/app.css': 'src/app.styl'
+                src: [
+                    'src/styles/reset.styl'
+                    'src/styles/app.styl'
+                    'src/styles/forms.styl'
+                ]
+                dest: 'build/app.css'
 
         concat:            
             scripts:
@@ -36,8 +38,9 @@ module.exports = (grunt) ->
                 src: [
                     # Vendor dependencies.
                     'vendor/normalize-css/normalize.css'
-                    # Our style.
-                    'src/fonts.css'
+                    # Fonts.
+                    'src/styles/fonts.css'
+                    # Our compiled styles.
                     'build/app.css'
                 ]
                 dest: 'build/app.bundle.css'

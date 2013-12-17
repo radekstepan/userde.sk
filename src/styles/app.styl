@@ -1,41 +1,6 @@
 @import 'nib'
 
-body
-    font-family: 'Source Sans Pro', sans-serif
-    font-size: 16px
-    color: #374044
-    background: #F8F8F8
-    background: url('img/patterns/squairy_light.png')
-
-ul
-    list-style-type: none
-    margin: 0
-    padding: 0
-
-    li
-        display: inline-block
-
-::-webkit-input-placeholder {
-    font-weight: normal
-}
-
-a
-    cursor: pointer
-
-    &.link
-        color: #0079FF
-        border-bottom: 1px solid rgba(#0079FF, 0.5)
-
-p
-    margin: 6px 0
-
-h2
-    font-size: 22px
-    // color: #424D52
-
-h3
-    margin: 0 0 10px 0
-
+// Header duh.
 #header
     background: #FEDB27
     border-bottom: 1px solid #CDAC19
@@ -55,8 +20,6 @@ h3
         font-size: 20px
 
     .menu
-        // display: none
-
         ul
             li
                 &:not(:last-child)
@@ -72,13 +35,18 @@ h3
                     &:hover
                         color: #374044
 
-#promo
-    background: #FFF
-    border: 1px solid #CECECE
-    margin: 0 auto
-    width: 800px
+// A generic box style.
+#promo, #content
+    &.box
+        background: #FFF
+        border: 1px solid #CECECE
+        margin: 0 auto
+        margin-bottom: 40px
+        width: 800px
+
+// Boxes without a header.
+#promo.box
     margin-top: 80px
-    margin-bottom: 40px
     border-top: 3px solid #FEDB27
 
     $box_padding = 35px
@@ -91,8 +59,8 @@ h3
 
     $box_top_height = 50px
 
-    // Login
-    &.short
+    // Login.
+    &.login
         .left, .right
             height: 360px
         
@@ -101,8 +69,8 @@ h3
             background-position: 0 -40px
             background-size: 140% auto
 
-    // Signup
-    &.tall
+    // Signup.
+    &.signup
         .left, .right
             height: 800px
 
@@ -121,7 +89,6 @@ h3
 
         .title
             font-weight: bold
-            // color: #121004
             color: #FFF
             font-size: 20px
             margin-top: $box_top_height
@@ -132,6 +99,7 @@ h3
             color: #FFF
             border-bottom: 1px solid rgba(#FFF, 0.5)
 
+        // Links and content at the foot.
         .bottom
                 bottom: $box_padding - 4px
                 left: $box_padding - 6px
@@ -153,6 +121,7 @@ h3
         .form
             margin-bottom: 20px
 
+        // Links and content at the foot.
         .bottom
             bottom: $box_padding
             left: $box_padding
@@ -166,14 +135,9 @@ h3
         content: ""
         display: block
 
-#content
-    background: #FFF
-    border: 1px solid #CECECE
-    margin: 0 auto
-    width: 800px
+// Inner app pages.
+#content.box
     margin-top: 40px
-    margin-bottom: 40px
-    // box-shadow: 0px 0px 0px 6px rgba(255,255,255,0.2)
 
     .header
         padding: 20px
@@ -193,6 +157,7 @@ h3
         padding: 20px
 
         .field
+            // Either-or field.
             .half
                 width: 50%
                 float: left
@@ -216,6 +181,7 @@ h3
                 &.second
                     padding-left: 40px
 
+            // Show textarea preview.
             .preview
                 float: right
                 cursor: pointer
@@ -235,6 +201,7 @@ h3
                     &:before
                         opacity: 0.75
 
+    // Footer showing a submit button.
     .footer
         border-top: 1px solid #E2E2E2
         padding: 20px
@@ -247,86 +214,13 @@ h3
             display: block
             content: ''
 
-.form
-    .box
-        &:not(:first-child)
-            border-top: 1px dotted #CCC
-            margin-top: 32px
-            padding-top: 26px
-
-    .field
-        &:after
-            clear: both
-            display: block
-            content: ''
-
-        label, input, textarea
-            display: block
-            width: 100%
-
-        label
-            margin-bottom: 10px
-
-.button
-    background: rgba(255, 255, 255, 0.75)
-    padding: 8px 22px
-    transition: opacity 0.1s
-    border: 1px solid #BFBFBF
-    border-radius: 2px
-    font-weight: bold
-    color: #374044
-    font-size: 14px
-    cursor: pointer
-    display: inline-block
-    user-select: none
-    text-align: center
-
-    &:hover
-        background: rgba(0,0,0,0.05)
-
-    &.primary
-        color: #FFF
-        border-color: rgba(0,0,0,0.15)
-        background: #0079FF
-
-        &:hover
-            background: #006DE6
-
-    &.github
-        color: #FFF
-        border-color: rgba(0,0,0,0.15)
-        background: lighten(#535353, 10%)
-
-        &:hover
-            background: #535353
-
-.input
-    padding: 10px
-    box-sizing: border-box
-    border: 1px solid #CCC
-    // box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05)
-    // box-shadow: 1px 1px 0 #FFF
-    background: lighten(#FAF8F5, 40%)
-    color: #374044
-
-    &:focus
-        outline: none
-        // border: 1px solid #66C6F8
-        border: 1px solid rgba(#66C6F8, 40%)
-        // box-shadow: inset 2px 2px 4px rgba(#66C6F8, 0.1)
-        // background: rgba(#66C6F8, 0.02)
-        font-weight: bold
-        color: #0079FF
-
+// Search results listing.
 #results
     display: block
     max-height: 126px
     overflow-y: scroll
-    // box-shadow: inset -2px -2px 4px rgba(0,0,0,0.05)
-    // border-bottom: 1px solid #CCC
     border: 1px solid rgba(#66C6F8, 40%)
     border-top: 0
-    // margin-top: 6px
 
     ul
         li
@@ -367,7 +261,6 @@ h3
         float: right
 
         &.solved
-            //color: #FFF
             background: #FEDB27
 
         &.discussed

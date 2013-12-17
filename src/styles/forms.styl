@@ -1,0 +1,70 @@
+// Container.
+.form
+    .box
+        &:not(:first-child)
+            border-top: 1px dotted #CCC
+            margin-top: 32px
+            padding-top: 26px
+
+    .field
+        &:after
+            clear: both
+            display: block
+            content: ''
+
+        label, input, textarea
+            display: block
+            width: 100%
+
+        label
+            margin-bottom: 10px
+
+// An input/textarea field.
+.input
+    padding: 10px
+    box-sizing: border-box
+    border: 1px solid #CCC
+    background: lighten(#FAF8F5, 40%)
+    color: #374044
+
+    &:focus
+        outline: none
+        border: 1px solid rgba(#66C6F8, 40%)
+        font-weight: bold
+        color: #0079FF
+
+// A button.
+.button
+    background: rgba(255, 255, 255, 0.75)
+    padding: 8px 22px
+    transition: opacity 0.1s
+    border: 1px solid #BFBFBF
+    border-radius: 2px
+    font-weight: bold
+    color: #374044
+    font-size: 14px
+    cursor: pointer
+    display: inline-block
+    user-select: none
+    text-align: center
+
+    &:hover
+        background: rgba(0,0,0,0.05)
+
+    // Primary.
+    &.primary
+        color: #FFF
+        border-color: rgba(0,0,0,0.15)
+        background: #0079FF
+
+        &:hover
+            background: #006DE6
+
+    // Secondary.
+    &.secondary, &.github
+        color: #FFF
+        border-color: rgba(0,0,0,0.15)
+        background: lighten(#535353, 10%)
+
+        &:hover
+            background: #535353
