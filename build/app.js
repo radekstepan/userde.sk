@@ -211,228 +211,61 @@
     // app.coffee
     root.require.register('app/src/app.js', function(exports, require, module) {
     
-      var Ember;
+      var Controller, template;
       
-      Ember = require('./core/deps').Ember;
+      template = require('./templates/login');
       
-      module.exports = function() {
-        var App;
-        App = Ember.Application.create();
-        return App.Router.map(function() {
-          return this.resource('index', {
-            path: '/'
-          });
-        });
-      };
+      can.view.mustache('layout', template);
       
-    });
-
-    
-    // deps.coffee
-    root.require.register('app/src/core/deps.js', function(exports, require, module) {
-    
-      module.exports = {
-        _: _,
-        $: $,
-        Backbone: Backbone,
-        Ember: Ember
-      };
-      
-    });
-
-    
-    // router.coffee
-    root.require.register('app/src/core/router.js', function(exports, require, module) {
-    
-      var Backbone;
-      
-      Backbone = require('./deps').Backbone;
+      Controller = can.Control({
+        init: function(el, opts) {
+          return el.html(can.view('layout', {
+            'title': 'Hello world!'
+          }));
+        },
+        'route': function() {
+          return console.log('/');
+        },
+        'issue/new route': function() {
+          return console.log('/issue/new');
+        },
+        'account/signup route': function() {
+          return console.log('/account/signup');
+        },
+        'account/login route': function() {
+          return console.log('/account/login');
+        },
+        'body click': function(el, evt) {
+          return console.log('click event');
+        }
+      });
       
       module.exports = function() {
-        var router;
-        router = new Backbone.Router({
-          routes: {
-            'issues/new': 'issue',
-            'account/new': 'signup',
-            'account/login': 'login',
-            '': 'index'
-          },
-          index: function() {
-            return console.log('/');
-          },
-          issue: function() {
-            return console.log('/issue');
-          },
-          signup: function() {
-            return console.log('/signup');
-          },
-          login: function() {
-            return console.log('/login');
-          }
-        });
-        Backbone.history.start();
-        return router;
+        new Controller('body', {});
+        return can.route.ready();
       };
       
     });
 
     
-    // app.eco
+    // app.mustache
     root.require.register('app/src/templates/app.js', function(exports, require, module) {
     
-      module.exports = function(__obj) {
-        if (!__obj) __obj = {};
-        var __out = [], __capture = function(callback) {
-          var out = __out, result;
-          __out = [];
-          callback.call(this);
-          result = __out.join('');
-          __out = out;
-          return __safe(result);
-        }, __sanitize = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else if (typeof value !== 'undefined' && value != null) {
-            return __escape(value);
-          } else {
-            return '';
-          }
-        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-        __safe = __obj.safe = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else {
-            if (!(typeof value !== 'undefined' && value != null)) value = '';
-            var result = new String(value);
-            result.ecoSafe = true;
-            return result;
-          }
-        };
-        if (!__escape) {
-          __escape = __obj.escape = function(value) {
-            return ('' + value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-          };
-        }
-        (function() {
-          (function() {
-            __out.push('<div id="header">\n    <div class="wrapper">\n        <div class="title">userde.sk/intermine</div>\n        <div class="menu">\n            <ul>\n                <li class="active"><a>Contact support</a></li>\n                <li><a>Signup</a></li>\n                <li><a>Login</a></li>\n            </ul>\n        </div>\n    </div>\n</div>\n\n<div id="content">\n    <div class="header">\n        <h2>How can we help?</h2>\n        <p>Send us bugs you have encountered or suggestions.</p>\n    </div>\n\n    <div class="form">\n        <div class="box">\n            <div class="field">\n                <h3>1. Title</h3>\n                <label>What question would you like to ask?</label>\n                <input class="input" type="text" placeholder="Type your question here" value="jquery second parent" autofocus />\n            </div>\n\n            <div id="results">\n                <ul>\n                    <li><a class="link"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class="ago">3 weeks ago</span></li>\n                    <li><span class="tag solved">solved</span><a class="link">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class="ago">Today</span></li>\n                    <li><span class="tag discussed">discussed</span><a class="link">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class="ago">A year ago</span></li>\n                    <li><a class="link"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>\n                    <li><a class="link"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>\n                    <li><a class="link"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>\n                    <li><a class="link">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>\n                    <li><a class="link">always getting error in <code>StagePickLevel</code> class</a></li>\n                    <li><a class="link"><span>jquery</span> select all parents</a></li>\n                </ul>\n            </div>\n        </div>\n\n        <div class="box">\n            <div class="field">\n                <h3>2. Description</h3>\n                <div>\n                    <span class="preview">Preview</span>\n                    <label>Describe the question you are asking. You can use <a class="link">GitHub Flavored Markdown</a>.</label>\n                </div>\n                <textarea class="input" rows=4 placeholder="Make it simple and easy to understand"></textarea>\n            </div>\n        </div>\n\n        <div class="box">\n            <div class="field">\n                <h3>3. Contact</h3>\n                <label>Provide either an email or connect with <a class="link">GitHub</a>.</label>\n                <div class="half first">\n                    <input class="input" type="text" placeholder="Email address" />\n                </div>\n                <div class="half second">\n                    <div class="button github">Connect with GitHub</div>\n                </div>\n            </div>\n        </div>\n    </div>\n\n    <div class="footer">\n        <div class="button primary">Finish</div>\n    </div>\n</div>');
-          
-          }).call(this);
-          
-        }).call(__obj);
-        __obj.safe = __objSafe, __obj.escape = __escape;
-        return __out.join('');
-      }
+      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div class=\"title\">userde.sk/intermine</div>","        <div class=\"menu\">","            <ul>","                <li class=\"active\"><a>Contact support</a></li>","                <li><a>Signup</a></li>","                <li><a>Login</a></li>","            </ul>","        </div>","    </div>","</div>","","<div id=\"content\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input\" type=\"text\" placeholder=\"Type your question here\" value=\"jquery second parent\" autofocus />","            </div>","","            <div id=\"results\">","                <ul>","                    <li><a class=\"link\"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class=\"ago\">3 weeks ago</span></li>","                    <li><span class=\"tag solved\">solved</span><a class=\"link\">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class=\"ago\">Today</span></li>","                    <li><span class=\"tag discussed\">discussed</span><a class=\"link\">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class=\"ago\">A year ago</span></li>","                    <li><a class=\"link\"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>","                    <li><a class=\"link\"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>","                    <li><a class=\"link\"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>","                    <li><a class=\"link\">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>","                    <li><a class=\"link\">always getting error in <code>StagePickLevel</code> class</a></li>","                    <li><a class=\"link\"><span>jquery</span> select all parents</a></li>","                </ul>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                <div class=\"half first\">","                    <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                </div>","                <div class=\"half second\">","                    <div class=\"button github\">Connect with GitHub</div>","                </div>","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
     });
 
     
-    // login.eco
+    // login.mustache
     root.require.register('app/src/templates/login.js', function(exports, require, module) {
     
-      module.exports = function(__obj) {
-        if (!__obj) __obj = {};
-        var __out = [], __capture = function(callback) {
-          var out = __out, result;
-          __out = [];
-          callback.call(this);
-          result = __out.join('');
-          __out = out;
-          return __safe(result);
-        }, __sanitize = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else if (typeof value !== 'undefined' && value != null) {
-            return __escape(value);
-          } else {
-            return '';
-          }
-        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-        __safe = __obj.safe = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else {
-            if (!(typeof value !== 'undefined' && value != null)) value = '';
-            var result = new String(value);
-            result.ecoSafe = true;
-            return result;
-          }
-        };
-        if (!__escape) {
-          __escape = __obj.escape = function(value) {
-            return ('' + value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-          };
-        }
-        (function() {
-          (function() {
-            __out.push('<div id="promo" class="login box">\n    <div class="left">\n        <div class="title">userde.sk</div>\n        <a class="link bottom">About the service</a>\n    </div>\n\n    <div class="right">\n        <div class="header">\n            <h1>Account Login</h1>\n        </div>\n        \n        <div class="button primary">Login using GitHub</div>\n        \n        <div class="bottom">\n            <a class="link">New account</a>\n            <a class="link">Login problems?</a>\n        </div>\n    </div>\n</div>');
-          
-          }).call(this);
-          
-        }).call(__obj);
-        __obj.safe = __objSafe, __obj.escape = __escape;
-        return __out.join('');
-      }
+      module.exports = ["<div id=\"promo\" class=\"login box\">","    <div class=\"left\">","        <div class=\"title\">userde.sk</div>","        <a class=\"link bottom\">About the service</a>","    </div>","","    <div class=\"right\">","        <div class=\"header\">","            <h1>Account Login</h1>","        </div>","        ","        <div class=\"button primary\">Login using GitHub</div>","        ","        <div class=\"bottom\">","            <a class=\"link\">New account</a>","            <a class=\"link\">Login problems?</a>","        </div>","    </div>","</div>"].join("\n");
     });
 
     
-    // signup.eco
+    // signup.mustache
     root.require.register('app/src/templates/signup.js', function(exports, require, module) {
     
-      module.exports = function(__obj) {
-        if (!__obj) __obj = {};
-        var __out = [], __capture = function(callback) {
-          var out = __out, result;
-          __out = [];
-          callback.call(this);
-          result = __out.join('');
-          __out = out;
-          return __safe(result);
-        }, __sanitize = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else if (typeof value !== 'undefined' && value != null) {
-            return __escape(value);
-          } else {
-            return '';
-          }
-        }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-        __safe = __obj.safe = function(value) {
-          if (value && value.ecoSafe) {
-            return value;
-          } else {
-            if (!(typeof value !== 'undefined' && value != null)) value = '';
-            var result = new String(value);
-            result.ecoSafe = true;
-            return result;
-          }
-        };
-        if (!__escape) {
-          __escape = __obj.escape = function(value) {
-            return ('' + value)
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;');
-          };
-        }
-        (function() {
-          (function() {
-            __out.push('<div id="promo" class="signup box">\n    <div class="left">\n        <div class="title">userde.sk</div>\n        <a class="link bottom">About the service</a>\n    </div>\n\n    <div class="right">\n        <div class="header">\n            <h1>Signup</h1>\n        </div>\n        \n        <div class="form">\n            <div class="box">\n                <div class="field">\n                    <h3>1. GitHub Username</h3>\n                    <input class="input" type="text" placeholder="Type your username here" value="@radekstepan" autofocus />\n                </div>\n            </div>\n            \n            <div class="box">\n                <div class="field">\n                    <h3>2. Contact</h3>\n                    <label>Provide an email so that we can contact you when your account is ready.</label>\n                    <input class="input" type="text" placeholder="Email address" />\n                </div>\n            </div>\n\n            <div class="box">\n                <div class="field">\n                    <h3>3. Message (optional)</h3>\n                    <label>Do you have a special request? Anything we should know?</label>\n                    <textarea class="input" rows=4></textarea>\n                </div>\n            </div>\n        </div>\n\n        <div class="button primary">Send</div>\n\n        <div class="bottom">\n            <a class="link">Check application status</a>\n        </div>\n    </div>\n</div>');
-          
-          }).call(this);
-          
-        }).call(__obj);
-        __obj.safe = __objSafe, __obj.escape = __escape;
-        return __out.join('');
-      }
+      module.exports = ["<div id=\"promo\" class=\"signup box\">","    <div class=\"left\">","        <div class=\"title\">userde.sk</div>","        <a class=\"link bottom\">About the service</a>","    </div>","","    <div class=\"right\">","        <div class=\"header\">","            <h1>Signup</h1>","        </div>","        ","        <div class=\"form\">","            <div class=\"box\">","                <div class=\"field\">","                    <h3>1. GitHub Username</h3>","                    <input class=\"input\" type=\"text\" placeholder=\"Type your username here\" value=\"@radekstepan\" autofocus />","                </div>","            </div>","            ","            <div class=\"box\">","                <div class=\"field\">","                    <h3>2. Contact</h3>","                    <label>Provide an email so that we can contact you when your account is ready.</label>","                    <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                </div>","            </div>","","            <div class=\"box\">","                <div class=\"field\">","                    <h3>3. Message (optional)</h3>","                    <label>Do you have a special request? Anything we should know?</label>","                    <textarea class=\"input\" rows=4></textarea>","                </div>","            </div>","        </div>","","        <div class=\"button primary\">Send</div>","","        <div class=\"bottom\">","            <a class=\"link\">Check application status</a>","        </div>","    </div>","</div>"].join("\n");
     });
   })();
 

@@ -2,10 +2,9 @@
     "name": "userde.sk",
     "version": "0.0.0",
     "dependencies": {
-        "async": "0.2.5",
-        "ember": "1.2.0",
         "jquery": "2.0.3",
         "lodash": "2.3.0",
+        "canjs": "2.0.3",
         "normalize-css": "2.1.3"
     }
 }

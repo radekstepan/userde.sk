@@ -2,13 +2,25 @@ module.exports = (grunt) ->
     grunt.initConfig
         pkg: grunt.file.readJSON("package.json")
 
+        # handlebars:
+        #     templates:
+        #         src: [ 'src/**/*.hbs' ]
+        #         dest: 'build/templates.js'
+        #         options:
+        #             node: yes
+        #             namespace: 'JST'
+        
         apps_c:
             commonjs:
-                src: [ 'src/**/*.{coffee,js,eco}' ]
+                src: [ 'src/**/*.{coffee,js,eco,mustache}' ]
                 dest: 'build/app.js'
                 options:
                     main: 'src/app.coffee'
                     name: 'app'
+
+        # clean: [
+        #     'build/templates.js'
+        # ]
 
         stylus:
             compile:
@@ -24,11 +36,8 @@ module.exports = (grunt) ->
                 src: [
                     # Vendor dependencies.
                     'vendor/jquery/jquery.js'
-                    'vendor/handlebars/handlebars.js'
-                    'vendor/ember/ember.js'
-                    
                     'vendor/lodash/dist/lodash.js'
-                    'vendor/async/lib/async.js'
+                    'vendor/canjs/can.jquery.js'
                     # Our app.
                     'build/app.js'
                 ]
@@ -77,6 +86,7 @@ module.exports = (grunt) ->
                     # Debug.
                     debug: yes
 
+    #grunt.loadNpmTasks('grunt-contrib-handlebars')
     grunt.loadNpmTasks('grunt-apps-c')
     grunt.loadNpmTasks('grunt-contrib-stylus')
     grunt.loadNpmTasks('grunt-contrib-concat')
@@ -84,11 +94,14 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks('grunt-contrib-cssmin')
     grunt.loadNpmTasks('grunt-notify')
     grunt.loadNpmTasks('grunt-contrib-connect')
+    #grunt.loadNpmTasks('grunt-contrib-clean')
 
     grunt.task.run('notify_hooks')
 
     grunt.registerTask('default', [
+        #'handlebars'
         'apps_c'
+        #'clean'
         'stylus'
         'concat'
     ])
