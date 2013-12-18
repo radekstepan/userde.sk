@@ -1,22 +1,21 @@
-template = require './templates/login'
-can.view.mustache 'layout', template
+do require './core/templates'
+canController = require './core/controller'
 
-Controller = can.Control
+class Controller extends canController
+
     init: (el, opts) ->
-        el.html can.view 'layout',
-            'title': 'Hello world!'
 
-    'route': ->
+    route: ->
         console.log '/'
 
     'issue/new route': ->
-        console.log '/issue/new'
+        @element.html can.view 'issue'
 
     'account/signup route': ->
-        console.log '/account/signup'
+        @element.html can.view 'signup'
 
     'account/login route': ->
-        console.log '/account/login'
+        @element.html can.view 'login'
 
     'body click': (el, evt) ->
         console.log 'click event'
