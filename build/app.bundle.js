@@ -22525,63 +22525,94 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     // app.coffee
     root.require.register('app/src/app.js', function(exports, require, module) {
     
-      var Controller, canController, _ref,
+      var Header, canComponent, canControl, _ref,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
-      require('./core/templates')();
+      canControl = require('./core/control');
       
-      canController = require('./core/controller');
+      canComponent = require('./core/component');
       
-      Controller = (function(_super) {
-        __extends(Controller, _super);
+      Header = (function(_super) {
+        __extends(Header, _super);
       
-        function Controller() {
-          _ref = Controller.__super__.constructor.apply(this, arguments);
+        function Header() {
+          _ref = Header.__super__.constructor.apply(this, arguments);
           return _ref;
         }
       
-        Controller.prototype.init = function(el, opts) {};
+        Header.prototype.tag = 'app-header';
       
-        Controller.prototype.route = function() {
-          return console.log('/');
+        Header.prototype.template = require('./templates/header');
+      
+        Header.prototype.scope = {
+          menu: function() {
+            return [
+              {
+                'name': 'Submit a new issue'
+              }, {
+                'name': 'Signup'
+              }, {
+                'name': 'Login'
+              }
+            ];
+          },
+          visible: true
         };
       
-        Controller.prototype['issue/new route'] = function() {
-          return this.element.html(can.view('issue'));
+        Header.prototype.helpers = {
+          link: function(name) {
+            return can.route.link(name, {});
+          }
         };
       
-        Controller.prototype['account/signup route'] = function() {
-          return this.element.html(can.view('signup'));
-        };
+        return Header;
       
-        Controller.prototype['account/login route'] = function() {
-          return this.element.html(can.view('login'));
-        };
-      
-        Controller.prototype['body click'] = function(el, evt) {
-          return console.log('click event');
-        };
-      
-        return Controller;
-      
-      })(canController);
+      })(canComponent);
       
       module.exports = function() {
-        new Controller('body', {});
-        return can.route.ready();
+        can.route('account/login');
+        can.route.ready();
+        return new Header('#header');
       };
       
     });
 
     
-    // controller.coffee
-    root.require.register('app/src/core/controller.js', function(exports, require, module) {
+    // component.coffee
+    root.require.register('app/src/core/component.js', function(exports, require, module) {
     
-      var canController;
+      var canComponent;
       
-      canController = (function() {
-        function canController(el, opts) {
+      canComponent = (function() {
+        function canComponent() {
+          var k, opts, v;
+          opts = {};
+          for (k in this) {
+            v = this[k];
+            if (k !== 'constructor') {
+              opts[k] = v;
+            }
+          }
+          can.Component.extend(opts);
+        }
+      
+        return canComponent;
+      
+      })();
+      
+      module.exports = canComponent;
+      
+    });
+
+    
+    // control.coffee
+    root.require.register('app/src/core/control.js', function(exports, require, module) {
+    
+      var canControl;
+      
+      canControl = (function() {
+        function canControl(el, opts) {
           var Ctrl, k, v;
           opts = {};
           for (k in this) {
@@ -22594,37 +22625,40 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           new Ctrl(el, opts);
         }
       
-        return canController;
+        return canControl;
       
       })();
       
-      module.exports = canController;
+      module.exports = canControl;
       
     });
 
     
-    // templates.coffee
-    root.require.register('app/src/core/templates.js', function(exports, require, module) {
+    // header.mustache
+    root.require.register('app/src/templates/header.js', function(exports, require, module) {
     
-      module.exports = function() {
-        var name, tml, _i, _len, _ref, _results;
-        _ref = ['issue', 'login', 'signup'];
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          name = _ref[_i];
-          tml = require("../templates/" + name);
-          _results.push(can.view.mustache(name, tml));
-        }
-        return _results;
-      };
-      
+      module.exports = ["{{ #if visible }}","<div id=\"header\">","    <div class=\"wrapper\">","        <div class=\"title\">userde.sk/intermine</div>","        <div class=\"menu\">","            <ul>","                {{ #each menu }}","                <li><a class=\"{{ #if active }}active{{ /if }}\">{{ name }}</a></li>","                {{ /each }}","            </ul>","        </div>","    </div>","</div>","{{ /if }}"].join("\n");
+    });
+
+    
+    // index.mustache
+    root.require.register('app/src/templates/index.js', function(exports, require, module) {
+    
+      module.exports = ["Index page"].join("\n");
     });
 
     
     // issue.mustache
     root.require.register('app/src/templates/issue.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div class=\"title\">userde.sk/intermine</div>","        <div class=\"menu\">","            <ul>","                <li class=\"active\"><a>Contact support</a></li>","                <li><a>Signup</a></li>","                <li><a>Login</a></li>","            </ul>","        </div>","    </div>","</div>","","<div id=\"content\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input\" type=\"text\" placeholder=\"Type your question here\" value=\"jquery second parent\" autofocus />","            </div>","","            <div id=\"results\">","                <ul>","                    <li><a class=\"link\"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class=\"ago\">3 weeks ago</span></li>","                    <li><span class=\"tag solved\">solved</span><a class=\"link\">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class=\"ago\">Today</span></li>","                    <li><span class=\"tag discussed\">discussed</span><a class=\"link\">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class=\"ago\">A year ago</span></li>","                    <li><a class=\"link\"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>","                    <li><a class=\"link\"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>","                    <li><a class=\"link\"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>","                    <li><a class=\"link\">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>","                    <li><a class=\"link\">always getting error in <code>StagePickLevel</code> class</a></li>","                    <li><a class=\"link\"><span>jquery</span> select all parents</a></li>","                </ul>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                <div class=\"half first\">","                    <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                </div>","                <div class=\"half second\">","                    <div class=\"button github\">Connect with GitHub</div>","                </div>","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"header\"></div>","","<div id=\"content\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input\" type=\"text\" placeholder=\"Type your question here\" value=\"jquery second parent\" autofocus />","            </div>","","            <div id=\"results\">","                <ul>","                    <li><a class=\"link\"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class=\"ago\">3 weeks ago</span></li>","                    <li><span class=\"tag solved\">solved</span><a class=\"link\">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class=\"ago\">Today</span></li>","                    <li><span class=\"tag discussed\">discussed</span><a class=\"link\">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class=\"ago\">A year ago</span></li>","                    <li><a class=\"link\"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>","                    <li><a class=\"link\"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>","                    <li><a class=\"link\"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>","                    <li><a class=\"link\">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>","                    <li><a class=\"link\">always getting error in <code>StagePickLevel</code> class</a></li>","                    <li><a class=\"link\"><span>jquery</span> select all parents</a></li>","                </ul>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                <div class=\"half first\">","                    <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                </div>","                <div class=\"half second\">","                    <div class=\"button github\">Connect with GitHub</div>","                </div>","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
+    });
+
+    
+    // layout.mustache
+    root.require.register('app/src/templates/layout.js', function(exports, require, module) {
+    
+      module.exports = ["<app-header></app-header>"].join("\n");
     });
 
     
