@@ -22525,7 +22525,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     // app.coffee
     root.require.register('app/src/app.js', function(exports, require, module) {
     
-      var Header, canComponent, canControl, _ref,
+      var Header, Layout, Routing, account, canComponent, canControl, showHeader, _ref, _ref1, _ref2,
         __hasProp = {}.hasOwnProperty,
         __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
       
@@ -22533,47 +22533,100 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       
       canComponent = require('./core/component');
       
+      account = can.compute('intermine');
+      
+      showHeader = can.compute(true);
+      
+      Routing = (function(_super) {
+        __extends(Routing, _super);
+      
+        function Routing() {
+          _ref = Routing.__super__.constructor.apply(this, arguments);
+          return _ref;
+        }
+      
+        Routing.prototype['route'] = function() {
+          return showHeader(true);
+        };
+      
+        Routing.prototype['account/login route'] = function() {
+          return showHeader(false);
+        };
+      
+        return Routing;
+      
+      })(canControl);
+      
+      Layout = (function(_super) {
+        __extends(Layout, _super);
+      
+        function Layout() {
+          _ref1 = Layout.__super__.constructor.apply(this, arguments);
+          return _ref1;
+        }
+      
+        Layout.prototype.template = require('./templates/layout');
+      
+        Layout.prototype.init = function(el, options) {
+          return this.element.html(can.view.mustache(this.template));
+        };
+      
+        return Layout;
+      
+      })(canControl);
+      
       Header = (function(_super) {
         __extends(Header, _super);
       
         function Header() {
-          _ref = Header.__super__.constructor.apply(this, arguments);
-          return _ref;
+          _ref2 = Header.__super__.constructor.apply(this, arguments);
+          return _ref2;
         }
       
         Header.prototype.tag = 'app-header';
       
         Header.prototype.template = require('./templates/header');
       
-        Header.prototype.scope = {
-          menu: function() {
-            return [
-              {
-                'name': 'Submit a new issue'
-              }, {
-                'name': 'Signup'
-              }, {
-                'name': 'Login'
-              }
-            ];
-          },
-          visible: true
+        Header.prototype.init = function() {
+          var _this = this;
+          return can.route.bind('change', function(ev, attr, how, newURL, oldURL) {
+            return _this.scope.menu.each(function(item) {
+              return item.attr('active', item.attr('url') === newURL);
+            });
+          });
         };
       
-        Header.prototype.helpers = {
-          link: function(name) {
-            return can.route.link(name, {});
-          }
+        Header.prototype.scope = {
+          showHeader: function() {
+            return showHeader();
+          },
+          account: function() {
+            return account();
+          },
+          menu: [
+            {
+              'url': 'issue',
+              'label': 'Submit a new issue'
+            }, {
+              'url': 'account/signup',
+              'label': 'Signup'
+            }, {
+              'url': 'account/login',
+              'label': 'Login'
+            }
+          ]
         };
       
         return Header;
       
       })(canComponent);
       
+      new Header();
+      
       module.exports = function() {
-        can.route('account/login');
-        can.route.ready();
-        return new Header('#header');
+        new Layout('body');
+        new Routing();
+        return can.route.ready();
       };
       
     });
@@ -22637,14 +22690,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     // header.mustache
     root.require.register('app/src/templates/header.js', function(exports, require, module) {
     
-      module.exports = ["{{ #if visible }}","<div id=\"header\">","    <div class=\"wrapper\">","        <div class=\"title\">userde.sk/intermine</div>","        <div class=\"menu\">","            <ul>","                {{ #each menu }}","                <li><a class=\"{{ #if active }}active{{ /if }}\">{{ name }}</a></li>","                {{ /each }}","            </ul>","        </div>","    </div>","</div>","{{ /if }}"].join("\n");
-    });
-
-    
-    // index.mustache
-    root.require.register('app/src/templates/index.js', function(exports, require, module) {
-    
-      module.exports = ["Index page"].join("\n");
+      module.exports = ["{{ #if showHeader }}","<div id=\"header\">","    <div class=\"wrapper\">","        <div class=\"title\">userde.sk/{{ account }}</div>","        <div class=\"menu\">","            <ul>","                {{ #menu }}","                <li class=\"{{ #active }}active{{ /active }}\">","                    <a href=\"{{ url }}\">{{ label }}</a>","                </li>","                {{ /menu }}","            </ul>","        </div>","    </div>","</div>","{{ /if }}"].join("\n");
     });
 
     

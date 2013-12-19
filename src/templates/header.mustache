@@ -1,12 +1,14 @@
-{{ #if visible }}
+{{ #if showHeader }}
 <div id="header">
     <div class="wrapper">
-        <div class="title">userde.sk/intermine</div>
+        <div class="title">userde.sk/{{ account }}</div>
         <div class="menu">
             <ul>
-                {{ #each menu }}
-                <li><a class="{{ #if active }}active{{ /if }}">{{ name }}</a></li>
-                {{ /each }}
+                {{ #menu }}
+                <li class="{{ #active }}active{{ /active }}">
+                    <a href="{{ url }}">{{ label }}</a>
+                </li>
+                {{ /menu }}
             </ul>
         </div>
     </div>
