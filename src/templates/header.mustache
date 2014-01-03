@@ -1,5 +1,10 @@
 <div id="header">
     <div class="wrapper">
+        <div class="user">
+        {{ #isLoggedIn }}
+            <a class="link logout">Logout</a> {{ user.value.displayName }}
+        {{ /isLoggedIn }}
+        </div>
         <div class="title">userde.sk/{{ account.value }}</div>
         <div class="menu">
             <!--

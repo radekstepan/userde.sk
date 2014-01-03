@@ -28,18 +28,10 @@ Routing = can.Control
 module.exports = (opts) ->
     # Which account?
     account opts.account
+    
+    # New client.
+    firebase.attr 'client': new Firebase "https://#{opts.firebase_root}.firebaseio.com"
 
     # Start routing.
     new Routing opts.el
     do can.route.ready
-
-    return
-
-    # New client.
-    firebase.attr 'client': new Firebase "https://#{opts.firebase_root}.firebaseio.com"
-
-    # GitHub login.
-    firebase.login (err, obj) ->
-        throw err if err
-        # Set the new user.
-        user obj

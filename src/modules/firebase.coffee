@@ -1,3 +1,7 @@
+user = require './user'
+
+auth = null
+
 module.exports = new can.Map
 
     client: null
@@ -5,6 +9,15 @@ module.exports = new can.Map
     login: (cb, provider='github') ->
         return cb 'Client is not setup' unless @client
         
-        auth = new FirebaseSimpleLogin @client, cb
+        do auth?.logout
+
+        auth = new FirebaseSimpleLogin @client, (err, obj) ->
+            user obj
+            cb err
         
-        auth.login provider
+        auth.login provider,
+            'rememberMe': yes # 30 days
+
+    logout: ->
+        do auth?.logout
+        user {}

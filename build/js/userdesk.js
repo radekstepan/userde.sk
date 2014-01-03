@@ -246,18 +246,11 @@
       
       module.exports = function(opts) {
         account(opts.account);
-        new Routing(opts.el);
-        can.route.ready();
-        return;
         firebase.attr({
           'client': new Firebase("https://" + opts.firebase_root + ".firebaseio.com")
         });
-        return firebase.login(function(err, obj) {
-          if (err) {
-            throw err;
-          }
-          return user(obj);
-        });
+        new Routing(opts.el);
+        return can.route.ready();
       };
       
     });
@@ -266,9 +259,13 @@
     // header.coffee
     root.require.register('userde.sk/src/components/header.js', function(exports, require, module) {
     
-      var account;
+      var account, firebase, user;
       
       account = require('../modules/account');
+      
+      user = require('../modules/user');
+      
+      firebase = require('../modules/firebase');
       
       module.exports = can.Component.extend({
         tag: 'app-header',
@@ -277,8 +274,23 @@
           return {
             'account': {
               'value': account
+            },
+            'user': {
+              'value': user
             }
           };
+        },
+        events: {
+          '.link.logout click': firebase.logout
+        },
+        helpers: {
+          'isLoggedIn': function(opts) {
+            if (_.has(user(), 'username')) {
+              return opts.fn(this);
+            } else {
+              return opts.inverse(this);
+            }
+          }
         }
       });
       
@@ -288,9 +300,22 @@
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
+      var firebase;
+      
+      firebase = require('../modules/firebase');
+      
       module.exports = can.Component.extend({
         tag: 'app-submit',
-        template: require('../templates/submit')
+        template: require('../templates/submit'),
+        events: {
+          '.button.github click': function() {
+            return firebase.login(function(err) {
+              if (err) {
+                throw err;
+              }
+            });
+          }
+        }
       });
       
     });
@@ -307,18 +332,37 @@
     // firebase.coffee
     root.require.register('userde.sk/src/modules/firebase.js', function(exports, require, module) {
     
+      var auth, user;
+      
+      user = require('./user');
+      
+      auth = null;
+      
       module.exports = new can.Map({
         client: null,
         login: function(cb, provider) {
-          var auth;
           if (provider == null) {
             provider = 'github';
           }
           if (!this.client) {
             return cb('Client is not setup');
           }
-          auth = new FirebaseSimpleLogin(this.client, cb);
-          return auth.login(provider);
+          if (auth != null) {
+            auth.logout();
+          }
+          auth = new FirebaseSimpleLogin(this.client, function(err, obj) {
+            user(obj);
+            return cb(err);
+          });
+          return auth.login(provider, {
+            'rememberMe': true
+          });
+        },
+        logout: function() {
+          if (auth != null) {
+            auth.logout();
+          }
+          return user({});
         }
       });
       
@@ -341,7 +385,7 @@
     // user.coffee
     root.require.register('userde.sk/src/modules/user.js', function(exports, require, module) {
     
-      module.exports = can.compute('');
+      module.exports = can.compute({});
       
     });
 
@@ -349,7 +393,7 @@
     // header.mustache
     root.require.register('userde.sk/src/templates/header.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div class=\"title\">userde.sk/{{ account.value }}</div>","        <div class=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div class=\"user\">","        {{ #isLoggedIn }}","            <a class=\"link logout\">Logout</a> {{ user.value.displayName }}","        {{ /isLoggedIn }}","        </div>","        <div class=\"title\">userde.sk/{{ account.value }}</div>","        <div class=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
     });
 
     
