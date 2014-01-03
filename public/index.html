@@ -5,12 +5,16 @@
     
     <title>userde.sk</title>
 
-    <link rel="stylesheet" type="text/css" href="app.bundle.css">
+    <link rel="stylesheet" type="text/css" href="userdesk.bundle.css">
     
-    <script src="app.bundle.js"></script>
+    <script src="userdesk.bundle.js"></script>
     <script>
     $(function() {
-        require('app').call(this);
+        require('userde.sk')({
+            'el': 'body',
+            'firebase_root': 'userdesk-app',
+            'account': 'intermine/intermine'
+        });
     });
     </script>
 </head>

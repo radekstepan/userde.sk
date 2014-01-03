@@ -1,26 +1,14 @@
 module.exports = (grunt) ->
     grunt.initConfig
         pkg: grunt.file.readJSON("package.json")
-
-        # handlebars:
-        #     templates:
-        #         src: [ 'src/**/*.hbs' ]
-        #         dest: 'build/templates.js'
-        #         options:
-        #             node: yes
-        #             namespace: 'JST'
-        
+       
         apps_c:
             commonjs:
-                src: [ 'src/**/*.{coffee,js,eco,mustache}' ]
-                dest: 'build/app.js'
+                src: [ 'src/**/*.{coffee,mustache}' ]
+                dest: 'build/js/userdesk.js'
                 options:
                     main: 'src/app.coffee'
-                    name: 'app'
-
-        # clean: [
-        #     'build/templates.js'
-        # ]
+                    name: [ 'userde.sk', 'userdesk' ]
 
         stylus:
             compile:
@@ -29,7 +17,7 @@ module.exports = (grunt) ->
                     'src/styles/app.styl'
                     'src/styles/forms.styl'
                 ]
-                dest: 'build/app.css'
+                dest: 'build/css/userdesk.css'
 
         concat:            
             scripts:
@@ -38,10 +26,12 @@ module.exports = (grunt) ->
                     'vendor/jquery/jquery.js'
                     'vendor/lodash/dist/lodash.js'
                     'vendor/canjs/can.jquery.js'
+                    'vendor/firebase/lib/firebase.js'
+                    'vendor/firebase/lib/firebase-simple-login.js'
                     # Our app.
-                    'build/app.js'
+                    'build/js/userdesk.js'
                 ]
-                dest: 'build/app.bundle.js'
+                dest: 'build/js/userdesk.bundle.js'
                 options:
                     separator: ';' # for minification purposes
 
@@ -52,21 +42,21 @@ module.exports = (grunt) ->
                     # Fonts.
                     'src/styles/fonts.css'
                     # Our compiled styles.
-                    'build/app.css'
+                    'build/css/userdesk.css'
                 ]
-                dest: 'build/app.bundle.css'
+                dest: 'build/css/userdesk.bundle.css'
 
         uglify:
             scripts:
                 files:
-                    'build/app.min.js': 'build/app.js'
-                    'build/app.bundle.min.js': 'build/app.bundle.js'
+                    'build/js/userdesk.min.js': 'build/js/userdesk.js'
+                    'build/js/userdesk.bundle.min.js': 'build/js/userdesk.bundle.js'
 
         cssmin:
             combine:
                 files:
-                    'build/app.min.css': 'build/app.css'
-                    'build/app.bundle.min.css': 'build/app.bundle.css'
+                    'build/css/userdesk.min.css': 'build/css/userdesk.css'
+                    'build/css/userdesk.bundle.min.css': 'build/css/userdesk.bundle.css'
 
         notify_hooks:
             options:
@@ -86,7 +76,6 @@ module.exports = (grunt) ->
                     # Debug.
                     debug: yes
 
-    #grunt.loadNpmTasks('grunt-contrib-handlebars')
     grunt.loadNpmTasks('grunt-apps-c')
     grunt.loadNpmTasks('grunt-contrib-stylus')
     grunt.loadNpmTasks('grunt-contrib-concat')
@@ -94,14 +83,11 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks('grunt-contrib-cssmin')
     grunt.loadNpmTasks('grunt-notify')
     grunt.loadNpmTasks('grunt-contrib-connect')
-    #grunt.loadNpmTasks('grunt-contrib-clean')
 
     grunt.task.run('notify_hooks')
 
     grunt.registerTask('default', [
-        #'handlebars'
         'apps_c'
-        #'clean'
         'stylus'
         'concat'
     ])

@@ -5,6 +5,7 @@
         "jquery": "2.0.3",
         "lodash": "2.3.0",
         "canjs": "2.0.3",
+        "firebase": "1.0.1",
         "normalize-css": "2.1.3"
     }
 }

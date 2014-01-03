@@ -1,57 +1,45 @@
-canControl   = require './core/control'
-canComponent = require './core/component'
+firebase = require './modules/firebase'
+user     = require './modules/user'
+account  = require './modules/account'
+render   = require './modules/render'
 
-# Which account are we "connected" to.
-account = can.compute('intermine')
+components = [
+    'header'
+    'submit'
+]
 
-# Show header only on internal pages.
-showHeader = can.compute(yes)
-
-# Router.
-class Routing extends canControl
-
-    'route': ->
-        showHeader yes
-
-    'account/login route': ->
-        showHeader no
-
-# Render wrapping template.
-class Layout extends canControl
-
-    template: require './templates/layout'
-
-    init: (el, options) ->
-        @element.html can.view.mustache @template
-
-# Header.
-class Header extends canComponent
-    
-    tag: 'app-header'
-
-    template: require './templates/header'
+Routing = can.Control
 
     init: ->
-        # Change active menu link on URL change.
-        can.route.bind 'change', (ev, attr, how, newURL, oldURL) =>
-            @scope.menu.each (item) ->
-                item.attr 'active', item.attr('url') is newURL
+        # Load the components.
+        ( require "./components/#{name}" for name in components )
 
-    scope: {
-        showHeader: -> do showHeader
-        account: -> do account
-        menu: [
-            { 'url': 'issue', 'label': 'Submit a new issue' }
-            { 'url': 'account/signup', 'label': 'Signup' }
-            { 'url': 'account/login', 'label': 'Login' }
-        ]
-    }
+    # Index, submit an issue for now.
+    route: ->
+        template = require './templates/page/issue'
+        @render(template, {}, 'Submit an issue')
 
-new Header()
+    # Render a page. Update the page title.
+    render: (template, ctx, title) ->
+        @element.html(render(template, ctx))
+        # Update title.
+        document.title = if title then "#{title} - userde.sk" else 'userde.sk'
 
-module.exports = ->
-    new Layout('body')
+module.exports = (opts) ->
+    # Which account?
+    account opts.account
 
-    new Routing()
-
+    # Start routing.
+    new Routing opts.el
     do can.route.ready
+
+    return
+
+    # New client.
+    firebase.attr 'client': new Firebase "https://#{opts.firebase_root}.firebaseio.com"
+
+    # GitHub login.
+    firebase.login (err, obj) ->
+        throw err if err
+        # Set the new user.
+        user obj
