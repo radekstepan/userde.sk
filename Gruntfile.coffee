@@ -16,6 +16,7 @@ module.exports = (grunt) ->
                     'src/styles/reset.styl'
                     'src/styles/app.styl'
                     'src/styles/forms.styl'
+                    'src/styles/icons.styl'
                 ]
                 dest: 'build/css/userdesk.css'
 

@@ -14,5 +14,8 @@ module.exports = can.Component.extend
         'user':    { 'value': user }
 
     events:
-        '.link.logout click': ->
+        '#account .logout click': ->
             do firebase.logout
+
+        '#account click': ->
+            do $('#account .dropdown').toggle

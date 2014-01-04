@@ -12,16 +12,16 @@ $whitespace = 20px
         width: 800px
         margin: 0 auto
 
-    .title, .menu
+    #title, #menu
         display: inline-block
 
-    .title
+    #title
         font-weight: bold
         margin-right: $whitespace
         color: #121004
         font-size: 20px
 
-    .menu
+    #menu
         ul
             li
                 &:not(:last-child)
@@ -38,8 +38,84 @@ $whitespace = 20px
                     &:hover
                         color: #374044
 
-    .user
+    #account
         float: right
+        position: relative
+        user-select: none
+
+        .dropdown
+            min-width: 245px
+            background: #FFF
+            border: 1px solid #AAA
+            border-radius: 3px
+            position: absolute
+            top: 27px
+            right: -7px
+            display: none
+
+            &:before
+                content: ""
+                height: 0
+                width: 0
+                position: absolute
+                top: -16px
+                right: 9px
+                border: solid rgba(0,0,0,0)
+                border-bottom-color: #AAA
+                border-width: 8px
+
+            &:after
+                content: ""
+                height: 0
+                width: 0
+                position: absolute
+                top: -14px
+                right: 10px
+                border: solid rgba(0,0,0,0)
+                border-bottom-color: #FFF
+                border-width: 7px
+
+            .section
+                padding: 10px
+
+                &:not(:last-child)
+                    border-bottom: 1px solid #E5E5E5
+
+            .avatar
+                width: 40px
+                height: 40px
+                background: #F8F8F8
+                position: relative
+                float: left
+                margin-right: 12px
+
+                .icon.user
+                    color: #C0C0C0
+                    position: absolute
+                    font-size: 42px
+                    top: -5px
+                    left: -10px
+
+            .email
+                font-size: 13px
+                line-height: 1
+                font-weight: bold
+                margin-bottom: 5px
+
+            .menu
+                li
+                    width: 100%
+                
+                    a
+                        width: 100%
+                        margin: 0 -10px
+                        display: block
+                        padding: 0 10px
+                        line-height: 26px
+                        
+                        &:hover
+                            color: #FFF
+                            background: #0079FF
 
 // Notifications, state.
 #notify

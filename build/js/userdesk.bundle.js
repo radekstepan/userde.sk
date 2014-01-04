@@ -23087,8 +23087,11 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           };
         },
         events: {
-          '.link.logout click': function() {
+          '#account .logout click': function() {
             return firebase.logout();
+          },
+          '#account click': function() {
+            return $('#account .dropdown').toggle();
           }
         }
       });
@@ -23301,7 +23304,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // header.mustache
     root.require.register('userde.sk/src/templates/header.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div class=\"user\">","        {{ #isLoggedIn }}","            <a class=\"link logout\">Logout</a> {{ user.value.displayName }}","        {{ /isLoggedIn }}","        </div>","        <div class=\"title\">userde.sk/{{ account.value }}</div>","        <div class=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div id=\"account\">","        {{ #isLoggedIn }}","            {{ user.value.displayName }} <a class=\"icon user\"></a>","            <div class=\"dropdown\">","                <div class=\"section profile\">","                    <div class=\"avatar\">","                        <div class=\"icon user\"></div>","                    </div>","                    <div class=\"email\">","                        {{ user.value.email }}","                    </div>","                    <a class=\"primary button small settings\">Settings</a>","                </div>","                <ul class=\"section menu\">","                    <li>","                        <a class=\"logout\">Logout</a>","                    </li>","                </ul>","            </div>","        {{ /isLoggedIn }}","        </div>","        <div id=\"title\">userde.sk/{{ account.value }}</div>","        <div id=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
     });
 
     
