@@ -211,7 +211,7 @@
     // app.coffee
     root.require.register('userde.sk/src/app.js', function(exports, require, module) {
     
-      var Routing, account, components, firebase, render, user;
+      var Routing, account, firebase, load, render, user;
       
       firebase = require('./modules/firebase');
       
@@ -221,15 +221,15 @@
       
       render = require('./modules/render');
       
-      components = ['header', 'submit'];
+      load = ['modules/helpers', 'components/header', 'components/submit'];
       
       Routing = can.Control({
         init: function() {
-          var name, _i, _len, _results;
+          var path, _i, _len, _results;
           _results = [];
-          for (_i = 0, _len = components.length; _i < _len; _i++) {
-            name = components[_i];
-            _results.push(require("./components/" + name));
+          for (_i = 0, _len = load.length; _i < _len; _i++) {
+            path = load[_i];
+            _results.push(require("./" + path));
           }
           return _results;
         },
@@ -246,9 +246,7 @@
       
       module.exports = function(opts) {
         account(opts.account);
-        firebase.attr({
-          'client': new Firebase("https://" + opts.firebase_root + ".firebaseio.com")
-        });
+        firebase.attr('client', opts.firebase);
         new Routing(opts.el);
         return can.route.ready();
       };
@@ -282,15 +280,6 @@
         },
         events: {
           '.link.logout click': firebase.logout
-        },
-        helpers: {
-          'isLoggedIn': function(opts) {
-            if (_.has(user(), 'username')) {
-              return opts.fn(this);
-            } else {
-              return opts.inverse(this);
-            }
-          }
         }
       });
       
@@ -300,13 +289,22 @@
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
-      var firebase;
+      var firebase, user;
+      
+      user = require('../modules/user');
       
       firebase = require('../modules/firebase');
       
       module.exports = can.Component.extend({
         tag: 'app-submit',
         template: require('../templates/submit'),
+        scope: function() {
+          return {
+            'user': {
+              'value': user
+            }
+          };
+        },
         events: {
           '.button.github click': function() {
             return firebase.login(function(err) {
@@ -332,14 +330,25 @@
     // firebase.coffee
     root.require.register('userde.sk/src/modules/firebase.js', function(exports, require, module) {
     
-      var auth, user;
+      var authCb, user;
       
       user = require('./user');
       
-      auth = null;
+      authCb = function() {};
       
       module.exports = new can.Map({
-        client: null,
+        setClient: function(root, success, error) {
+          var client;
+          client = new Firebase("https://" + root + ".firebaseio.com");
+          this.auth = new FirebaseSimpleLogin(client, function(err, obj) {
+            if (err) {
+              return authCb(err);
+            }
+            user(obj);
+            return authCb();
+          });
+          return client;
+        },
         login: function(cb, provider) {
           if (provider == null) {
             provider = 'github';
@@ -347,24 +356,39 @@
           if (!this.client) {
             return cb('Client is not setup');
           }
-          if (auth != null) {
-            auth.logout();
-          }
-          auth = new FirebaseSimpleLogin(this.client, function(err, obj) {
-            user(obj);
-            return cb(err);
-          });
-          return auth.login(provider, {
+          authCb = cb;
+          return this.auth.login(provider, {
             'rememberMe': true
           });
         },
         logout: function() {
-          if (auth != null) {
-            auth.logout();
+          var _ref;
+          if ((_ref = this.auth) != null) {
+            _ref.logout();
           }
           return user({});
         }
       });
+      
+    });
+
+    
+    // helpers.coffee
+    root.require.register('userde.sk/src/modules/helpers.js', function(exports, require, module) {
+    
+      var isLoggedIn, user;
+      
+      user = require('./user');
+      
+      exports.isLoggedIn = isLoggedIn = function(opts) {
+        if (_.has(user(), 'username')) {
+          return opts.fn(this);
+        } else {
+          return opts.inverse(this);
+        }
+      };
+      
+      Mustache.registerHelper('isLoggedIn', isLoggedIn);
       
     });
 
@@ -421,7 +445,7 @@
     // submit.mustache
     root.require.register('userde.sk/src/templates/submit.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input\" type=\"text\" placeholder=\"Type your question here\" value=\"jquery second parent\" autofocus />","            </div>","","            <div id=\"results\">","                <ul>","                    <li><a class=\"link\"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class=\"ago\">3 weeks ago</span></li>","                    <li><span class=\"tag solved\">solved</span><a class=\"link\">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class=\"ago\">Today</span></li>","                    <li><span class=\"tag discussed\">discussed</span><a class=\"link\">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class=\"ago\">A year ago</span></li>","                    <li><a class=\"link\"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>","                    <li><a class=\"link\"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>","                    <li><a class=\"link\"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>","                    <li><a class=\"link\">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>","                    <li><a class=\"link\">always getting error in <code>StagePickLevel</code> class</a></li>","                    <li><a class=\"link\"><span>jquery</span> select all parents</a></li>","                </ul>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                <div class=\"half first\">","                    <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                </div>","                <div class=\"half second\">","                    <div class=\"button github\">Connect with GitHub</div>","                </div>","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input\" type=\"text\" placeholder=\"Type your question here\" value=\"jquery second parent\" autofocus />","            </div>","","            <div id=\"results\">","                <ul>","                    <li><a class=\"link\"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class=\"ago\">3 weeks ago</span></li>","                    <li><span class=\"tag solved\">solved</span><a class=\"link\">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class=\"ago\">Today</span></li>","                    <li><span class=\"tag discussed\">discussed</span><a class=\"link\">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class=\"ago\">A year ago</span></li>","                    <li><a class=\"link\"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>","                    <li><a class=\"link\"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>","                    <li><a class=\"link\"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>","                    <li><a class=\"link\">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>","                    <li><a class=\"link\">always getting error in <code>StagePickLevel</code> class</a></li>","                    <li><a class=\"link\"><span>jquery</span> select all parents</a></li>","                </ul>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"button github\">Connect with GitHub</div>","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
     });
   })();
 

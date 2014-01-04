@@ -41,13 +41,21 @@
         <div class="box">
             <div class="field">
                 <h3>3. Contact</h3>
-                <label>Provide either an email or connect with <a class="link">GitHub</a>.</label>
-                <div class="half first">
-                    <input class="input" type="text" placeholder="Email address" />
-                </div>
-                <div class="half second">
+                {{ #isLoggedIn }}
+                    Connected as {{ user.value.displayName }}
+                {{ else }}
+                <!--
+                    <label>Provide either an email or connect with <a class="link">GitHub</a>.</label>
+                    <div class="half first">
+                        <input class="input" type="text" placeholder="Email address" />
+                    </div>
+                    <div class="half second">
+                        <div class="button github">Connect with GitHub</div>
+                    </div>
+                -->
+                    <label>Connect with <a class="link">GitHub</a>. Only your public profile is accessed.</label>
                     <div class="button github">Connect with GitHub</div>
-                </div>
+                {{ /isLoggedIn }}
             </div>
         </div>
     </div>

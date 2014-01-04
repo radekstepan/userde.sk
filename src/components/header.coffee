@@ -15,10 +15,3 @@ module.exports = can.Component.extend
 
     events:
         '.link.logout click': firebase.logout
-
-    helpers:
-        'isLoggedIn': (opts) ->
-            if _.has (do user), 'username'
-                opts.fn(@)
-            else
-                opts.inverse(@)

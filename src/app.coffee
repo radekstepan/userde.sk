@@ -3,16 +3,17 @@ user     = require './modules/user'
 account  = require './modules/account'
 render   = require './modules/render'
 
-components = [
-    'header'
-    'submit'
+load = [
+    'modules/helpers'
+    'components/header'
+    'components/submit'
 ]
 
 Routing = can.Control
 
     init: ->
-        # Load the components.
-        ( require "./components/#{name}" for name in components )
+        # Load the components & modules.
+        ( require "./#{path}" for path in load )
 
     # Index, submit an issue for now.
     route: ->
@@ -30,7 +31,7 @@ module.exports = (opts) ->
     account opts.account
     
     # New client.
-    firebase.attr 'client': new Firebase "https://#{opts.firebase_root}.firebaseio.com"
+    firebase.attr 'client', opts.firebase
 
     # Start routing.
     new Routing opts.el

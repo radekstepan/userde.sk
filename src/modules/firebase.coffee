@@ -1,23 +1,37 @@
 user = require './user'
 
-auth = null
+# Default "silent" callback for auth.
+authCb = ->
 
 module.exports = new can.Map
 
-    client: null
+    setClient: (root, success, error) ->
+        # Create a new instance pointing to a root.
+        client = new Firebase "https://#{root}.firebaseio.com"
+
+        # Check if we have a user in session.
+        @auth = new FirebaseSimpleLogin client, (err, obj) ->
+            # Trouble?
+            return authCb err if err
+
+            # Save user in memory.
+            user obj
+
+            # Call back.
+            do authCb
+
+        client
 
     login: (cb, provider='github') ->
         return cb 'Client is not setup' unless @client
         
-        do auth?.logout
+        # Override the default auth callback.
+        authCb = cb
 
-        auth = new FirebaseSimpleLogin @client, (err, obj) ->
-            user obj
-            cb err
-        
-        auth.login provider,
+        # Login.
+        @auth.login provider,
             'rememberMe': yes # 30 days
 
     logout: ->
-        do auth?.logout
+        do @auth?.logout
         user {}

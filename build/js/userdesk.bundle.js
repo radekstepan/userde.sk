@@ -15419,10 +15419,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   }
 }.call(this));
 ;/*!
- * CanJS - 2.0.3
+ * CanJS - 2.0.4
  * http://canjs.us/
  * Copyright (c) 2013 Bitovi
- * Tue, 26 Nov 2013 18:21:35 GMT
+ * Mon, 23 Dec 2013 19:49:25 GMT
  * Licensed MIT
  * Includes: can/component,can/construct,can/map,can/list,can/observe,can/compute,can/model,can/view,can/control,can/route,can/control/route,can/view/mustache,can/view/bindings,can/view/live,can/view/scope,can/util/string
  * Download from: http://canjs.com
@@ -15450,7 +15450,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 return object._cid = (name || "") + (++cid)
             }
         }
-        can.VERSION = '2.0.3';
+        can.VERSION = '2.0.4';
 
         can.simpleExtend = function(d, s) {
             for (var prop in s) {
@@ -15478,6 +15478,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                         }
                     }
                 } else if (elements.hasOwnProperty) {
+                    if (can.Map && elements instanceof can.Map) {
+                        can.__reading && can.__reading(elements, '__keys');
+                        elements = elements.__get()
+                    }
+
+
                     for (key in elements) {
                         if (elements.hasOwnProperty(key)) {
                             if (callback.call(context || elements[key], elements[key], key, elements) === false) {
@@ -15498,6 +15504,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         // Given a list of elements, check if they are in the dom, if they 
         // are in the dom, trigger inserted on them.
         can.inserted = function(elems) {
+            // prevent mutations from changing the looping
+            elems = can.makeArray(elems);
             var inDocument = false,
                 checked = false,
                 children;
@@ -15516,8 +15524,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 }
 
                 if (inDocument && elem.getElementsByTagName) {
-                    can.trigger(elem, "inserted", [], false);
                     children = can.makeArray(elem.getElementsByTagName("*"));
+                    can.trigger(elem, "inserted", [], false);
                     for (var j = 0, child;
                         (child = children[j]) !== undefined; j++) {
                         // Trigger the destroyed event
@@ -15676,12 +15684,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             }
             var eventName = event.type,
                 handlers = (this.__bindEvents[eventName] || []).slice(0),
-                args = [event].concat(args || []);
+                args = [event].concat(args || []),
+                ev;
 
             for (var i = 0, len = handlers.length; i < len; i++) {
                 ev = handlers[i];
                 ev.handler.apply(this, args);
-            };
+            }
         }
 
         return can;
@@ -15775,6 +15784,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
                     }
                     return this;
+                },
+                proxy: function(fn, context) {
+                    return function() {
+                        return fn.apply(context, arguments)
+                    }
                 }
             });
 
@@ -16659,38 +16673,18 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             // A map that temporarily houses a reference 
             // to maps that have already been made for a plain ole JS object
             madeMap = null,
-            addToMap = function(obj, instance) {
-                var teardown = false;
-                if (!madeMap) {
-                    teardown = true;
-                    madeMap = {}
-                }
-                // record if it has a Cid before we add one
-                var hasCid = obj._cid;
-                var cid = can.cid(obj);
-
-                // only update if there already isn't one
-                if (!madeMap[cid]) {
-
-                    madeMap[cid] = {
-                        obj: obj,
-                        instance: instance,
-                        added: !hasCid
+            teardownMap = function() {
+                for (var cid in madeMap) {
+                    if (madeMap[cid].added) {
+                        delete madeMap[cid].obj._cid;
                     }
                 }
-                return teardown;
+                madeMap = null;
+            },
+            getMapFromObject = function(obj) {
+                return madeMap && madeMap[obj._cid] && madeMap[obj._cid].instance
             };
-        teardownMap = function() {
-            for (var cid in madeMap) {
-                if (madeMap[cid].added) {
-                    delete madeMap[cid].obj._cid;
-                }
-            }
-            madeMap = null;
-        },
-        getMapFromObject = function(obj) {
-            return madeMap && madeMap[obj._cid] && madeMap[obj._cid].instance
-        }
+
 
         var Map = can.Map = can.Construct.extend({
 
@@ -16703,9 +16697,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                         if (!this.defaults) {
                             this.defaults = {};
                         }
+                        // a list of the compute properties
+                        this._computes = [];
                         for (var prop in this.prototype) {
                             if (typeof this.prototype[prop] !== "function") {
                                 this.defaults[prop] = this.prototype[prop];
+                            } else if (this.prototype[prop].isComputed) {
+                                this._computes.push(prop)
                             }
                         }
                     }
@@ -16717,6 +16715,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                     }
 
                 },
+                _computes: [],
                 // keep so it can be overwritten
                 bind: can.bindAndSetup,
                 on: can.bindAndSetup,
@@ -16724,6 +16723,28 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 off: can.unbindAndTeardown,
                 id: "id",
                 helpers: {
+                    addToMap: function(obj, instance) {
+                        var teardown;
+                        if (!madeMap) {
+                            teardown = teardownMap;
+                            madeMap = {}
+                        }
+                        // record if it has a Cid before we add one
+                        var hasCid = obj._cid;
+                        var cid = can.cid(obj);
+
+                        // only update if there already isn't one
+                        if (!madeMap[cid]) {
+
+                            madeMap[cid] = {
+                                obj: obj,
+                                instance: instance,
+                                added: !hasCid
+                            }
+                        }
+                        return teardown;
+                    },
+
                     canMakeObserve: function(obj) {
                         return obj && !can.isDeferred(obj) && (can.isArray(obj) || can.isPlainObject(obj) || (obj instanceof can.Map));
                     },
@@ -16807,30 +16828,28 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                     // Sets all `attrs`.
                     this._init = 1;
                     this._setupComputes();
-                    var teardownMapping = obj && addToMap(obj, this);
+                    var teardownMapping = obj && can.Map.helpers.addToMap(obj, this);
 
                     var data = can.extend(can.extend(true, {}, this.constructor.defaults || {}), obj)
                     this.attr(data);
-                    if (teardownMapping) {
-                        teardownMap()
-                    }
+
+                    teardownMapping && teardownMapping()
+
                     this.bind('change', can.proxy(this._changes, this));
 
                     delete this._init;
                 },
 
                 _setupComputes: function() {
-                    var prototype = this.constructor.prototype;
-                    this._computedBindings = {}
-                    for (var prop in prototype) {
-                        if (prototype[prop] && prototype[prop].isComputed) {
-                            this[prop] = prototype[prop].clone(this);
-                            this._computedBindings[prop] = {
-                                count: 0
-                            }
+                    var computes = this.constructor._computes;
+                    this._computedBindings = {};
+                    for (var i = 0, len = computes.length, prop; i < len; i++) {
+                        prop = computes[i];
+                        this[prop] = this[prop].clone(this);
+                        this._computedBindings[prop] = {
+                            count: 0
                         }
                     }
-
                 },
                 _bindsetup: makeBindSetup(),
                 _bindteardown: function() {
@@ -17143,6 +17162,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
         // Helpers for `observable` lists.
         var splice = [].splice,
+            // test if splice works correctly
+            spliceRemovesProps = (function() {
+                // IE's splice doesn't remove properties
+                var obj = {
+                    0: "a",
+                    length: 1
+                };
+                splice.call(obj, 0, 1);
+                return !obj[0];
+            })(),
 
             list = Map(
 
@@ -17157,11 +17186,18 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                         this.length = 0;
                         can.cid(this, ".map")
                         this._init = 1;
+                        instances = instances || [];
+
+
                         if (can.isDeferred(instances)) {
                             this.replace(instances)
                         } else {
+                            var teardownMapping = instances.length && can.Map.helpers.addToMap(instances, this);
                             this.push.apply(this, can.makeArray(instances || []));
                         }
+
+                        teardownMapping && teardownMapping();
+
                         // this change needs to be ignored
                         this.bind('change', can.proxy(this._changes, this));
                         can.simpleExtend(this, options);
@@ -17222,6 +17258,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                             howMany = args[1] = this.length - index;
                         }
                         var removed = splice.apply(this, args);
+
+                        if (!spliceRemovesProps) {
+                            for (var i = this.length; i < removed.length + this.length; i++) {
+                                delete this[i]
+                            }
+                        }
+
                         can.batch.start();
                         if (howMany > 0) {
                             this._triggerChange("" + index, "remove", undefined, removed);
@@ -17396,7 +17439,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                     return this;
                 }
             });
-
         can.List = Map.List = list;
         return can.List;
     })(__m2, __m12);
@@ -18576,6 +18618,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             // elements whos default value we should set
             defaultValue: ["input", "textarea"],
             // a map of parent element to child elements
+
             tagMap: {
                 "": "span",
                 table: "tbody",
@@ -18596,11 +18639,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 th: "tr",
                 li: "ul"
             },
-
+            // Used to determine the parentNode if el is directly within a documentFragment
             getParentNode: function(el, defaultParentNode) {
                 return defaultParentNode && el.parentNode.nodeType === 11 ? defaultParentNode : el.parentNode;
             },
-            // set an attribute on an element
+            // Set an attribute on an element
             setAttr: function(el, attrName, val) {
                 var tagName = el.nodeName.toString().toLowerCase(),
                     prop = elements.attrMap[attrName];
@@ -18619,14 +18662,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                     el.setAttribute(attrName, val);
                 }
             },
-            // gets the value of an attribute
+            // Gets the value of an attribute.
             getAttr: function(el, attrName) {
                 // Default to a blank string for IE7/8
                 return (elements.attrMap[attrName] && el[elements.attrMap[attrName]] ?
                     el[elements.attrMap[attrName]] :
                     el.getAttribute(attrName)) || '';
             },
-            // removes the attribute
+            // Removes the attribute.
             removeAttr: function(el, attrName) {
                 var setter = elements.attrMap[attrName];
                 if (typeof prop === "function") {
@@ -18640,6 +18683,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                     el.removeAttribute(attrName);
                 }
             },
+            // Gets a "pretty" value for something
             contentText: function(text) {
                 if (typeof text == 'string') {
                     return text;
@@ -18649,9 +18693,25 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                     return '';
                 }
                 return "" + text;
+            },
+
+            after: function(oldElements, newFrag) {
+                var last = oldElements[oldElements.length - 1];
+
+                // Insert it in the `document` or `documentFragment`
+                if (last.nextSibling) {
+                    can.insertBefore(last.parentNode, newFrag, last.nextSibling)
+                } else {
+                    can.appendChild(last.parentNode, newFrag);
+                }
+            },
+
+            replace: function(oldElements, newFrag) {
+                elements.after(oldElements, newFrag);
+                can.remove(can.$(oldElements));
             }
         };
-
+        // TODO: this doesn't seem to be doing anything
         // feature detect if setAttribute works with styles
         (function() {
             // feature detect if 
@@ -18831,12 +18891,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                     fn(el);
                 });
 
-                var helperTags = hookupOptions.options.read('helpers._tags', {}).value,
-                    tagName = hookupOptions.tagName,
-                    tagCallback = (helperTags && helperTags[tagName]) || Scanner.tags[tagName]
+                var tagName = hookupOptions.tagName,
+                    helperTagCallback = hookupOptions.options.read('helpers._tags.' + tagName, {
+                            isArgument: true,
+                            proxyMethods: false
+                        }).value,
+                    tagCallback = helperTagCallback || Scanner.tags[tagName];
 
-
-                    // if this was an element like <foo-bar> that doesn't have a component, just render its content
+                // If this was an element like <foo-bar> that doesn't have a component, just render its content
                 var scope = hookupOptions.scope,
                     res = tagCallback ? tagCallback(el, hookupOptions) : scope;
 
@@ -19126,7 +19188,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                             default:
                                 // Track the current tag
                                 if (lastToken === '<') {
-                                    tagName = token.split(/\s/)[0];
+
+                                    tagName = token.substr(0, 3) === "!--" ?
+                                        "!--" : token.split(/\s/)[0];
+
                                     var isClosingTag = false;
 
                                     if (tagName.indexOf("/") === 0) {
@@ -19324,10 +19389,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         return Scanner;
     })(__m19, __m21);
 
-    // ## view/node_lists.js
+    // ## view/node_lists/node_lists.js
     var __m24 = (function(can) {
 
-        // text node expando test
+        // In some browsers, text nodes can not take expando properties.
+        // We test that here.
         var canExpando = true;
         try {
             document.createTextNode('')._ = 0;
@@ -19335,12 +19401,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             canExpando = false;
         }
 
-        // a mapping of element ids to nodeList ids
+        // A mapping of element ids to nodeList id
         var nodeMap = {},
-            // a mapping of ids to text nodes
+            // A mapping of ids to text nodes
             textNodeMap = {},
-            // a mapping of nodeList ids to nodeList
-            nodeListMap = {},
             expando = "ejs_" + Math.random(),
             _id = 0,
             id = function(node) {
@@ -19361,98 +19425,90 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                     return "text_" + _id;
                 }
             },
-            // removes a nodeListId from a node's nodeListIds
-            removeNodeListId = function(node, nodeListId) {
-                var nodeListIds = nodeMap[id(node)];
-                if (nodeListIds) {
-                    var index = can.inArray(nodeListId, nodeListIds);
+            splice = [].splice;
 
-                    if (index >= 0) {
-                        nodeListIds.splice(index, 1);
-                    }
-                    if (!nodeListIds.length) {
-                        delete nodeMap[id(node)];
-                    }
-                }
-            },
-            addNodeListId = function(node, nodeListId) {
-                var nodeListIds = nodeMap[id(node)];
-                if (!nodeListIds) {
-                    nodeListIds = nodeMap[id(node)] = [];
-                }
-                nodeListIds.push(nodeListId);
-            };
 
         var nodeLists = {
             id: id,
-            // replaces the contents of one node list with the nodes in another list
-            replace: function(oldNodeList, newNodes) {
-                // for each node in the node list
-                oldNodeList = can.makeArray(oldNodeList);
-
-                // try every set
-                //can.each( oldNodeList, function(node){
-                var node = oldNodeList[0]
-                // for each nodeList the node is in
-                can.each(can.makeArray(nodeMap[id(node)]), function(nodeListId) {
-
-                    // if startNode to endNode is 
-                    // within list, replace that list
-                    // I think the problem is not the WHOLE part is being 
-                    // matched
-                    var nodeList = nodeListMap[nodeListId],
-                        startIndex = can.inArray(node, nodeList),
-                        endIndex = can.inArray(oldNodeList[oldNodeList.length - 1], nodeList);
 
 
-                    // remove this nodeListId from each node
-                    if (startIndex >= 0 && endIndex >= 0) {
-                        for (var i = startIndex; i <= endIndex; i++) {
-                            var n = nodeList[i];
-                            removeNodeListId(n, nodeListId);
-                        }
-                        // swap in new nodes into the nodeLIst
-                        nodeList.splice.apply(nodeList, [startIndex, endIndex - startIndex + 1].concat(newNodes));
+            update: function(nodeList, newNodes) {
+                // Unregister all childNodes.
+                can.each(nodeList.childNodeLists, function(nodeList) {
+                    nodeLists.unregister(nodeList)
+                })
+                nodeList.childNodeLists = [];
 
-                        // tell these new nodes they belong to the nodeList
-                        can.each(newNodes, function(node) {
-                            addNodeListId(node, nodeListId);
-                        });
-                    } else {
-                        nodeLists.unregister(nodeList);
+                // Remove old node pointers to this list.
+                can.each(nodeList, function(node) {
+                    delete nodeMap[id(node)];
+                });
+
+                var newNodes = can.makeArray(newNodes);
+
+                // indicate the new nodes belong to this list
+                can.each(newNodes, function(node) {
+                    nodeMap[id(node)] = nodeList;
+                });
+
+
+                var oldListLength = nodeList.length,
+                    firstNode = nodeList[0];
+                // Replace oldNodeLists's contents'
+                splice.apply(nodeList, [0, oldListLength].concat(newNodes));
+
+                // update all parent nodes so they are able to replace the correct elements
+                var parentNodeList = nodeList;
+                while (parentNodeList = parentNodeList.parentNodeList) {
+                    splice.apply(parentNodeList, [can.inArray(firstNode, parentNodeList), oldListLength].concat(newNodes));
+                }
+
+
+            },
+
+            register: function(nodeList, unregistered, parent) {
+
+                // add an id to the nodeList
+                nodeList.unregistered = unregistered,
+
+                nodeList.childNodeLists = [];
+
+                if (!parent) {
+                    // find the parent by looking up where this node is
+                    if (nodeList.length > 1) {
+                        throw "does not work"
                     }
-                });
-                //});
-            },
-            // registers a list of nodes
-            register: function(nodeList) {
-                var nLId = id(nodeList);
-                nodeListMap[nLId] = nodeList;
+                    var nodeId = id(nodeList[0]);
+                    parent = nodeMap[nodeId];
 
-                can.each(nodeList, function(node) {
-                    addNodeListId(node, nLId);
-                });
-
+                }
+                nodeList.parentNodeList = parent;
+                parent && parent.childNodeLists.push(nodeList);
+                return nodeList;
             },
-            // removes mappings
+            // removes node in all parent nodes and unregisters all childNodes
+
             unregister: function(nodeList) {
-                var nLId = id(nodeList);
-                can.each(nodeList, function(node) {
-                    removeNodeListId(node, nLId);
-                });
-                delete nodeListMap[nLId];
+                if (!nodeList.isUnregistered) {
+                    nodeList.isUnregistered = true;
+                    // unregister all childNodeLists
+                    delete nodeList.parentNodeList;
+                    can.each(nodeList, function(node) {
+                        var nodeId = id(node);
+                        delete nodeMap[nodeId]
+                    });
+                    // this can unbind which will call itself
+                    nodeList.unregistered && nodeList.unregistered();
+                    can.each(nodeList.childNodeLists, function(nodeList) {
+                        nodeLists.unregister(nodeList)
+                    });
+                }
             },
             nodeMap: nodeMap,
-            nodeListMap: nodeListMap
-        }
-        var ids = function(nodeList) {
-            return nodeList.map(function(n) {
-                return id(n) + ":" + (n.innerHTML || n.nodeValue)
-            })
         }
         return nodeLists;
 
-    })(__m2);
+    })(__m2, __m21);
 
     // ## view/live/live.js
     var __m23 = (function(can, elements, view, nodeLists) {
@@ -19467,12 +19523,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         // `setup(HTMLElement, bind(data), unbind(data)) -> data`
         // Calls bind right away, but will call unbind
         // if the element is "destroyed" (removed from the DOM).
+        var setupCount = 0;
         var setup = function(el, bind, unbind) {
-            var teardown = function() {
-                unbind(data)
-                can.unbind.call(el, 'removed', teardown);
-                return true
-            },
+            // Removing an element can call teardown which
+            // unregister the nodeList which calls teardown
+            var tornDown = false,
+                teardown = function() {
+                    if (!tornDown) {
+                        tornDown = true;
+                        unbind(data)
+                        can.unbind.call(el, 'removed', teardown);
+
+                    }
+
+                    return true
+                },
                 data = {
                     // returns true if no parent
                     teardownCheck: function(parent) {
@@ -19501,66 +19566,83 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             // Breaks up a string like foo='bar' into ["foo","'bar'""]
             getAttributeParts = function(newVal) {
                 return (newVal || "").replace(/['"]/g, '').split('=')
-            }
-            // #### insertElementsAfter
-            // Appends elements after the last item in oldElements.
-        insertElementsAfter = function(oldElements, newFrag) {
-            var last = oldElements[oldElements.length - 1];
+            },
+            splice = [].splice;
 
-            // Insert it in the `document` or `documentFragment`
-            if (last.nextSibling) {
-                can.insertBefore(last.parentNode, newFrag, last.nextSibling)
-            } else {
-                can.appendChild(last.parentNode, newFrag);
-            }
-        };
 
         var live = {
-            nodeLists: nodeLists,
 
-            list: function(el, compute, func, context, parentNode) {
-                // A mapping of the index to an array
-                // of elements that represent the item.
-                // Each array is registered so child or parent
-                // live structures can update the elements
-                var nodesMap = [],
-                    // called when an item is added
+            list: function(el, compute, render, context, parentNode) {
+
+
+                // A nodeList of all elements this live-list manages.
+                // This is here so that if this live list is within another section
+                // that section is able to remove the items in this list.
+                var masterNodeList = [el],
+                    // A mapping of the index of an item to an array
+                    // of elements that represent the item.
+                    // Each array is registered so child or parent
+                    // live structures can update the elements.
+                    itemIndexToNodeListsMap = [],
+                    // A mapping of items to their indicies'
+                    indexMap = [],
+
+                    // Called when items are added to the list.
                     add = function(ev, items, index) {
-                        // check that the placeholder textNode still has a parent.
-                        // it's possible someone removed the contents of
-                        // this element without removing the parent
-                        if (data.teardownCheck(text.parentNode)) {
-                            return
-                        }
 
                         // Collect new html and mappings
                         var frag = document.createDocumentFragment(),
-                            newMappings = [];
-                        can.each(items, function(item, key) {
-                            var itemHTML = func.call(context, item, (key + index)),
-                                itemFrag = can.view.frag(itemHTML, parentNode);
+                            newNodeLists = [],
+                            newIndicies = [];
 
-                            newMappings.push(can.makeArray(itemFrag.childNodes));
-                            frag.appendChild(itemFrag);
+                        // For each new item,
+                        can.each(items, function(item, key) {
+
+                            var itemIndex = can.compute(key + index),
+                                // get its string content
+                                itemHTML = render.call(context, item, itemIndex),
+                                // and convert it into elements.
+                                itemFrag = can.view.fragment(itemHTML)
+
+
+                                // Add those elements to the mappings.
+                                newNodeLists.push(
+                                    // Register those nodes with nodeLists.
+                                    nodeLists.register(can.makeArray(itemFrag.childNodes), undefined, masterNodeList));
+
+                            // Hookup the fragment (which sets up child live-bindings) and
+                            // add it to the collection of all added elements.
+                            frag.appendChild(can.view.hookup(itemFrag));
+                            newIndicies.push(itemIndex)
                         })
 
-                        // Inserting at the end of the list
-                        if (!nodesMap[index]) {
-                            insertElementsAfter(
-                                index == 0 ? [text] :
-                                nodesMap[index - 1], frag)
+                        // Check if we are adding items at the end
+                        if (!itemIndexToNodeListsMap[index]) {
+
+                            elements.after(
+                                // If we are adding items to an empty list
+                                index == 0 ?
+                                // add those items after the placeholder text element.
+                                [text] :
+                                // otherwise, add them after the last element in the previous index.
+                                itemIndexToNodeListsMap[index - 1], frag)
                         } else {
-                            var el = nodesMap[index][0];
+                            // Add elements before the next index's first element.
+                            var el = itemIndexToNodeListsMap[index][0];
                             can.insertBefore(el.parentNode, frag, el);
                         }
-                        // register each item
-                        can.each(newMappings, function(nodeList) {
-                            nodeLists.register(nodeList)
-                        });
-                        [].splice.apply(nodesMap, [index, 0].concat(newMappings));
+
+                        splice.apply(itemIndexToNodeListsMap, [index, 0].concat(newNodeLists));
+
+                        // update indices after insert point
+                        splice.apply(indexMap, [index, 0].concat(newIndicies));
+                        for (var i = index + newIndicies.length, len = indexMap.length; i < len; i++) {
+                            indexMap[i](i)
+                        }
+
                     },
-                    // Remove can be called during teardown or when items are 
-                    // removed from the element.
+
+                    // Called when items are removed or when the bindings are torn down.
                     remove = function(ev, items, index, duringTeardown) {
 
                         // If this is because an element was removed, we should
@@ -19570,61 +19652,72 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                             return
                         }
 
-                        var removedMappings = nodesMap.splice(index, items.length),
+                        var removedMappings = itemIndexToNodeListsMap.splice(index, items.length),
                             itemsToRemove = [];
 
                         can.each(removedMappings, function(nodeList) {
                             // add items that we will remove all at once
                             [].push.apply(itemsToRemove, nodeList)
                             // Update any parent lists to remove these items
-                            nodeLists.replace(nodeList, []);
+                            nodeLists.update(nodeList, []);
                             // unregister the list
                             nodeLists.unregister(nodeList);
 
                         });
+                        // update indices after remove point
+                        indexMap.splice(index, items.length)
+                        for (var i = index, len = indexMap.length; i < len; i++) {
+                            indexMap[i](i)
+                        }
+
                         can.remove(can.$(itemsToRemove));
                     },
                     parentNode = elements.getParentNode(el, parentNode),
                     text = document.createTextNode(""),
-                    list;
+                    // The current list.
+                    list,
 
-                teardownList = function() {
-                    // there might be no list right away, and the list might be a plain
-                    // array
-                    list && list.unbind && list.unbind("add", add).unbind("remove", remove);
-                    // use remove to clean stuff up for us
-                    remove({}, {
-                            length: nodesMap.length
-                        }, 0, true);
-                }
+                    // Called when the list is replaced with a new list or the binding is torn-down.
+                    teardownList = function() {
+                        // there might be no list right away, and the list might be a plain
+                        // array
+                        list && list.unbind && list.unbind("add", add).unbind("remove", remove);
+                        // use remove to clean stuff up for us
+                        remove({}, {
+                                length: itemIndexToNodeListsMap.length
+                            }, 0, true);
+                    },
+                    // Called when the list is replaced or setup.
+                    updateList = function(ev, newList, oldList) {
+                        teardownList();
+                        // make an empty list if the compute returns null or undefined
+                        list = newList || [];
+                        // list might be a plain array
+                        list.bind && list.bind("add", add).bind("remove", remove);
+                        add({}, list, 0);
+                    }
 
-                updateList = function(ev, newList, oldList) {
-                    teardownList();
-                    // make an empty list if the compute returns null or undefined
-                    list = newList || [];
-                    // list might be a plain array
-                    list.bind && list.bind("add", add).bind("remove", remove);
-                    add({}, list, 0);
-                }
-                insertElementsAfter([el], text);
-                can.remove(can.$(el));
 
-                // Setup binding and teardown to add and remove events
+                    // Setup binding and teardown to add and remove events
                 var data = setup(parentNode, function() {
                     can.isFunction(compute) && compute.bind("change", updateList)
                 }, function() {
                     can.isFunction(compute) && compute.unbind("change", updateList)
                     teardownList()
-                })
+                });
 
+                live.replace(masterNodeList, text, data.teardownCheck)
+
+                // run the list setup
                 updateList({}, can.isFunction(compute) ? compute() : compute)
 
 
             },
+
             html: function(el, compute, parentNode) {
                 var parentNode = elements.getParentNode(el, parentNode),
-
                     data = listen(parentNode, compute, function(ev, newVal, oldVal) {
+                        // TODO: remove teardownCheck in 2.1
                         var attached = nodes[0].parentNode;
                         // update the nodes in the DOM with the new rendered value
                         if (attached) {
@@ -19633,37 +19726,52 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                         data.teardownCheck(nodes[0].parentNode);
                     });
 
-                var nodes,
+                var nodes = [el],
                     makeAndPut = function(val) {
-                        // create the fragment, but don't hook it up
-                        // we need to insert it into the document first
-                        var frag = can.view.frag(val, parentNode),
-                            // keep a reference to each node
-                            newNodes = can.makeArray(frag.childNodes);
-                        // Insert it in the `document` or `documentFragment`
-                        insertElementsAfter(nodes || [el], frag)
-                        // nodes hasn't been set yet
-                        if (!nodes) {
-                            can.remove(can.$(el));
-                            nodes = newNodes;
-                            // set the teardown nodeList
-                            data.nodeList = nodes;
-                            nodeLists.register(nodes);
-                        } else {
-                            // Update node Array's to point to new nodes
-                            // and then remove the old nodes.
-                            // It has to be in this order for Mootools
-                            // and IE because somehow, after an element
-                            // is removed from the DOM, it loses its
-                            // expando values.
-                            var nodesToRemove = can.makeArray(nodes);
-                            nodeLists.replace(nodes, newNodes);
-                            can.remove(can.$(nodesToRemove));
-                        }
+                        var frag = can.view.fragment("" + val),
+                            oldNodes = can.makeArray(nodes);
+
+                        // We need to mark each node as belonging to the node list.
+                        nodeLists.update(nodes, frag.childNodes)
+
+                        frag = can.view.hookup(frag, parentNode)
+
+                        elements.replace(oldNodes, frag)
                     };
-                makeAndPut(compute(), [el]);
+
+                data.nodeList = nodes;
+                // register the span so nodeLists knows the parentNodeList
+                nodeLists.register(nodes, data.teardownCheck)
+                makeAndPut(compute());
 
             },
+
+            replace: function(nodes, val, teardown) {
+                var oldNodes = nodes.slice(0),
+                    frag;
+
+                nodeLists.register(nodes, teardown);
+                if (typeof val === "string") {
+                    frag = can.view.fragment(val)
+                } else if (val.nodeType !== 11) {
+                    frag = document.createDocumentFragment();
+                    frag.appendChild(val)
+                } else {
+                    frag = val;
+                }
+
+                // We need to mark each node as belonging to the node list.
+                nodeLists.update(nodes, frag.childNodes)
+
+                if (typeof val === "string") {
+                    // if it was a string, check for hookups
+                    frag = can.view.hookup(frag, nodes[0].parentNode);
+                }
+                elements.replace(oldNodes, frag);
+
+                return nodes;
+            },
+
             text: function(el, compute, parentNode) {
                 var parent = elements.getParentNode(el, parentNode);
 
@@ -19673,20 +19781,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                     if (typeof node.nodeValue != 'unknown') {
                         node.nodeValue = "" + newVal;
                     }
+                    // TODO: remove in 2.1
                     data.teardownCheck(node.parentNode);
-                });
+                }),
+                    // The text node that will be updated
+                    node = document.createTextNode(compute());
 
-                var node = document.createTextNode(compute());
-
-                if (el.parentNode !== parent) {
-                    parent = el.parentNode;
-                    parent.insertBefore(node, el);
-                    parent.removeChild(el);
-                } else {
-                    parent.insertBefore(node, el);
-                    parent.removeChild(el);
-                }
+                // Replace the placeholder with the live node and do the nodeLists thing.
+                live.replace([el], node, data.teardownCheck);
             },
+
             attributes: function(el, compute, currentValue) {
                 var setAttrs = function(newVal) {
                     var parts = getAttributeParts(newVal),
@@ -19791,6 +19895,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             return /^["'].*["']$/.test(val) ? val.substr(1, val.length - 2) : val
         }
         can.view.live = live;
+        can.view.nodeLists = nodeLists;
+        can.view.elements = elements;
         return live;
 
     })(__m2, __m21, __m19, __m24);
@@ -19850,9 +19956,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 return (typeof txt == 'string' || typeof txt == 'number') ?
                     can.esc(txt) :
                     contentText(txt, tag);
-            };
+            },
+            // A flag to indicate if .txt was called within a live section within an element like the {{name}}
+            // within `<div {{#person}}{{name}}{{/person}}/>`.
+            withinTemplatedSectionWithinAnElement = false,
+            emptyHandler = function() {};
 
-        var current;
+        var current, lastHookups;
 
         can.extend(can.view, {
                 live: live,
@@ -19899,29 +20009,69 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 },
 
                 txt: function(escape, tagName, status, self, func) {
-                    var listTeardown = can.view.setupLists(),
-                        emptyHandler = function() {},
-                        unbind = function() {
-                            compute.unbind("change", emptyHandler)
-                        };
-
-                    var compute = can.compute(func, self, false);
-                    // bind to get and temporarily cache the value
-                    compute.bind("change", emptyHandler);
-                    // call the "wrapping" function and get the binding information
+                    // the temporary tag needed for any live setup
                     var tag = (elements.tagMap[tagName] || "span"),
-                        listData = listTeardown(),
+                        // should live-binding be setup
+                        setupLiveBinding = false,
+                        // the compute's value
+                        value;
+
+
+                    // Are we currently within a live section within an element like the {{name}}
+                    // within `<div {{#person}}{{name}}{{/person}}/>`.
+                    if (withinTemplatedSectionWithinAnElement) {
+                        value = func.call(self);
+                    } else {
+
+                        // If this magic tag is within an attribute or an html element,
+                        // set the flag to true so we avoid trying to live bind
+                        // anything that func might be setup.
+                        // TODO: the scanner should be able to set this up.
+                        if (typeof status === "string" || status === 1) {
+                            withinTemplatedSectionWithinAnElement = true;
+                        }
+
+                        // Sets up a listener so we know any can.view.lists called 
+                        // when func is called
+                        var listTeardown = can.view.setupLists(),
+                            unbind = function() {
+                                compute.unbind("change", emptyHandler)
+                            };
+                        // Create a compute that calls func and looks for dependencies.
+                        // By passing `false`, this compute can not be a dependency of other 
+                        // computes.  This is because live-bits are nested, but 
+                        // handle their own updating. For example:
+                        //     {{#if items.length}}{{#items}}{{.}}{{/items}}{{/if}}
+                        // We do not want `{{#if items.length}}` changing the DOM if
+                        // `{{#items}}` text changes.
+                        var compute = can.compute(func, self, false);
+
+                        // Bind to get and temporarily cache the value of the compute.
+                        compute.bind("change", emptyHandler);
+
+                        // Call the "wrapping" function and get the binding information
+                        var listData = listTeardown();
+
+                        // Get the value of the compute
                         value = compute();
 
+                        // Let people know we are no longer within an element.
+                        withinTemplatedSectionWithinAnElement = false;
+
+                        // If we should setup live-binding.
+                        setupLiveBinding = compute.hasDependencies;
+                    }
+
                     if (listData) {
+                        unbind && unbind();
                         return "<" + tag + can.view.hook(function(el, parentNode) {
                             live.list(el, listData.list, listData.renderer, self, parentNode);
                         }) + "></" + tag + ">";
                     }
 
                     // If we had no observes just return the value returned by func.
-                    if (!compute.hasDependencies || typeof value === "function") {
-                        unbind();
+                    if (!setupLiveBinding || typeof value === "function") {
+                        unbind && unbind();
                         return ((escape || typeof status === 'string') && escape !== 2 ? contentEscape : contentText)(value, status === 0 && tag);
                     }
 
@@ -19934,7 +20084,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                     if (status === 0 && !contentProp) {
                         // Return an element tag with a hookup in place of the content
                         return "<" + tag + can.view.hook(
-                            escape ?
+                            // if value is an object, it's likely something returned by .safeString
+                            escape && typeof value != "object" ?
                             // If we are escaping, replace the parentNode with 
                             // a text node who's value is `func`'s return value.
 
@@ -19957,6 +20108,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                             live.attributes(el, compute, compute());
                             unbind();
                         });
+
                         return compute();
                     } else if (escape === 2) { // In a special attribute like src or style
 
@@ -20818,21 +20970,23 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 // Implements the `each` built-in helper.
 
                 'each': function(expr, options) {
-                    if (expr.isComputed || isObserveLike(expr) && typeof expr.attr('length') !== 'undefined') {
-                        return can.view.lists && can.view.lists(expr, function(item, key) {
-                            // Create a compute that listens to whenever the index of the item in our list changes.
-                            var index = function() {
-                                var exprResolved = Mustache.resolve(expr),
-                                    fromIndex = key < (exprResolved).attr('length') ? key : undefined;
+                    // Check if this is a list or a compute that resolves to a list, and setup
+                    // the incremental live-binding 
 
-                                return (exprResolved).indexOf(item, fromIndex);
-                            };
+
+                    // First, see what we are dealing with.  It's ok to read the compute
+                    // because can.view.text is only temporarily binding to what is going on here.
+                    // Calling can.view.lists prevents anything from listening on that compute.
+                    var resolved = Mustache.resolve(expr);
+
+                    if (resolved instanceof can.List) {
+                        return can.view.lists && can.view.lists(expr, function(item, index) {
                             return options.fn(options.scope.add({
                                         "@index": index
                                     }).add(item));
                         });
                     }
-                    expr = Mustache.resolve(expr);
+                    expr = resolved;
 
                     if ( !! expr && isArrayLike(expr)) {
                         var result = [];
@@ -21001,7 +21155,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 init: function() {
                     if (this.element[0].nodeName.toUpperCase() === "SELECT") {
                         // need to wait until end of turn ...
-                        setTimeout($.proxy(this.set, this), 1)
+                        setTimeout(can.proxy(this.set, this), 1)
                     } else {
                         this.set()
                     }
@@ -21009,9 +21163,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 },
                 "{value} change": "set",
                 set: function() {
-                    this.element[0].value = this.options.value()
+                    //this may happen in some edgecases, esp. with selects that are not in DOM after the timeout has fired
+                    if (!this.element) return;
+
+                    var val = this.options.value();
+                    this.element[0].value = (typeof val === 'undefined' ? '' : val);
                 },
                 "change": function() {
+                    //this may happen in some edgecases, esp. with selects that are not in DOM after the timeout has fired
+                    if (!this.element) return;
+
                     this.options.value(this.element[0].value)
                 }
             })
@@ -21252,6 +21413,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                             scope: this.scope
                         });
 
+
+                    var self = this;
+
                     // if this component has a template (that we've already converted to a renderer)
                     if (this.constructor.renderer) {
                         // add content to tags
@@ -21263,15 +21427,33 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                         helpers._tags.content = function(el, rendererOptions) {
                             // first check if there was content within the custom tag
                             // otherwise, render what was within <content>, the default code
-                            var subtemplate = hookupOptions.subtemplate || rendererOptions.subtemplate
+                            var subtemplate = hookupOptions.subtemplate || rendererOptions.subtemplate;
+
                             if (subtemplate) {
-                                var frag = can.view.frag(subtemplate(rendererOptions.scope, rendererOptions.options.add(helpers)));
-                                can.insertBefore(el.parentNode, frag, el);
-                                can.remove(can.$(el));
+
+
+                                // rendererOptions.options is a scope of helpers where `<content>` was found, so
+                                // the right helpers should already be available.
+                                // However, _tags.content is going to point to this current content callback.  We need to 
+                                // remove that so it will walk up the chain
+
+                                delete helpers._tags.content;
+
+                                can.view.live.replace([el], subtemplate(
+                                        // This is the context of where `<content>` was found
+                                        // which will have the the component's context
+                                        rendererOptions.scope,
+
+
+
+                                        rendererOptions.options));
+
+                                // restore the content tag so it could potentially be used again (as in lists)
+                                helpers._tags.content = arguments.callee;
                             }
                         }
                         // render the component's template
-                        var frag = this.constructor.renderer(renderedScope, helpers);
+                        var frag = this.constructor.renderer(renderedScope, hookupOptions.options.add(helpers));
                     } else {
                         // otherwise render the contents between the 
                         var frag = can.view.frag(hookupOptions.subtemplate ? hookupOptions.subtemplate(renderedScope, hookupOptions.options.add(helpers)) : "");
@@ -21504,7 +21686,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                         return model;
                     }
                 }
-            }
+            },
 
 
             // This object describes how to make an ajax request for each ajax method.  
@@ -21513,57 +21695,57 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             //		`type` - The default http request type
             //		`data` - A method that takes the `arguments` and returns `data` used for ajax.
 
-        ajaxMethods = {
+            ajaxMethods = {
 
-            create: {
-                url: "_shortName",
-                type: "post"
-            },
-
-            update: {
-                data: function(id, attrs) {
-                    attrs = attrs || {};
-                    var identity = this.id;
-                    if (attrs[identity] && attrs[identity] !== id) {
-                        attrs["new" + can.capitalize(id)] = attrs[identity];
-                        delete attrs[identity];
-                    }
-                    attrs[identity] = id;
-                    return attrs;
+                create: {
+                    url: "_shortName",
+                    type: "post"
                 },
-                type: "put"
-            },
 
-            destroy: {
-                type: "delete",
-                data: function(id, attrs) {
-                    attrs = attrs || {};
-                    attrs.id = attrs[this.id] = id;
-                    return attrs;
+                update: {
+                    data: function(id, attrs) {
+                        attrs = attrs || {};
+                        var identity = this.id;
+                        if (attrs[identity] && attrs[identity] !== id) {
+                            attrs["new" + can.capitalize(id)] = attrs[identity];
+                            delete attrs[identity];
+                        }
+                        attrs[identity] = id;
+                        return attrs;
+                    },
+                    type: "put"
+                },
+
+                destroy: {
+                    type: "delete",
+                    data: function(id, attrs) {
+                        attrs = attrs || {};
+                        attrs.id = attrs[this.id] = id;
+                        return attrs;
+                    }
+                },
+
+                findAll: {
+                    url: "_shortName"
+                },
+
+                findOne: {}
+            },
+            // Makes an ajax request `function` from a string.
+            //		`ajaxMethod` - The `ajaxMethod` object defined above.
+            //		`str` - The string the user provided. Ex: `findAll: "/recipes.json"`.
+            ajaxMaker = function(ajaxMethod, str) {
+                // Return a `function` that serves as the ajax method.
+                return function(data) {
+                    // If the ajax method has it's own way of getting `data`, use that.
+                    data = ajaxMethod.data ?
+                        ajaxMethod.data.apply(this, arguments) :
+                    // Otherwise use the data passed in.
+                    data;
+                    // Return the ajax method with `data` and the `type` provided.
+                    return ajax(str || this[ajaxMethod.url || "_url"], data, ajaxMethod.type || "get")
                 }
-            },
-
-            findAll: {
-                url: "_shortName"
-            },
-
-            findOne: {}
-        },
-        // Makes an ajax request `function` from a string.
-        //		`ajaxMethod` - The `ajaxMethod` object defined above.
-        //		`str` - The string the user provided. Ex: `findAll: "/recipes.json"`.
-        ajaxMaker = function(ajaxMethod, str) {
-            // Return a `function` that serves as the ajax method.
-            return function(data) {
-                // If the ajax method has it's own way of getting `data`, use that.
-                data = ajaxMethod.data ?
-                    ajaxMethod.data.apply(this, arguments) :
-                // Otherwise use the data passed in.
-                data;
-                // Return the ajax method with `data` and the `type` provided.
-                return ajax(str || this[ajaxMethod.url || "_url"], data, ajaxMethod.type || "get")
-            }
-        }
+            };
 
 
 
@@ -22312,7 +22494,69 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     })(__m2, __m27, __m8);
 
     window['can'] = __m4;
-})();;(function() {function g(a){throw a;}var j=void 0,k=!0,l=null,o=!1;function aa(a){return function(){return this[a]}}function r(a){return function(){return a}}var s,ba=this;function ca(){}function da(a){a.mb=function(){return a.bd?a.bd:a.bd=new a}}
+})();;/*!
+ * CanJS - 2.0.4
+ * http://canjs.us/
+ * Copyright (c) 2013 Bitovi
+ * Mon, 23 Dec 2013 19:49:29 GMT
+ * Licensed MIT
+ * Includes: can/map/setter
+ * Download from: http://canjs.com
+ */
+(function(can) {
+
+    can.classize = function(s, join) {
+        // this can be moved out ..
+        // used for getter setter
+        var parts = s.split(can.undHash),
+            i = 0;
+        for (; i < parts.length; i++) {
+            parts[i] = can.capitalize(parts[i]);
+        }
+
+        return parts.join(join || '');
+    }
+
+    var classize = can.classize,
+        proto = can.Map.prototype,
+        old = proto.__set;
+
+    proto.__set = function(prop, value, current, success, error) {
+        // check if there's a setter
+        var cap = classize(prop),
+            setName = "set" + cap,
+            errorCallback = function(errors) {
+                var stub = error && error.call(self, errors);
+
+                // if 'setter' is on the page it will trigger
+                // the error itself and we dont want to trigger
+                // the event twice. :)
+                if (stub !== false) {
+                    can.trigger(self, "error", [prop, errors], true);
+                }
+
+                return false;
+            },
+            self = this;
+
+        // if we have a setter
+        if (this[setName] &&
+            // call the setter, if returned value is undefined,
+            // this means the setter is async so we 
+            // do not call update property and return right away
+            (value = this[setName](value, function(value) {
+                        old.call(self, prop, value, current, success, errorCallback)
+                    },
+                    errorCallback)) === undefined) {
+            return;
+        }
+
+        old.call(self, prop, value, current, success, errorCallback);
+
+        return this;
+    };
+    return can.Map;
+})(can);;(function() {function g(a){throw a;}var j=void 0,k=!0,l=null,o=!1;function aa(a){return function(){return this[a]}}function r(a){return function(){return a}}var s,ba=this;function ca(){}function da(a){a.mb=function(){return a.bd?a.bd:a.bd=new a}}
 function ea(a){var b=typeof a;if("object"==b)if(a){if(a instanceof Array)return"array";if(a instanceof Object)return b;var c=Object.prototype.toString.call(a);if("[object Window]"==c)return"object";if("[object Array]"==c||"number"==typeof a.length&&"undefined"!=typeof a.splice&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("splice"))return"array";if("[object Function]"==c||"undefined"!=typeof a.call&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("call"))return"function"}else return"null";
 else if("function"==b&&"undefined"==typeof a.call)return"object";return b}function u(a){return a!==j}function fa(a){var b=ea(a);return"array"==b||"object"==b&&"number"==typeof a.length}function v(a){return"string"==typeof a}function ga(a){return"number"==typeof a}function ha(a){var b=typeof a;return"object"==b&&a!=l||"function"==b}Math.floor(2147483648*Math.random()).toString(36);function ia(a,b,c){return a.call.apply(a.bind,arguments)}
 function ja(a,b,c){a||g(Error());if(2<arguments.length){var d=Array.prototype.slice.call(arguments,2);return function(){var c=Array.prototype.slice.call(arguments);Array.prototype.unshift.apply(c,d);return a.apply(b,c)}}return function(){return a.apply(b,arguments)}}function w(a,b,c){w=Function.prototype.bind&&-1!=Function.prototype.bind.toString().indexOf("native code")?ia:ja;return w.apply(l,arguments)}function ka(a,b){function c(){}c.prototype=b.prototype;a.Vd=b.prototype;a.prototype=new c};function la(a){a=String(a);if(/^\s*$/.test(a)?0:/^[\],:{}\s\u2028\u2029]*$/.test(a.replace(/\\["\\\/bfnrtu]/g,"@").replace(/"[^"\\\n\r\u2028\u2029\x00-\x08\x10-\x1f\x80-\x9f]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,"]").replace(/(?:^|:|,)(?:[\s\u2028\u2029]*\[)+/g,"")))try{return eval("("+a+")")}catch(b){}g(Error("Invalid JSON string: "+a))}function ma(){this.dc=j}
@@ -22774,7 +23018,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // app.coffee
     root.require.register('userde.sk/src/app.js', function(exports, require, module) {
     
-      var Routing, account, components, firebase, render, user;
+      var Routing, account, firebase, load, render, user;
       
       firebase = require('./modules/firebase');
       
@@ -22784,15 +23028,15 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       
       render = require('./modules/render');
       
-      components = ['header', 'submit'];
+      load = ['modules/helpers', 'components/header', 'components/submit'];
       
       Routing = can.Control({
         init: function() {
-          var name, _i, _len, _results;
+          var path, _i, _len, _results;
           _results = [];
-          for (_i = 0, _len = components.length; _i < _len; _i++) {
-            name = components[_i];
-            _results.push(require("./components/" + name));
+          for (_i = 0, _len = load.length; _i < _len; _i++) {
+            path = load[_i];
+            _results.push(require("./" + path));
           }
           return _results;
         },
@@ -22809,9 +23053,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       
       module.exports = function(opts) {
         account(opts.account);
-        firebase.attr({
-          'client': new Firebase("https://" + opts.firebase_root + ".firebaseio.com")
-        });
+        firebase.attr('client', opts.firebase);
         new Routing(opts.el);
         return can.route.ready();
       };
@@ -22845,15 +23087,6 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
         },
         events: {
           '.link.logout click': firebase.logout
-        },
-        helpers: {
-          'isLoggedIn': function(opts) {
-            if (_.has(user(), 'username')) {
-              return opts.fn(this);
-            } else {
-              return opts.inverse(this);
-            }
-          }
         }
       });
       
@@ -22863,13 +23096,22 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
-      var firebase;
+      var firebase, user;
+      
+      user = require('../modules/user');
       
       firebase = require('../modules/firebase');
       
       module.exports = can.Component.extend({
         tag: 'app-submit',
         template: require('../templates/submit'),
+        scope: function() {
+          return {
+            'user': {
+              'value': user
+            }
+          };
+        },
         events: {
           '.button.github click': function() {
             return firebase.login(function(err) {
@@ -22895,14 +23137,25 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // firebase.coffee
     root.require.register('userde.sk/src/modules/firebase.js', function(exports, require, module) {
     
-      var auth, user;
+      var authCb, user;
       
       user = require('./user');
       
-      auth = null;
+      authCb = function() {};
       
       module.exports = new can.Map({
-        client: null,
+        setClient: function(root, success, error) {
+          var client;
+          client = new Firebase("https://" + root + ".firebaseio.com");
+          this.auth = new FirebaseSimpleLogin(client, function(err, obj) {
+            if (err) {
+              return authCb(err);
+            }
+            user(obj);
+            return authCb();
+          });
+          return client;
+        },
         login: function(cb, provider) {
           if (provider == null) {
             provider = 'github';
@@ -22910,24 +23163,39 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           if (!this.client) {
             return cb('Client is not setup');
           }
-          if (auth != null) {
-            auth.logout();
-          }
-          auth = new FirebaseSimpleLogin(this.client, function(err, obj) {
-            user(obj);
-            return cb(err);
-          });
-          return auth.login(provider, {
+          authCb = cb;
+          return this.auth.login(provider, {
             'rememberMe': true
           });
         },
         logout: function() {
-          if (auth != null) {
-            auth.logout();
+          var _ref;
+          if ((_ref = this.auth) != null) {
+            _ref.logout();
           }
           return user({});
         }
       });
+      
+    });
+
+    
+    // helpers.coffee
+    root.require.register('userde.sk/src/modules/helpers.js', function(exports, require, module) {
+    
+      var isLoggedIn, user;
+      
+      user = require('./user');
+      
+      exports.isLoggedIn = isLoggedIn = function(opts) {
+        if (_.has(user(), 'username')) {
+          return opts.fn(this);
+        } else {
+          return opts.inverse(this);
+        }
+      };
+      
+      Mustache.registerHelper('isLoggedIn', isLoggedIn);
       
     });
 
@@ -22984,7 +23252,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // submit.mustache
     root.require.register('userde.sk/src/templates/submit.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input\" type=\"text\" placeholder=\"Type your question here\" value=\"jquery second parent\" autofocus />","            </div>","","            <div id=\"results\">","                <ul>","                    <li><a class=\"link\"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class=\"ago\">3 weeks ago</span></li>","                    <li><span class=\"tag solved\">solved</span><a class=\"link\">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class=\"ago\">Today</span></li>","                    <li><span class=\"tag discussed\">discussed</span><a class=\"link\">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class=\"ago\">A year ago</span></li>","                    <li><a class=\"link\"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>","                    <li><a class=\"link\"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>","                    <li><a class=\"link\"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>","                    <li><a class=\"link\">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>","                    <li><a class=\"link\">always getting error in <code>StagePickLevel</code> class</a></li>","                    <li><a class=\"link\"><span>jquery</span> select all parents</a></li>","                </ul>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                <div class=\"half first\">","                    <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                </div>","                <div class=\"half second\">","                    <div class=\"button github\">Connect with GitHub</div>","                </div>","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input\" type=\"text\" placeholder=\"Type your question here\" value=\"jquery second parent\" autofocus />","            </div>","","            <div id=\"results\">","                <ul>","                    <li><a class=\"link\"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class=\"ago\">3 weeks ago</span></li>","                    <li><span class=\"tag solved\">solved</span><a class=\"link\">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class=\"ago\">Today</span></li>","                    <li><span class=\"tag discussed\">discussed</span><a class=\"link\">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class=\"ago\">A year ago</span></li>","                    <li><a class=\"link\"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>","                    <li><a class=\"link\"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>","                    <li><a class=\"link\"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>","                    <li><a class=\"link\">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>","                    <li><a class=\"link\">always getting error in <code>StagePickLevel</code> class</a></li>","                    <li><a class=\"link\"><span>jquery</span> select all parents</a></li>","                </ul>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"button github\">Connect with GitHub</div>","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
     });
   })();
 
