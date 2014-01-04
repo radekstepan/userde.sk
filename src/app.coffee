@@ -7,6 +7,7 @@ load = [
     'modules/helpers'
     'components/header'
     'components/submit'
+    'components/notify'
 ]
 
 Routing = can.Control
@@ -15,9 +16,15 @@ Routing = can.Control
         # Load the components & modules.
         ( require "./#{path}" for path in load )
 
-    # Index, submit an issue for now.
+    # Index page.
     route: ->
-        template = require './templates/page/issue'
+
+    # Submit an issue.
+    ':org/:repo route': (data) ->
+        # Set the account.
+        account "#{data.org}/#{data.repo}"
+
+        template = require './templates/page/submit'
         @render(template, {}, 'Submit an issue')
 
     # Render a page. Update the page title.
@@ -26,10 +33,7 @@ Routing = can.Control
         # Update title.
         document.title = if title then "#{title} - userde.sk" else 'userde.sk'
 
-module.exports = (opts) ->
-    # Which account?
-    account opts.account
-    
+module.exports = (opts) ->  
     # New client.
     firebase.attr 'client', opts.firebase
 

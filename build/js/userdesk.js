@@ -221,7 +221,7 @@
       
       render = require('./modules/render');
       
-      load = ['modules/helpers', 'components/header', 'components/submit'];
+      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify'];
       
       Routing = can.Control({
         init: function() {
@@ -233,9 +233,11 @@
           }
           return _results;
         },
-        route: function() {
+        route: function() {},
+        ':org/:repo route': function(data) {
           var template;
-          template = require('./templates/page/issue');
+          account("" + data.org + "/" + data.repo);
+          template = require('./templates/page/submit');
           return this.render(template, {}, 'Submit an issue');
         },
         render: function(template, ctx, title) {
@@ -245,7 +247,6 @@
       });
       
       module.exports = function(opts) {
-        account(opts.account);
         firebase.attr('client', opts.firebase);
         new Routing(opts.el);
         return can.route.ready();
@@ -279,7 +280,36 @@
           };
         },
         events: {
-          '.link.logout click': firebase.logout
+          '.link.logout click': function() {
+            return firebase.logout();
+          }
+        }
+      });
+      
+    });
+
+    
+    // notify.coffee
+    root.require.register('userde.sk/src/components/notify.js', function(exports, require, module) {
+    
+      var state;
+      
+      state = require('../modules/state');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-notify',
+        template: require('../templates/notify'),
+        scope: function() {
+          return state;
+        },
+        helpers: {
+          isVisible: function(opts) {
+            if (state.attr('type') === 'none') {
+              return opts.inverse(this);
+            } else {
+              return opts.fn(this);
+            }
+          }
         }
       });
       
@@ -330,9 +360,11 @@
     // firebase.coffee
     root.require.register('userde.sk/src/modules/firebase.js', function(exports, require, module) {
     
-      var authCb, user;
+      var authCb, state, user;
       
       user = require('./user');
+      
+      state = require('../modules/state');
       
       authCb = function() {};
       
@@ -340,13 +372,18 @@
         setClient: function(root, success, error) {
           var client;
           client = new Firebase("https://" + root + ".firebaseio.com");
-          this.auth = new FirebaseSimpleLogin(client, function(err, obj) {
-            if (err) {
+          state.load('Loading');
+          this.attr('auth', new FirebaseSimpleLogin(client, function(err, obj) {
+            if (err || !obj) {
+              if (!obj) {
+                state.none();
+              }
               return authCb(err);
             }
             user(obj);
+            state.info("" + obj.displayName + " is logged in");
             return authCb();
-          });
+          }));
           return client;
         },
         login: function(cb, provider) {
@@ -357,6 +394,7 @@
             return cb('Client is not setup');
           }
           authCb = cb;
+          state.load('Loading GitHub account');
           return this.auth.login(provider, {
             'rememberMe': true
           });
@@ -366,7 +404,8 @@
           if ((_ref = this.auth) != null) {
             _ref.logout();
           }
-          return user({});
+          user({});
+          return state.info('You have logged out');
         }
       });
       
@@ -406,6 +445,44 @@
     });
 
     
+    // state.coffee
+    root.require.register('userde.sk/src/modules/state.js', function(exports, require, module) {
+    
+      var State, ms, timeout, update;
+      
+      ms = 3e3;
+      
+      update = function(text, type) {
+        return this.attr('text', text).attr('type', type);
+      };
+      
+      module.exports = State = new can.Map({
+        text: null,
+        type: 'none',
+        load: _.partialRight(update, 'load'),
+        info: _.partialRight(update, 'info'),
+        warn: _.partialRight(update, 'warn'),
+        none: function() {
+          return this.attr('type', 'none');
+        }
+      });
+      
+      timeout = null;
+      
+      State.bind('type', function(ev, newVal, oldVal) {
+        var _this = this;
+        clearTimeout(timeout);
+        if (newVal === 'warn' || newVal === 'load') {
+          return;
+        }
+        return setTimeout(function() {
+          return _this.attr('type', 'none');
+        }, ms);
+      });
+      
+    });
+
+    
     // user.coffee
     root.require.register('userde.sk/src/modules/user.js', function(exports, require, module) {
     
@@ -428,10 +505,17 @@
     });
 
     
-    // issue.mustache
-    root.require.register('userde.sk/src/templates/page/issue.js', function(exports, require, module) {
+    // notify.mustache
+    root.require.register('userde.sk/src/templates/notify.js', function(exports, require, module) {
     
-      module.exports = ["<app-header></app-header>","<app-submit></app-submit>"].join("\n");
+      module.exports = ["{{ #isVisible }}","<div id=\"notify\" class=\"{{ type }}\">","    <div class=\"message\">","        <div class=\"wrapper\">","            <div class=\"content\">","                {{{ text }}}","            </div>","        </div>","    </div>","</div>","{{ /isVisible }}"].join("\n");
+    });
+
+    
+    // submit.mustache
+    root.require.register('userde.sk/src/templates/page/submit.js', function(exports, require, module) {
+    
+      module.exports = ["<app-notify></app-notify>","<app-header></app-header>","<app-submit></app-submit>"].join("\n");
     });
 
     

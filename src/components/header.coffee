@@ -14,4 +14,5 @@ module.exports = can.Component.extend
         'user':    { 'value': user }
 
     events:
-        '.link.logout click': firebase.logout
+        '.link.logout click': ->
+            do firebase.logout

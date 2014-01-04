@@ -1,4 +1,5 @@
-user = require './user'
+user  = require './user'
+state = require '../modules/state'
 
 # Default "silent" callback for auth.
 authCb = ->
@@ -10,12 +11,17 @@ module.exports = new can.Map
         client = new Firebase "https://#{root}.firebaseio.com"
 
         # Check if we have a user in session.
-        @auth = new FirebaseSimpleLogin client, (err, obj) ->
-            # Trouble?
-            return authCb err if err
+        state.load 'Loading'
+
+        @attr 'auth', new FirebaseSimpleLogin client, (err, obj) ->
+            if err or not obj
+                do state.none unless obj
+                return authCb err
 
             # Save user in memory.
             user obj
+
+            state.info "#{obj.displayName} is logged in"
 
             # Call back.
             do authCb
@@ -29,9 +35,12 @@ module.exports = new can.Map
         authCb = cb
 
         # Login.
+        state.load 'Loading GitHub account'
         @auth.login provider,
             'rememberMe': yes # 30 days
 
     logout: ->
         do @auth?.logout
         user {}
+        # TODO: fixme
+        state.info 'You have logged out'
