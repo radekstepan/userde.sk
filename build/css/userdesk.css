@@ -82,7 +82,7 @@ h3{margin:0 0 10px 0}
 .box .form .preview.closed:after{content:'Preview'}
 .box .form .preview:hover:before{opacity:1;-ms-filter:none;filter:none}
 .box .form .preview:hover:after{opacity:1;-ms-filter:none;filter:none}
-#preview{display:none;background:#fcfbf9;padding:10px;border:1px solid #ccc;}
+#preview{display:none;padding:10px;border:1px solid #fff;}
 #preview p{margin-top:0}
 #preview code{font-size:14px}
 

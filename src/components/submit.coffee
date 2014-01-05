@@ -122,6 +122,11 @@ module.exports = can.Component.extend
                     window.location.replace res.html_url
                 , 3e3
 
+        # Auto-expand textarea.
+        '.input.body keydown': (el) ->
+            el.height ''
+            el.height el.prop('scrollHeight') + 'px'
+
         # Toggle the preview.
         '.preview click': (el) ->
             el.toggleClass 'closed eye eye-off'
