@@ -432,7 +432,7 @@ ul{list-style-type:none;margin:0;padding:0;}
 ul li{display:inline-block}
 ::-webkit-input-placeholder{font-weight:normal}
 a{cursor:pointer;}
-a.link{color:#0079ff;border-bottom:1px solid rgba(0,121,255,0.5)}
+a.link{color:#0079ff;border-bottom:1px solid rgba(0,121,255,0.5);text-decoration:none}
 p{margin:6px 0}
 h2{font-size:22px}
 h3{margin:0 0 10px 0}
@@ -513,7 +513,10 @@ h3{margin:0 0 10px 0}
 .form .field:after{clear:both;display:block;content:''}
 .form .field label,.form .field input,.form .field textarea{display:block;width:100%}
 .form .field label{margin-bottom:10px}
+.form .field .message{font-size:11px;line-height:14px;}
+.form .field .message.error{color:#e74c3c}
 .input{padding:10px;box-sizing:border-box;border:1px solid #ccc;background:#fcfbf9;color:#374044;}
+.input.error{border-color:#e74c3c}
 .input:focus{outline:none;border:1px solid rgba(102,198,248,0.4);font-weight:bold;color:#0079ff}
 .button{background:rgba(255,255,255,0.75);padding:8px 22px;transition:opacity .1s;border:1px solid #bfbfbf;border-radius:2px;font-weight:bold;color:#374044;font-size:14px;cursor:pointer;display:inline-block;user-select:none;text-align:center;}
 .button:hover{background:rgba(0,0,0,0.05)}
@@ -522,6 +525,7 @@ h3{margin:0 0 10px 0}
 .button.secondary,.button.github{color:#fff;border-color:rgba(0,0,0,0.15);background:#646464;}
 .button.secondary:hover,.button.github:hover{background:#535353}
 .button.small{font-size:13px;padding:2px 12px}
+.button.disabled{color:rgba(255,255,255,0.55)}
 
 .icon:before{font-family:"Icons";font-style:normal;font-weight:normal;speak:none;display:inline-block;text-decoration:inherit;width:1em;margin-right:.2em;text-align:center;font-variant:normal;text-transform:none;line-height:1em;margin-left:.2em}
 .icon.user:before{content:'\e800'}

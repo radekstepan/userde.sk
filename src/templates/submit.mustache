@@ -9,7 +9,16 @@
             <div class="field">
                 <h3>1. Title</h3>
                 <label>What question would you like to ask?</label>
-                <input class="input title" type="text" placeholder="Type your question here" autofocus />
+                {{ #errors.title }}
+                <app-error></app-error>
+                {{ /errors.title }}
+                <input
+                    class="input title {{ #if errors.title.length }}error{{ /if }}"
+                    data-key="title"
+                    type="text"
+                    placeholder="Type your question here"
+                    autofocus
+                />
             </div>
             <app-results></app-results>
         </div>
@@ -21,7 +30,15 @@
                     <span class="preview">Preview</span>
                     <label>Describe the question you are asking. You can use <a class="link">GitHub Flavored Markdown</a>.</label>
                 </div>
-                <textarea class="input" rows=4 placeholder="Make it simple and easy to understand"></textarea>
+                {{ #errors.body }}
+                <app-error></app-error>
+                {{ /errors.body }}
+                <textarea
+                    class="input body {{ #if errors.body.length }}error{{ /if }}"
+                    data-key="body"
+                    rows=4
+                    placeholder="Make it simple and easy to understand"
+                ></textarea>
             </div>
         </div>
 
@@ -29,7 +46,13 @@
             <div class="field">
                 <h3>3. Contact</h3>
                 {{ #isLoggedIn }}
-                    Connected as {{ user.value.displayName }}
+                    Connected as {{ user.value.displayName }}. <a class="link">Logout</a>
+                    <input
+                        type="hidden"
+                        class="input contact"
+                        data-key="contact"
+                        value="{{ user.value.email }}"
+                    />
                 {{ else }}
                 <!--
                     <label>Provide either an email or connect with <a class="link">GitHub</a>.</label>
@@ -42,12 +65,15 @@
                 -->
                     <label>Connect with <a class="link">GitHub</a>. Only your public profile is accessed.</label>
                     <div class="button github">Connect with GitHub</div>
+                    {{ #errors.contact }}
+                    <app-error></app-error>
+                    {{ /errors.contact }}
                 {{ /isLoggedIn }}
             </div>
         </div>
     </div>
 
     <div class="footer">
-        <div class="button primary">Finish</div>
+        <div class="button primary submit">Finish</div>
     </div>
 </div>

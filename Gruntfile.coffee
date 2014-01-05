@@ -31,6 +31,7 @@ module.exports = (grunt) ->
 
                     'vendor/canjs/can.jquery-2.js'
                     'vendor/canjs/can.map.setter.js'
+                    'vendor/canjs/can.map.validations.js'
                     
                     'vendor/firebase/lib/firebase.js'
                     'vendor/firebase/lib/firebase-simple-login.js'

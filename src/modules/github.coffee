@@ -13,9 +13,11 @@ superagent.parse =
 
 module.exports =
 
-    # Issues search.
+    # Search issues.
+    # See: http://developer.github.com/v3/search/#search-issues
     'search': (text, cb) ->       
         request
+            'method':    'get'
             'protocol':  'https'
             'host':      'api.github.com'
             'path':      "/search/issues"
@@ -26,18 +28,37 @@ module.exports =
             'headers':   do headers
         , cb
 
+    # Submit an issue.
+    # See: http://developer.github.com/v3/issues/#create-an-issue
+    'submit': (body, cb) ->       
+        request
+            'method':    'post'
+            'protocol':  'https'
+            'host':      'api.github.com'
+            'path':      "/repos/#{do account}/issues"
+            'headers':   do headers
+            'body':      body
+        , cb
+
 # Make a request using SuperAgent.
-request = ({ protocol, host, path, query, headers }, cb) ->
+request = ({ method, protocol, host, path, query, headers, body }, cb) ->
     exited = no
+
+    # GET by default.
+    method ?= 'get'
 
     # Make the query params.
     q = if query then '?' + ( "#{k}=#{v}" for k, v of query ).join('&') else ''
 
     # The URI.
-    req = superagent.get("#{protocol}://#{host}#{path}#{q}")
+    req = superagent[method]("#{protocol}://#{host}#{path}#{q}")
+    
     # Add headers.
     ( req.set(k, v) for k, v of headers )
     
+    # Add body?
+    req.send(body) if body
+
     # Timeout for requests that do not finish... see #32.
     timeout = setTimeout ->
         exited = yes

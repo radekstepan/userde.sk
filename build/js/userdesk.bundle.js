@@ -26301,6 +26301,224 @@ if (typeof exports == "object") {
         return this;
     };
     return can.Map;
+})(can);;/*!
+ * CanJS - 2.0.4
+ * http://canjs.us/
+ * Copyright (c) 2013 Bitovi
+ * Mon, 23 Dec 2013 19:49:29 GMT
+ * Licensed MIT
+ * Includes: can/map/validations
+ * Download from: http://canjs.com
+ */
+(function(can) {
+    //validations object is by property.  You can have validations that
+    //span properties, but this way we know which ones to run.
+    //  proc should return true if there's an error or the error message
+    var validate = function(attrNames, options, proc) {
+        // normalize argumetns
+        if (!proc) {
+            proc = options;
+            options = {};
+        }
+
+        options = options || {};
+        attrNames = typeof attrNames == 'string' ? [attrNames] : can.makeArray(attrNames);
+
+        // run testIf if it exists
+        if (options.testIf && !options.testIf.call(this)) {
+            return;
+        }
+
+        var self = this;
+        can.each(attrNames, function(attrName) {
+            // Add a test function for each attribute
+            if (!self.validations[attrName]) {
+                self.validations[attrName] = [];
+            }
+
+            self.validations[attrName].push(function(newVal) {
+                // if options has a message return that, otherwise, return the error
+                var res = proc.call(this, newVal, attrName);
+                return res === undefined ? undefined : (options.message || res);
+            })
+        });
+    };
+
+    var old = can.Map.prototype.__set;
+    can.Map.prototype.__set = function(prop, value, current, success, error) {
+        var self = this,
+            validations = self.constructor.validations,
+            errorCallback = function(errors) {
+                var stub = error && error.call(self, errors);
+
+                // if 'setter' is on the page it will trigger
+                // the error itself and we dont want to trigger
+                // the event twice. :)
+                if (stub !== false) {
+                    can.trigger(self, "error", [prop, errors], true);
+                }
+
+                return false;
+            };
+
+        old.call(self, prop, value, current, success, errorCallback);
+
+        if (validations && validations[prop]) {
+            var errors = self.errors(prop);
+            errors && errorCallback(errors)
+        }
+
+        return this;
+    }
+
+    can.each([can.Map, can.Model], function(clss) {
+        // in some cases model might not be defined quite yet.
+        if (clss === undefined) {
+            return;
+        }
+        var oldSetup = clss.setup;
+
+
+        can.extend(clss, {
+                setup: function(superClass) {
+                    oldSetup.apply(this, arguments);
+                    if (!this.validations || superClass.validations === this.validations) {
+                        this.validations = {};
+                    }
+                },
+
+                validate: validate,
+
+
+                validationMessages: {
+                    format: "is invalid",
+                    inclusion: "is not a valid option (perhaps out of range)",
+                    lengthShort: "is too short",
+                    lengthLong: "is too long",
+                    presence: "can't be empty",
+                    range: "is out of range",
+                    numericality: "must be a number"
+                },
+
+
+                validateFormatOf: function(attrNames, regexp, options) {
+                    validate.call(this, attrNames, options, function(value) {
+                        if ((typeof value !== 'undefined' && value !== null && value !== '') && String(value).match(regexp) == null) {
+                            return this.constructor.validationMessages.format;
+                        }
+                    });
+                },
+
+
+                validateInclusionOf: function(attrNames, inArray, options) {
+                    validate.call(this, attrNames, options, function(value) {
+                        if (typeof value == 'undefined') {
+                            return;
+                        }
+
+                        for (var i = 0; i < inArray.length; i++) {
+                            if (inArray[i] == value) {
+                                return;
+                            }
+                        }
+
+                        return this.constructor.validationMessages.inclusion;
+                    });
+                },
+
+
+                validateLengthOf: function(attrNames, min, max, options) {
+                    validate.call(this, attrNames, options, function(value) {
+                        if (((typeof value === 'undefined' || value === null) && min > 0) ||
+                            (typeof value !== 'undefined' && value !== null && value.length < min)) {
+                            return this.constructor.validationMessages.lengthShort + " (min=" + min + ")";
+                        } else if (typeof value != 'undefined' && value !== null && value.length > max) {
+                            return this.constructor.validationMessages.lengthLong + " (max=" + max + ")";
+                        }
+                    });
+                },
+
+
+                validatePresenceOf: function(attrNames, options) {
+                    validate.call(this, attrNames, options, function(value) {
+                        if (typeof value == 'undefined' || value === "" || value === null) {
+                            return this.constructor.validationMessages.presence;
+                        }
+                    });
+                },
+
+
+                validateRangeOf: function(attrNames, low, hi, options) {
+                    validate.call(this, attrNames, options, function(value) {
+                        if (((typeof value == 'undefined' || value === null) && low > 0) ||
+                            (typeof value !== 'undefined' && value !== null && (value < low || value > hi))) {
+                            return this.constructor.validationMessages.range + " [" + low + "," + hi + "]";
+                        }
+                    });
+                },
+
+
+                validatesNumericalityOf: function(attrNames) {
+                    validate.call(this, attrNames, function(value) {
+                        var res = !isNaN(parseFloat(value)) && isFinite(value);
+                        if (!res) {
+                            return this.constructor.validationMessages.numericality;
+                        }
+                    });
+                }
+            });
+    });
+
+
+    can.extend(can.Map.prototype, {
+
+            errors: function(attrs, newVal) {
+                // convert attrs to an array
+                if (attrs) {
+                    attrs = can.isArray(attrs) ? attrs : [attrs];
+                }
+
+                var errors = {},
+                    self = this,
+                    attr,
+                    // helper function that adds error messages to errors object
+                    // attr - the name of the attribute
+                    // funcs - the validation functions
+                    addErrors = function(attr, funcs) {
+                        can.each(funcs, function(func) {
+                            var res = func.call(self, isTest ? (self.__convert ?
+                                    self.__convert(attr, newVal) :
+                                    newVal) : self.attr(attr));
+                            if (res) {
+                                if (!errors[attr]) {
+                                    errors[attr] = [];
+                                }
+                                errors[attr].push(res);
+                            }
+
+                        });
+                    },
+                    validations = this.constructor.validations,
+                    isTest = attrs && attrs.length === 1 && arguments.length === 2;
+
+                // go through each attribute or validation and
+                // add any errors
+                can.each(attrs || validations || {}, function(funcs, attr) {
+                    // if we are iterating through an array, use funcs
+                    // as the attr name
+                    if (typeof attr == 'number') {
+                        attr = funcs;
+                        funcs = validations[attr];
+                    }
+                    // add errors to the
+                    addErrors(attr, funcs || []);
+                });
+
+                // return errors as long as we have one
+                return can.isEmptyObject(errors) ? null : isTest ? errors[attrs[0]] : errors;
+            }
+        });
+    return can.Map;
 })(can);;(function() {function g(a){throw a;}var j=void 0,k=!0,l=null,o=!1;function aa(a){return function(){return this[a]}}function r(a){return function(){return a}}var s,ba=this;function ca(){}function da(a){a.mb=function(){return a.bd?a.bd:a.bd=new a}}
 function ea(a){var b=typeof a;if("object"==b)if(a){if(a instanceof Array)return"array";if(a instanceof Object)return b;var c=Object.prototype.toString.call(a);if("[object Window]"==c)return"object";if("[object Array]"==c||"number"==typeof a.length&&"undefined"!=typeof a.splice&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("splice"))return"array";if("[object Function]"==c||"undefined"!=typeof a.call&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("call"))return"function"}else return"null";
 else if("function"==b&&"undefined"==typeof a.call)return"object";return b}function u(a){return a!==j}function fa(a){var b=ea(a);return"array"==b||"object"==b&&"number"==typeof a.length}function v(a){return"string"==typeof a}function ga(a){return"number"==typeof a}function ha(a){var b=typeof a;return"object"==b&&a!=l||"function"==b}Math.floor(2147483648*Math.random()).toString(36);function ia(a,b,c){return a.call.apply(a.bind,arguments)}
@@ -26773,7 +26991,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       
       render = require('./modules/render');
       
-      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result'];
+      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result', 'components/error'];
       
       Routing = can.Control({
         init: function() {
@@ -26786,9 +27004,9 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           return _results;
         },
         route: function() {},
-        ':org/:repo route': function(data) {
+        ':owner/:repo route': function(data) {
           var template;
-          account("" + data.org + "/" + data.repo);
+          account("" + data.owner + "/" + data.repo);
           template = require('./templates/page/submit');
           return this.render(template, {}, 'Submit an issue');
         },
@@ -26803,6 +27021,17 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
         new Routing(opts.el);
         return can.route.ready();
       };
+      
+    });
+
+    
+    // error.coffee
+    root.require.register('userde.sk/src/components/error.js', function(exports, require, module) {
+    
+      module.exports = can.Component.extend({
+        tag: 'app-error',
+        template: require('../templates/error')
+      });
       
     });
 
@@ -26905,7 +27134,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
-      var firebase, github, input, request_id, results, search, user;
+      var Issue, errors, firebase, github, input, request_id, results, search, state, user, working;
       
       user = require('../modules/user');
       
@@ -26914,6 +27143,10 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       github = require('../modules/github');
       
       results = require('../modules/results');
+      
+      state = require('../modules/state');
+      
+      Issue = require('../modules/issue');
       
       request_id = 0;
       
@@ -26927,7 +27160,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
         our_id = ++request_id;
         return github.search(value, function(err, res) {
           if (our_id !== request_id) {
-            return console.log('ignoring', value);
+            return;
           }
           if (err) {
             return;
@@ -26938,8 +27171,12 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       
       input = function(el, evt) {
         el.closest('.box').addClass('focus');
-        return search(el.val());
+        return search(el.val().trim().split(/\s+/).join(' OR '));
       };
+      
+      working = false;
+      
+      errors = new can.Map({});
       
       module.exports = can.Component.extend({
         tag: 'app-submit',
@@ -26948,7 +27185,8 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           return {
             'user': {
               'value': user
-            }
+            },
+            'errors': errors
           };
         },
         events: {
@@ -26959,10 +27197,57 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
               }
             });
           },
+          '.logout click': function() {
+            return firebase.logout();
+          },
           '.input.title keyup': _.debounce(input, 2e2),
           '.input.title focus': input,
           '.input.title focusout': function(el) {
             return el.closest('.box').removeClass('focus');
+          },
+          '.button.primary.submit click': function(el) {
+            var done, issue, key, msg, _ref;
+            done = function() {
+              working = false;
+              return el.removeClass('disabled');
+            };
+            if (working) {
+              return;
+            }
+            working = true;
+            el.addClass('disabled');
+            issue = new Issue();
+            this.element.find('.input').each(function(i, field) {
+              var key, val;
+              field = $(field);
+              key = field.data('key');
+              val = field.val();
+              errors.removeAttr(key);
+              return issue.attr(key, val);
+            });
+            _ref = issue.errors();
+            for (key in _ref) {
+              msg = _ref[key];
+              errors.attr(key, _.map(msg, function(text) {
+                return {
+                  text: text
+                };
+              }));
+            }
+            if (can.Map.keys(errors).length) {
+              return done();
+            }
+            state.load('Sending');
+            return github.submit(issue.attr(), function(err, res) {
+              done();
+              if (err) {
+                return state.warn(err);
+              }
+              state.warn("Submitted as <a\n    class=\"link\"\n    target=\"_blank\"\n    href=\"" + res.html_url + "\"\n>#" + res.number + "</a>");
+              return setTimeout(function() {
+                return window.location.replace(res.html_url);
+              }, 3e3);
+            });
           }
         }
       });
@@ -27015,9 +27300,10 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
             return cb('Client is not setup');
           }
           authCb = cb;
-          state.load('Loading GitHub account');
+          state.load('Connecting GitHub account');
           return this.auth.login(provider, {
-            'rememberMe': true
+            'rememberMe': true,
+            'scope': 'public_repo'
           });
         },
         logout: function() {
@@ -27057,6 +27343,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       module.exports = {
         'search': function(text, cb) {
           return request({
+            'method': 'get',
             'protocol': 'https',
             'host': 'api.github.com',
             'path': "/search/issues",
@@ -27067,13 +27354,26 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
             },
             'headers': headers()
           }, cb);
+        },
+        'submit': function(body, cb) {
+          return request({
+            'method': 'post',
+            'protocol': 'https',
+            'host': 'api.github.com',
+            'path': "/repos/" + (account()) + "/issues",
+            'headers': headers(),
+            'body': body
+          }, cb);
         }
       };
       
       request = function(_arg, cb) {
-        var exited, headers, host, k, path, protocol, q, query, req, timeout, v;
-        protocol = _arg.protocol, host = _arg.host, path = _arg.path, query = _arg.query, headers = _arg.headers;
+        var body, exited, headers, host, k, method, path, protocol, q, query, req, timeout, v;
+        method = _arg.method, protocol = _arg.protocol, host = _arg.host, path = _arg.path, query = _arg.query, headers = _arg.headers, body = _arg.body;
         exited = false;
+        if (method == null) {
+          method = 'get';
+        }
         q = query ? '?' + ((function() {
           var _results;
           _results = [];
@@ -27083,10 +27383,13 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           }
           return _results;
         })()).join('&') : '';
-        req = superagent.get("" + protocol + "://" + host + path + q);
+        req = superagent[method]("" + protocol + "://" + host + path + q);
         for (k in headers) {
           v = headers[k];
           req.set(k, v);
+        }
+        if (body) {
+          req.send(body);
         }
         timeout = setTimeout(function() {
           exited = true;
@@ -27179,6 +27482,23 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     });
 
     
+    // issue.coffee
+    root.require.register('userde.sk/src/modules/issue.js', function(exports, require, module) {
+    
+      module.exports = can.Map.extend({
+        init: function() {
+          this.validatePresenceOf(['title'], {
+            'message': 'Field cannot be empty'
+          });
+          return this.validatePresenceOf(['contact'], {
+            'message': 'You need to connect with GitHub'
+          });
+        }
+      }, {});
+      
+    });
+
+    
     // render.coffee
     root.require.register('userde.sk/src/modules/render.js', function(exports, require, module) {
     
@@ -27246,6 +27566,13 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     });
 
     
+    // error.mustache
+    root.require.register('userde.sk/src/templates/error.js', function(exports, require, module) {
+    
+      module.exports = ["<span class=\"error message\">{{ text }}.</span>"].join("\n");
+    });
+
+    
     // header.mustache
     root.require.register('userde.sk/src/templates/header.js', function(exports, require, module) {
     
@@ -27277,7 +27604,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // result.mustache
     root.require.register('userde.sk/src/templates/result.js', function(exports, require, module) {
     
-      module.exports = ["{{ #closed_at }}","<span class=\"tag closed\">closed</span>","{{ /closed_at }}","","<a target=\"new\" href=\"{{ html_url }}\" class=\"link\">{{ title }}</a>","","<span class=\"ago\">{{ ago updated_at }}</span>"].join("\n");
+      module.exports = ["{{ #closed_at }}","<span class=\"tag closed\">closed</span>","{{ /closed_at }}","","<a target=\"issue_{{ number }}\" href=\"{{ html_url }}\" class=\"link\">{{ title }}</a>","","<span class=\"ago\">{{ ago updated_at }}</span>"].join("\n");
     });
 
     
@@ -27298,7 +27625,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // submit.mustache
     root.require.register('userde.sk/src/templates/submit.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input title\" type=\"text\" placeholder=\"Type your question here\" autofocus />","            </div>","            <app-results></app-results>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"button github\">Connect with GitHub</div>","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                {{ #errors.title }}","                <app-error></app-error>","                {{ /errors.title }}","                <input","                    class=\"input title {{ #if errors.title.length }}error{{ /if }}\"","                    data-key=\"title\"","                    type=\"text\"","                    placeholder=\"Type your question here\"","                    autofocus","                />","            </div>","            <app-results></app-results>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                {{ #errors.body }}","                <app-error></app-error>","                {{ /errors.body }}","                <textarea","                    class=\"input body {{ #if errors.body.length }}error{{ /if }}\"","                    data-key=\"body\"","                    rows=4","                    placeholder=\"Make it simple and easy to understand\"","                ></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}. <a class=\"link\">Logout</a>","                    <input","                        type=\"hidden\"","                        class=\"input contact\"","                        data-key=\"contact\"","                        value=\"{{ user.value.email }}\"","                    />","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"button github\">Connect with GitHub</div>","                    {{ #errors.contact }}","                    <app-error></app-error>","                    {{ /errors.contact }}","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary submit\">Finish</div>","    </div>","</div>"].join("\n");
     });
   })();
 

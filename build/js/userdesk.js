@@ -221,7 +221,7 @@
       
       render = require('./modules/render');
       
-      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result'];
+      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result', 'components/error'];
       
       Routing = can.Control({
         init: function() {
@@ -234,9 +234,9 @@
           return _results;
         },
         route: function() {},
-        ':org/:repo route': function(data) {
+        ':owner/:repo route': function(data) {
           var template;
-          account("" + data.org + "/" + data.repo);
+          account("" + data.owner + "/" + data.repo);
           template = require('./templates/page/submit');
           return this.render(template, {}, 'Submit an issue');
         },
@@ -251,6 +251,17 @@
         new Routing(opts.el);
         return can.route.ready();
       };
+      
+    });
+
+    
+    // error.coffee
+    root.require.register('userde.sk/src/components/error.js', function(exports, require, module) {
+    
+      module.exports = can.Component.extend({
+        tag: 'app-error',
+        template: require('../templates/error')
+      });
       
     });
 
@@ -353,7 +364,7 @@
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
-      var firebase, github, input, request_id, results, search, user;
+      var Issue, errors, firebase, github, input, request_id, results, search, state, user, working;
       
       user = require('../modules/user');
       
@@ -362,6 +373,10 @@
       github = require('../modules/github');
       
       results = require('../modules/results');
+      
+      state = require('../modules/state');
+      
+      Issue = require('../modules/issue');
       
       request_id = 0;
       
@@ -375,7 +390,7 @@
         our_id = ++request_id;
         return github.search(value, function(err, res) {
           if (our_id !== request_id) {
-            return console.log('ignoring', value);
+            return;
           }
           if (err) {
             return;
@@ -386,8 +401,12 @@
       
       input = function(el, evt) {
         el.closest('.box').addClass('focus');
-        return search(el.val());
+        return search(el.val().trim().split(/\s+/).join(' OR '));
       };
+      
+      working = false;
+      
+      errors = new can.Map({});
       
       module.exports = can.Component.extend({
         tag: 'app-submit',
@@ -396,7 +415,8 @@
           return {
             'user': {
               'value': user
-            }
+            },
+            'errors': errors
           };
         },
         events: {
@@ -407,10 +427,57 @@
               }
             });
           },
+          '.logout click': function() {
+            return firebase.logout();
+          },
           '.input.title keyup': _.debounce(input, 2e2),
           '.input.title focus': input,
           '.input.title focusout': function(el) {
             return el.closest('.box').removeClass('focus');
+          },
+          '.button.primary.submit click': function(el) {
+            var done, issue, key, msg, _ref;
+            done = function() {
+              working = false;
+              return el.removeClass('disabled');
+            };
+            if (working) {
+              return;
+            }
+            working = true;
+            el.addClass('disabled');
+            issue = new Issue();
+            this.element.find('.input').each(function(i, field) {
+              var key, val;
+              field = $(field);
+              key = field.data('key');
+              val = field.val();
+              errors.removeAttr(key);
+              return issue.attr(key, val);
+            });
+            _ref = issue.errors();
+            for (key in _ref) {
+              msg = _ref[key];
+              errors.attr(key, _.map(msg, function(text) {
+                return {
+                  text: text
+                };
+              }));
+            }
+            if (can.Map.keys(errors).length) {
+              return done();
+            }
+            state.load('Sending');
+            return github.submit(issue.attr(), function(err, res) {
+              done();
+              if (err) {
+                return state.warn(err);
+              }
+              state.warn("Submitted as <a\n    class=\"link\"\n    target=\"_blank\"\n    href=\"" + res.html_url + "\"\n>#" + res.number + "</a>");
+              return setTimeout(function() {
+                return window.location.replace(res.html_url);
+              }, 3e3);
+            });
           }
         }
       });
@@ -463,9 +530,10 @@
             return cb('Client is not setup');
           }
           authCb = cb;
-          state.load('Loading GitHub account');
+          state.load('Connecting GitHub account');
           return this.auth.login(provider, {
-            'rememberMe': true
+            'rememberMe': true,
+            'scope': 'public_repo'
           });
         },
         logout: function() {
@@ -505,6 +573,7 @@
       module.exports = {
         'search': function(text, cb) {
           return request({
+            'method': 'get',
             'protocol': 'https',
             'host': 'api.github.com',
             'path': "/search/issues",
@@ -515,13 +584,26 @@
             },
             'headers': headers()
           }, cb);
+        },
+        'submit': function(body, cb) {
+          return request({
+            'method': 'post',
+            'protocol': 'https',
+            'host': 'api.github.com',
+            'path': "/repos/" + (account()) + "/issues",
+            'headers': headers(),
+            'body': body
+          }, cb);
         }
       };
       
       request = function(_arg, cb) {
-        var exited, headers, host, k, path, protocol, q, query, req, timeout, v;
-        protocol = _arg.protocol, host = _arg.host, path = _arg.path, query = _arg.query, headers = _arg.headers;
+        var body, exited, headers, host, k, method, path, protocol, q, query, req, timeout, v;
+        method = _arg.method, protocol = _arg.protocol, host = _arg.host, path = _arg.path, query = _arg.query, headers = _arg.headers, body = _arg.body;
         exited = false;
+        if (method == null) {
+          method = 'get';
+        }
         q = query ? '?' + ((function() {
           var _results;
           _results = [];
@@ -531,10 +613,13 @@
           }
           return _results;
         })()).join('&') : '';
-        req = superagent.get("" + protocol + "://" + host + path + q);
+        req = superagent[method]("" + protocol + "://" + host + path + q);
         for (k in headers) {
           v = headers[k];
           req.set(k, v);
+        }
+        if (body) {
+          req.send(body);
         }
         timeout = setTimeout(function() {
           exited = true;
@@ -627,6 +712,23 @@
     });
 
     
+    // issue.coffee
+    root.require.register('userde.sk/src/modules/issue.js', function(exports, require, module) {
+    
+      module.exports = can.Map.extend({
+        init: function() {
+          this.validatePresenceOf(['title'], {
+            'message': 'Field cannot be empty'
+          });
+          return this.validatePresenceOf(['contact'], {
+            'message': 'You need to connect with GitHub'
+          });
+        }
+      }, {});
+      
+    });
+
+    
     // render.coffee
     root.require.register('userde.sk/src/modules/render.js', function(exports, require, module) {
     
@@ -694,6 +796,13 @@
     });
 
     
+    // error.mustache
+    root.require.register('userde.sk/src/templates/error.js', function(exports, require, module) {
+    
+      module.exports = ["<span class=\"error message\">{{ text }}.</span>"].join("\n");
+    });
+
+    
     // header.mustache
     root.require.register('userde.sk/src/templates/header.js', function(exports, require, module) {
     
@@ -725,7 +834,7 @@
     // result.mustache
     root.require.register('userde.sk/src/templates/result.js', function(exports, require, module) {
     
-      module.exports = ["{{ #closed_at }}","<span class=\"tag closed\">closed</span>","{{ /closed_at }}","","<a target=\"new\" href=\"{{ html_url }}\" class=\"link\">{{ title }}</a>","","<span class=\"ago\">{{ ago updated_at }}</span>"].join("\n");
+      module.exports = ["{{ #closed_at }}","<span class=\"tag closed\">closed</span>","{{ /closed_at }}","","<a target=\"issue_{{ number }}\" href=\"{{ html_url }}\" class=\"link\">{{ title }}</a>","","<span class=\"ago\">{{ ago updated_at }}</span>"].join("\n");
     });
 
     
@@ -746,7 +855,7 @@
     // submit.mustache
     root.require.register('userde.sk/src/templates/submit.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input title\" type=\"text\" placeholder=\"Type your question here\" autofocus />","            </div>","            <app-results></app-results>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"button github\">Connect with GitHub</div>","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                {{ #errors.title }}","                <app-error></app-error>","                {{ /errors.title }}","                <input","                    class=\"input title {{ #if errors.title.length }}error{{ /if }}\"","                    data-key=\"title\"","                    type=\"text\"","                    placeholder=\"Type your question here\"","                    autofocus","                />","            </div>","            <app-results></app-results>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                {{ #errors.body }}","                <app-error></app-error>","                {{ /errors.body }}","                <textarea","                    class=\"input body {{ #if errors.body.length }}error{{ /if }}\"","                    data-key=\"body\"","                    rows=4","                    placeholder=\"Make it simple and easy to understand\"","                ></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}. <a class=\"link\">Logout</a>","                    <input","                        type=\"hidden\"","                        class=\"input contact\"","                        data-key=\"contact\"","                        value=\"{{ user.value.email }}\"","                    />","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"button github\">Connect with GitHub</div>","                    {{ #errors.contact }}","                    <app-error></app-error>","                    {{ /errors.contact }}","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary submit\">Finish</div>","    </div>","</div>"].join("\n");
     });
   })();
 

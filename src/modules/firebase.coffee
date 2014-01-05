@@ -35,9 +35,12 @@ module.exports = new can.Map
         authCb = cb
 
         # Login.
-        state.load 'Loading GitHub account'
+        state.load 'Connecting GitHub account'
         @auth.login provider,
-            'rememberMe': yes # 30 days
+            # 30 days.
+            'rememberMe': yes
+            # See: http://developer.github.com/v3/oauth/#scopes
+            'scope': 'public_repo'
 
     logout: ->
         do @auth?.logout

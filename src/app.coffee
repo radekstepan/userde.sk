@@ -10,6 +10,7 @@ load = [
     'components/notify'
     'components/results'
     'components/result'
+    'components/error'
 ]
 
 Routing = can.Control
@@ -22,9 +23,9 @@ Routing = can.Control
     route: ->
 
     # Submit an issue.
-    ':org/:repo route': (data) ->
+    ':owner/:repo route': (data) ->
         # Set the account.
-        account "#{data.org}/#{data.repo}"
+        account "#{data.owner}/#{data.repo}"
 
         template = require './templates/page/submit'
         @render(template, {}, 'Submit an issue')
