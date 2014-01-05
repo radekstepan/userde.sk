@@ -28208,7 +28208,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // app.coffee
     root.require.register('userde.sk/src/app.js', function(exports, require, module) {
     
-      var Routing, account, firebase, load, render, state, user;
+      var Routing, account, firebase, github, load, render, state, user;
       
       firebase = require('./modules/firebase');
       
@@ -28219,6 +28219,8 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       render = require('./modules/render');
       
       state = require('./modules/state');
+      
+      github = require('./modules/github');
       
       load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result', 'components/error'];
       
@@ -28583,9 +28585,6 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       module.exports = {
         'search': function(text, cb) {
           return request({
-            'method': 'get',
-            'protocol': 'https',
-            'host': 'api.github.com',
             'path': "/search/issues",
             'query': {
               'q': "" + text + "+repo:" + (account()),
@@ -28598,11 +28597,15 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
         'submit': function(body, cb) {
           return request({
             'method': 'post',
-            'protocol': 'https',
-            'host': 'api.github.com',
             'path': "/repos/" + (account()) + "/issues",
             'headers': headers(),
             'body': body
+          }, cb);
+        },
+        'exists': function(cb) {
+          return request({
+            'path': "/repos/" + (account()),
+            'headers': headers()
           }, cb);
         }
       };
@@ -28623,7 +28626,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           }
           return _results;
         })()).join('&') : '';
-        req = superagent[method]("" + protocol + "://" + host + path + q);
+        req = superagent[method]("https://api.github.com" + path + q);
         for (k in headers) {
           v = headers[k];
           req.set(k, v);

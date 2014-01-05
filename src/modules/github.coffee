@@ -17,9 +17,6 @@ module.exports =
     # See: http://developer.github.com/v3/search/#search-issues
     'search': (text, cb) ->       
         request
-            'method':    'get'
-            'protocol':  'https'
-            'host':      'api.github.com'
             'path':      "/search/issues"
             'query':
                 'q':     "#{text}+repo:#{do account}"
@@ -33,11 +30,17 @@ module.exports =
     'submit': (body, cb) ->       
         request
             'method':    'post'
-            'protocol':  'https'
-            'host':      'api.github.com'
             'path':      "/repos/#{do account}/issues"
             'headers':   do headers
             'body':      body
+        , cb
+
+    # Does the repo exist? Do we have access?
+    # See: http://developer.github.com/v3/repos/#get
+    'exists': (cb) ->
+        request
+            'path':    "/repos/#{do account}"
+            'headers': do headers
         , cb
 
 # Make a request using SuperAgent.
@@ -51,7 +54,7 @@ request = ({ method, protocol, host, path, query, headers, body }, cb) ->
     q = if query then '?' + ( "#{k}=#{v}" for k, v of query ).join('&') else ''
 
     # The URI.
-    req = superagent[method]("#{protocol}://#{host}#{path}#{q}")
+    req = superagent[method]("https://api.github.com#{path}#{q}")
     
     # Add headers.
     ( req.set(k, v) for k, v of headers )

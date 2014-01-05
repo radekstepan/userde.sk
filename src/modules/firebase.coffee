@@ -40,6 +40,7 @@ module.exports = new can.Map
             # 30 days.
             'rememberMe': yes
             # See: http://developer.github.com/v3/oauth/#scopes
+            # TODO: access private repos as well
             'scope': 'public_repo'
 
     logout: ->

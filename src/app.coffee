@@ -3,6 +3,7 @@ user     = require './modules/user'
 account  = require './modules/account'
 render   = require './modules/render'
 state    = require './modules/state'
+github   = require './modules/github'
 
 load = [
     'modules/helpers'
