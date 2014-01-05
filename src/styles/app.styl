@@ -149,10 +149,9 @@ $whitespace = 20px
                 min-width: 300px
 
     &.load
-        .message .wrapper .content
-            padding-bottom: 40px
-            margin-bottom: 20px
-            background: url('img/spinner.gif') no-repeat bottom center
+        .icon
+            display: inline-block
+            margin-left: 6px
 
 // A generic box style.
 #promo, #content
@@ -300,26 +299,6 @@ $whitespace = 20px
                 &.second
                     padding-left: 40px
 
-            // Show textarea preview.
-            .preview
-                float: right
-                cursor: pointer
-
-                &:before
-                    content: ''
-                    background: url('img/icomoon/16px/eye.png')
-                    opacity: 0.5
-                    transition: opacity 0.1s
-                    display: inline-block
-                    width: 16px
-                    height: 14px
-                    cursor: pointer
-                    margin-right: 6px
-
-                &:hover                    
-                    &:before
-                        opacity: 0.75
-
     // Footer showing a submit button.
     .footer
         border-top: 1px solid #E2E2E2
@@ -391,3 +370,39 @@ $whitespace = 20px
 .box.focus
     #results
         border-color: rgba(#66C6F8, 40%)
+
+// Issue body preview.
+.box .form
+    .preview
+        float: right
+        cursor: pointer
+
+        &:before
+            opacity: 0.75
+
+        &:after
+            opacity: 0.75
+            content: 'Close preview'
+        
+        &.closed
+            &:after
+                content: 'Preview'
+
+        &:hover                    
+            &:before
+                opacity: 1
+            
+            &:after
+                opacity: 1
+
+#preview
+    display: none
+    background: #FCFBF9
+    padding: 10px
+    border: 1px solid #CCC
+
+    p
+        margin-top: 0
+
+    code
+        font-size: 14px

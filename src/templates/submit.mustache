@@ -27,8 +27,8 @@
             <div class="field">
                 <h3>2. Description</h3>
                 <div>
-                    <span class="preview">Preview</span>
-                    <label>Describe the question you are asking. You can use <a class="link">GitHub Flavored Markdown</a>.</label>
+                    <span class="icon eye preview closed"></span>
+                    <label>Describe the question you are asking. You can use <a target="_blank" href="https://help.github.com/articles/github-flavored-markdown" class="link">GitHub Flavored Markdown</a>.</label>
                 </div>
                 {{ #errors.body }}
                 <app-error></app-error>
@@ -39,6 +39,7 @@
                     rows=4
                     placeholder="Make it simple and easy to understand"
                 ></textarea>
+                <div id="preview"></div>
             </div>
         </div>
 
@@ -64,7 +65,7 @@
                     </div>
                 -->
                     <label>Connect with <a class="link">GitHub</a>. Only your public profile is accessed.</label>
-                    <div class="button github">Connect with GitHub</div>
+                    <div class="icon button github">Connect with GitHub</div>
                     {{ #errors.contact }}
                     <app-error></app-error>
                     {{ /errors.contact }}

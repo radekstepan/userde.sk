@@ -2,6 +2,7 @@ firebase = require './modules/firebase'
 user     = require './modules/user'
 account  = require './modules/account'
 render   = require './modules/render'
+state    = require './modules/state'
 
 load = [
     'modules/helpers'

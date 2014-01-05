@@ -1,3 +1,5 @@
+@import 'nib'
+
 // See: http://fontello.com/
 .icon
     &:before
@@ -11,9 +13,8 @@
         width: 1em
         margin-right: .2em
         text-align: center
-        /* opacity: .8; */
 
-        /* For safety - reset parent styles, that can break glyph codes*/
+        /* For safety - reset parent styles, that can break glyph codes */
         font-variant: normal
         text-transform: none
          
@@ -24,6 +25,40 @@
         /* remove if not needed */
         margin-left: .2em 
 
+    // Entypo.
     &.user
         &:before
             content: '\e800'
+
+    // Font Awesome.
+    &.eye
+        &:before
+            content: '\e801'
+
+    &.eye-off
+        &:before
+            content: '\e802'
+
+    &.github
+        &:before
+            content: '\e803'
+
+    // Fontelico.
+    &.spin6
+        animation: spin 2s infinite linear
+        
+        &:before
+            content: '\e804'
+
+@-moz-keyframes spin {
+    from { -moz-transform: rotate(0deg) }
+    to { -moz-transform: rotate(360deg) }
+}
+@-webkit-keyframes spin {
+    from { -webkit-transform: rotate(0deg) }
+    to { -webkit-transform: rotate(360deg) }
+}
+@keyframes spin {
+    from { transform:rotate(0deg) }
+    to { transform:rotate(360deg) }
+}

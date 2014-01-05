@@ -121,3 +121,15 @@ module.exports = can.Component.extend
                 setTimeout ->
                     window.location.replace res.html_url
                 , 3e3
+
+        # Toggle the preview.
+        '.preview click': (el) ->
+            el.toggleClass 'closed eye eye-off'
+            do (a = @element.find('textarea.body')).toggle
+            do (b = @element.find('#preview')).toggle
+
+            # Make sure preview is the same height.
+            b.height do a.height
+
+            # Render markdown.
+            b.html(marked(do a.val)) if b.is(':visible')

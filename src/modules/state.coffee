@@ -2,6 +2,10 @@
 ms = 3e3
 
 update = (text, type) ->
+    switch type
+        when 'load'
+            text += '<span class="icon spin6"></span>'
+
     @
     .attr('text', text)
     .attr('type', type)

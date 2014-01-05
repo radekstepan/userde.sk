@@ -2,21 +2,21 @@
     font-family: 'Source Sans Pro';
     font-style: normal;
     font-weight: 400;
-    src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url("fonts/SourceSansPro-Regular.woff") format('woff');
+    src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url("fonts/sourcesanspro-regular.woff") format('woff');
 }
 @font-face {
     font-family: 'Source Sans Pro';
     font-style: normal;
     font-weight: 700;
-    src: local('Source Sans Pro Bold'), local('SourceSansPro-Bold'), url("fonts/SourceSansPro-Bold.woff") format('woff');
+    src: local('Source Sans Pro Bold'), local('SourceSansPro-Bold'), url("fonts/sourcesanspro-bold.woff") format('woff');
 }
 @font-face {
     font-family: 'Icons';
-    src: url('/fonts/Icons.eot?34959269');
-    src: url('/fonts/Icons.eot?34959269#iefix') format('embedded-opentype'),
-       url('/fonts/Icons.woff?34959269') format('woff'),
-       url('/fonts/Icons.ttf?34959269') format('truetype'),
-       url('/fonts/Icons.svg?34959269#icons') format('svg');
+    src: url('/fonts/icons.eot?16565305');
+    src: url('/fonts/icons.eot?16565305#iefix') format('embedded-opentype'),
+       url('/fonts/icons.woff?16565305') format('woff'),
+       url('/fonts/icons.ttf?16565305') format('truetype'),
+       url('/fonts/icons.svg?16565305#icons') format('svg');
     font-weight: normal;
     font-style: normal;
 }

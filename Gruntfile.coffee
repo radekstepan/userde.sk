@@ -28,6 +28,7 @@ module.exports = (grunt) ->
                     'vendor/lodash/dist/lodash.js'
                     'vendor/moment/moment.js'
                     'vendor/superagent/superagent.js'
+                    'vendor/marked/lib/marked.js'
 
                     'vendor/canjs/can.jquery-2.js'
                     'vendor/canjs/can.map.setter.js'
