@@ -27459,7 +27459,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // helpers.coffee
     root.require.register('userde.sk/src/modules/helpers.js', function(exports, require, module) {
     
-      var ago, isLoggedIn, user;
+      var ago, avatar, isLoggedIn, user;
       
       user = require('./user');
       
@@ -27475,9 +27475,20 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
         return moment(time()).fromNow();
       };
       
+      exports.avatar = avatar = function(size) {
+        var url;
+        if (size == null) {
+          size = 40;
+        }
+        url = (user()).avatar_url + ("&s=" + size);
+        return can.Mustache.safeString("<img src='" + url + "'>");
+      };
+      
       Mustache.registerHelper('isLoggedIn', isLoggedIn);
       
       Mustache.registerHelper('ago', ago);
+      
+      Mustache.registerHelper('avatar', avatar);
       
     });
 
@@ -27576,7 +27587,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // header.mustache
     root.require.register('userde.sk/src/templates/header.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div id=\"account\">","        {{ #isLoggedIn }}","            {{ user.value.displayName }} <a class=\"icon user\"></a>","            <div class=\"dropdown\">","                <div class=\"section profile\">","                    <div class=\"avatar\">","                        <div class=\"icon user\"></div>","                    </div>","                    <div class=\"email\">","                        {{ user.value.email }}","                    </div>","                    <a class=\"primary button small settings\">Settings</a>","                </div>","                <ul class=\"section menu\">","                    <li>","                        <a class=\"logout\">Logout</a>","                    </li>","                </ul>","            </div>","        {{ /isLoggedIn }}","        </div>","        <div id=\"title\">userde.sk/{{ account.value }}</div>","        <div id=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div id=\"account\">","        {{ #isLoggedIn }}","            {{ user.value.displayName }} <a class=\"icon user\"></a>","            <div class=\"dropdown\">","                <div class=\"section profile\">","                    <div class=\"avatar\">","                        <!--<div class=\"icon user\"></div>-->","                        {{ avatar 40 }}","                    </div>","                    <div class=\"email\">","                        {{ user.value.email }}","                    </div>","                    <a class=\"primary button small settings\">Settings</a>","                </div>","                <ul class=\"section menu\">","                    <li>","                        <a class=\"logout\">Logout</a>","                    </li>","                </ul>","            </div>","        {{ /isLoggedIn }}","        </div>","        <div id=\"title\">userde.sk/{{ account.value }}</div>","        <div id=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
     });
 
     

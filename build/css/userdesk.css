@@ -17,7 +17,7 @@ h3{margin:0 0 10px 0}
 #header #menu ul li a{color:#6f5f11;padding:10px;text-decoration:none;}
 #header #menu ul li a:hover{color:#374044}
 #header #account{float:right;position:relative;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
-#header #account .dropdown{min-width:245px;background:#fff;border:1px solid #aaa;-webkit-border-radius:3px;border-radius:3px;position:absolute;top:27px;right:-7px;display:none;}
+#header #account .dropdown{min-width:245px;background:#fff;border:1px solid #aaa;-webkit-border-radius:3px;border-radius:3px;position:absolute;top:27px;right:-7px;display:none;z-index:3;}
 #header #account .dropdown:before{content:"";height:0;width:0;position:absolute;top:-16px;right:9px;border:solid rgba(0,0,0,0);border-bottom-color:#aaa;border-width:8px}
 #header #account .dropdown:after{content:"";height:0;width:0;position:absolute;top:-14px;right:10px;border:solid rgba(0,0,0,0);border-bottom-color:#fff;border-width:7px}
 #header #account .dropdown .section{padding:10px;}
