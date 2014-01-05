@@ -6,6 +6,8 @@
         "lodash": "2.3.0",
         "canjs": "2.0.4",
         "firebase": "1.0.1",
+        "moment": "2.5.0",
+        "superagent": "0.15.7",
         "normalize-css": "2.1.3"
     }
 }

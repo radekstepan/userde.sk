@@ -337,7 +337,7 @@ $whitespace = 20px
     display: block
     max-height: 126px
     overflow-y: scroll
-    border: 1px solid rgba(#66C6F8, 40%)
+    border: 1px solid #CCC
     border-top: 0
 
     ul
@@ -380,9 +380,13 @@ $whitespace = 20px
         font-size: 12px
         float: right
 
-        &.solved
+        &.closed
             background: #FEDB27
 
         &.discussed
             color: #FFF
             background: #CACACA
+
+.box.focus
+    #results
+        border-color: rgba(#66C6F8, 40%)

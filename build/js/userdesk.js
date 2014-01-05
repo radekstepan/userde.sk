@@ -221,7 +221,7 @@
       
       render = require('./modules/render');
       
-      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify'];
+      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result'];
       
       Routing = can.Control({
         init: function() {
@@ -319,14 +319,75 @@
     });
 
     
+    // result.coffee
+    root.require.register('userde.sk/src/components/result.js', function(exports, require, module) {
+    
+      module.exports = can.Component.extend({
+        tag: 'app-result',
+        template: require('../templates/result')
+      });
+      
+    });
+
+    
+    // results.coffee
+    root.require.register('userde.sk/src/components/results.js', function(exports, require, module) {
+    
+      var results;
+      
+      results = require('../modules/results');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-results',
+        template: require('../templates/results'),
+        scope: function() {
+          return {
+            results: results
+          };
+        }
+      });
+      
+    });
+
+    
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
-      var firebase, user;
+      var firebase, github, input, request_id, results, search, user;
       
       user = require('../modules/user');
       
       firebase = require('../modules/firebase');
+      
+      github = require('../modules/github');
+      
+      results = require('../modules/results');
+      
+      request_id = 0;
+      
+      search = can.compute('');
+      
+      search.bind('change', function(ev, value) {
+        var our_id;
+        if (!value) {
+          return results.replace([]);
+        }
+        our_id = ++request_id;
+        return github.search(value, function(err, res) {
+          if (our_id !== request_id) {
+            return console.log('ignoring', value);
+          }
+          if (err) {
+            return;
+          }
+          return results.replace(res.items);
+        });
+      });
+      
+      input = function(el, evt) {
+        el.closest('.box').addClass('focus');
+        return search(el.val());
+      };
       
       module.exports = can.Component.extend({
         tag: 'app-submit',
@@ -345,6 +406,11 @@
                 throw err;
               }
             });
+          },
+          '.input.title keyup': _.debounce(input, 2e2),
+          '.input.title focus': input,
+          '.input.title focusout': function(el) {
+            return el.closest('.box').removeClass('focus');
           }
         }
       });
@@ -415,10 +481,130 @@
     });
 
     
+    // github.coffee
+    root.require.register('userde.sk/src/modules/github.js', function(exports, require, module) {
+    
+      var account, error, headers, request, response, user;
+      
+      account = require('./account');
+      
+      user = require('./user');
+      
+      superagent.parse = {
+        'application/json': function(res) {
+          var e;
+          try {
+            return JSON.parse(res);
+          } catch (_error) {
+            e = _error;
+            return {};
+          }
+        }
+      };
+      
+      module.exports = {
+        'search': function(text, cb) {
+          return request({
+            'protocol': 'https',
+            'host': 'api.github.com',
+            'path': "/search/issues",
+            'query': {
+              'q': "" + text + "+repo:" + (account()),
+              'sort': 'updated',
+              'order': 'desc'
+            },
+            'headers': headers()
+          }, cb);
+        }
+      };
+      
+      request = function(_arg, cb) {
+        var exited, headers, host, k, path, protocol, q, query, req, timeout, v;
+        protocol = _arg.protocol, host = _arg.host, path = _arg.path, query = _arg.query, headers = _arg.headers;
+        exited = false;
+        q = query ? '?' + ((function() {
+          var _results;
+          _results = [];
+          for (k in query) {
+            v = query[k];
+            _results.push("" + k + "=" + v);
+          }
+          return _results;
+        })()).join('&') : '';
+        req = superagent.get("" + protocol + "://" + host + path + q);
+        for (k in headers) {
+          v = headers[k];
+          req.set(k, v);
+        }
+        timeout = setTimeout(function() {
+          exited = true;
+          return cb('Request has timed out');
+        }, 1e4);
+        return req.end(function(err, data) {
+          if (exited) {
+            return;
+          }
+          exited = true;
+          clearTimeout(timeout);
+          return response(err, data, cb);
+        });
+      };
+      
+      response = function(err, data, cb) {
+        var _ref;
+        if (err) {
+          return cb(error(err));
+        }
+        if (data.statusType !== 2) {
+          if ((data != null ? (_ref = data.body) != null ? _ref.message : void 0 : void 0) != null) {
+            return cb(data.body.message);
+          }
+          return cb(data.error.message);
+        }
+        return cb(null, data.body);
+      };
+      
+      headers = function() {
+        var h, token;
+        h = _.extend({}, {
+          'Content-Type': 'application/json',
+          'Accept': 'application/vnd.github.v3'
+        });
+        if (token = (user()).accessToken) {
+          h.Authorization = "token " + token;
+        }
+        return h;
+      };
+      
+      error = function(err) {
+        var message;
+        switch (false) {
+          case !_.isString(err):
+            message = err;
+            break;
+          case !_.isArray(err):
+            message = err[1];
+            break;
+          case !(_.isObject(err) && _.isString(err.message)):
+            message = err.message;
+        }
+        if (!message) {
+          try {
+            message = JSON.stringify(err);
+          } catch (_error) {
+            message = err.toString();
+          }
+        }
+        return message;
+      };
+      
+    });
+
+    
     // helpers.coffee
     root.require.register('userde.sk/src/modules/helpers.js', function(exports, require, module) {
     
-      var isLoggedIn, user;
+      var ago, isLoggedIn, user;
       
       user = require('./user');
       
@@ -430,7 +616,13 @@
         }
       };
       
+      exports.ago = ago = function(time, opts) {
+        return moment(time()).fromNow();
+      };
+      
       Mustache.registerHelper('isLoggedIn', isLoggedIn);
+      
+      Mustache.registerHelper('ago', ago);
       
     });
 
@@ -444,6 +636,14 @@
         }
         return can.view.mustache(template)(ctx);
       };
+      
+    });
+
+    
+    // results.coffee
+    root.require.register('userde.sk/src/modules/results.js', function(exports, require, module) {
+    
+      module.exports = new can.List([]);
       
     });
 
@@ -522,6 +722,20 @@
     });
 
     
+    // result.mustache
+    root.require.register('userde.sk/src/templates/result.js', function(exports, require, module) {
+    
+      module.exports = ["{{ #closed_at }}","<span class=\"tag closed\">closed</span>","{{ /closed_at }}","","<a target=\"new\" href=\"{{ html_url }}\" class=\"link\">{{ title }}</a>","","<span class=\"ago\">{{ ago updated_at }}</span>"].join("\n");
+    });
+
+    
+    // results.mustache
+    root.require.register('userde.sk/src/templates/results.js', function(exports, require, module) {
+    
+      module.exports = ["{{ #if results.length }}","<div id=\"results\">","    <ul>","        {{ #results }}","        <li><app-result></app-result></li>","        {{ /results }}","    </ul>","</div>","{{ /if }}"].join("\n");
+    });
+
+    
     // signup.mustache
     root.require.register('userde.sk/src/templates/signup.js', function(exports, require, module) {
     
@@ -532,7 +746,7 @@
     // submit.mustache
     root.require.register('userde.sk/src/templates/submit.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input\" type=\"text\" placeholder=\"Type your question here\" value=\"jquery second parent\" autofocus />","            </div>","","            <div id=\"results\">","                <ul>","                    <li><a class=\"link\"><span>jQuery</span> - Getting the <span>second</span> <span>level</span> parent of an element</a> <span class=\"ago\">3 weeks ago</span></li>","                    <li><span class=\"tag solved\">solved</span><a class=\"link\">Find top <span>level</span> <code>li</code> with <span>jQuery</span></a> <span class=\"ago\">Today</span></li>","                    <li><span class=\"tag discussed\">discussed</span><a class=\"link\">Nth-child and grandparent or <span>second</span> <span>level</span> of child</a> <span class=\"ago\">A year ago</span></li>","                    <li><a class=\"link\"><span>jQuery</span> <code>parents()</code> - processing each tier separately</a></li>","                    <li><a class=\"link\"><span>jQuery</span> on <code>click</code> fire <span>second</span> child</a></li>","                    <li><a class=\"link\"><span>Jquery</span> target parent up two <span>levels</span> checkbox</a></li>","                    <li><a class=\"link\">setting border on annotation <span>levels</span> on mouse over in nested spans</a></li>","                    <li><a class=\"link\">always getting error in <code>StagePickLevel</code> class</a></li>","                    <li><a class=\"link\"><span>jquery</span> select all parents</a></li>","                </ul>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"button github\">Connect with GitHub</div>","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                <input class=\"input title\" type=\"text\" placeholder=\"Type your question here\" autofocus />","            </div>","            <app-results></app-results>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"preview\">Preview</span>","                    <label>Describe the question you are asking. You can use <a class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                <textarea class=\"input\" rows=4 placeholder=\"Make it simple and easy to understand\"></textarea>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"button github\">Connect with GitHub</div>","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary\">Finish</div>","    </div>","</div>"].join("\n");
     });
   })();
 

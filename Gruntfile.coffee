@@ -26,12 +26,15 @@ module.exports = (grunt) ->
                     # Vendor dependencies.
                     'vendor/jquery/jquery.js'
                     'vendor/lodash/dist/lodash.js'
+                    'vendor/moment/moment.js'
+                    'vendor/superagent/superagent.js'
 
                     'vendor/canjs/can.jquery-2.js'
                     'vendor/canjs/can.map.setter.js'
                     
                     'vendor/firebase/lib/firebase.js'
                     'vendor/firebase/lib/firebase-simple-login.js'
+                    
                     # Our app.
                     'build/js/userdesk.js'
                 ]

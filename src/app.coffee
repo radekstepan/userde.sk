@@ -8,6 +8,8 @@ load = [
     'components/header'
     'components/submit'
     'components/notify'
+    'components/results'
+    'components/result'
 ]
 
 Routing = can.Control

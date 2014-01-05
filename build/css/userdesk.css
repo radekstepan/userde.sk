@@ -68,7 +68,7 @@ h3{margin:0 0 10px 0}
 #content.box .footer{border-top:1px solid #e2e2e2;padding:20px;}
 #content.box .footer .button.primary{float:right}
 #content.box .footer:after{clear:both;display:block;content:''}
-#results{display:block;max-height:126px;overflow-y:scroll;border:1px solid rgba(102,198,248,0.4);border-top:0;}
+#results{display:block;max-height:126px;overflow-y:scroll;border:1px solid #ccc;border-top:0;}
 #results ul li{display:block;padding:8px;}
 #results ul li:not(:last-child){border-bottom:1px solid rgba(204,204,204,0.5)}
 #results ul li:nth-child(even){background:rgba(0,0,0,0.004)}
@@ -76,8 +76,9 @@ h3{margin:0 0 10px 0}
 #results ul li a span{background:rgba(254,219,39,0.5);color:#374044;padding:0 2px;margin:0 -2px}
 #results ul li .ago{margin-left:6px;font-size:12px;color:#aaa}
 #results .tag{padding:2px 8px;border-color:rgba(0,0,0,0.15);-webkit-border-radius:2px;border-radius:2px;font-weight:bold;display:inline-block;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;font-size:12px;float:right;}
-#results .tag.solved{background:#fedb27}
+#results .tag.closed{background:#fedb27}
 #results .tag.discussed{color:#fff;background:#cacaca}
+.box.focus #results{border-color:rgba(102,198,248,0.4)}
 
 .form .box:not(:first-child){border-top:1px dotted #ccc;margin-top:32px;padding-top:26px}
 .form .field:after{clear:both;display:block;content:''}
