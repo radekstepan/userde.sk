@@ -28363,7 +28363,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
-      var Issue, errors, firebase, github, input, request_id, results, search, state, user, working;
+      var Issue, errors, firebase, github, request_id, results, search, state, user, working;
       
       user = require('../modules/user');
       
@@ -28379,15 +28379,17 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       
       request_id = 0;
       
-      search = can.compute('');
-      
-      search.bind('change', function(ev, value) {
-        var our_id;
-        if (!value) {
+      search = function(el, evt) {
+        var our_id, q, spinner;
+        el.closest('.box').addClass('focus');
+        q = el.val().trim().split(/\s+/).join(' OR ');
+        if (!q) {
           return results.replace([]);
         }
         our_id = ++request_id;
-        return github.search(value, function(err, res) {
+        (spinner = this.element.find('.searching')).show();
+        return github.search(q, function(err, res) {
+          spinner.hide();
           if (our_id !== request_id) {
             return;
           }
@@ -28396,11 +28398,6 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           }
           return results.replace(res.items);
         });
-      });
-      
-      input = function(el, evt) {
-        el.closest('.box').addClass('focus');
-        return search(el.val().trim().split(/\s+/).join(' OR '));
       };
       
       working = false;
@@ -28429,8 +28426,8 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           '.logout click': function() {
             return firebase.logout();
           },
-          '.input.title keyup': _.debounce(input, 2e2),
-          '.input.title focus': input,
+          '.input.title keyup': _.debounce(search, 2e2),
+          '.input.title focus': search,
           '.input.title focusout': function(el) {
             return el.closest('.box').removeClass('focus');
           },
@@ -28883,7 +28880,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // submit.mustache
     root.require.register('userde.sk/src/templates/submit.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                {{ #errors.title }}","                <app-error></app-error>","                {{ /errors.title }}","                <input","                    class=\"input title {{ #if errors.title.length }}error{{ /if }}\"","                    data-key=\"title\"","                    type=\"text\"","                    placeholder=\"Type your question here\"","                    autofocus","                />","            </div>","            <app-results></app-results>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"icon eye preview closed\"></span>","                    <label>Describe the question you are asking. You can use <a target=\"_blank\" href=\"https://help.github.com/articles/github-flavored-markdown\" class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                {{ #errors.body }}","                <app-error></app-error>","                {{ /errors.body }}","                <textarea","                    class=\"input body {{ #if errors.body.length }}error{{ /if }}\"","                    data-key=\"body\"","                    placeholder=\"Make it simple and easy to understand\"","                ></textarea>","                <div id=\"preview\"></div>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}. <a class=\"link\">Logout</a>","                    <input","                        type=\"hidden\"","                        class=\"input contact\"","                        data-key=\"contact\"","                        value=\"{{ user.value.email }}\"","                    />","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"icon button github\">Connect with GitHub</div>","                    {{ #errors.contact }}","                    <app-error></app-error>","                    {{ /errors.contact }}","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary submit\">Finish</div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                {{ #errors.title }}","                <app-error></app-error>","                {{ /errors.title }}","                <span class=\"searching icon spin6\"></span>","                <input","                    class=\"input title {{ #if errors.title.length }}error{{ /if }}\"","                    data-key=\"title\"","                    type=\"text\"","                    placeholder=\"Type your question here\"","                    autofocus","                />","            </div>","            <app-results></app-results>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"icon eye preview closed\"></span>","                    <label>Describe the question you are asking. You can use <a target=\"_blank\" href=\"https://help.github.com/articles/github-flavored-markdown\" class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                {{ #errors.body }}","                <app-error></app-error>","                {{ /errors.body }}","                <textarea","                    class=\"input body {{ #if errors.body.length }}error{{ /if }}\"","                    data-key=\"body\"","                    placeholder=\"Make it simple and easy to understand\"","                ></textarea>","                <div id=\"preview\"></div>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}. <a class=\"link\">Logout</a>","                    <input","                        type=\"hidden\"","                        class=\"input contact\"","                        data-key=\"contact\"","                        value=\"{{ user.value.email }}\"","                    />","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"icon button github\">Connect with GitHub</div>","                    {{ #errors.contact }}","                    <app-error></app-error>","                    {{ /errors.contact }}","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary submit\">Finish</div>","    </div>","</div>"].join("\n");
     });
   })();
 

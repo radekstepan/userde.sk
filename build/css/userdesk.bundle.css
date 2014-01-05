@@ -494,6 +494,7 @@ h3{margin:0 0 10px 0}
 #content.box .footer{border-top:1px solid #e2e2e2;padding:20px;}
 #content.box .footer .button.primary{float:right}
 #content.box .footer:after{clear:both;display:block;content:''}
+.form .searching{display:none;position:absolute;right:10px;bottom:11px;color:#0079ff}
 #results{display:block;max-height:126px;overflow-y:scroll;border:1px solid #ccc;border-top:0;}
 #results ul li{display:block;padding:8px;}
 #results ul li:not(:last-child){border-bottom:1px solid rgba(204,204,204,0.5)}
@@ -516,6 +517,7 @@ h3{margin:0 0 10px 0}
 #preview code{font-size:14px}
 
 .form .box:not(:first-child){border-top:1px dotted #ccc;margin-top:32px;padding-top:26px}
+.form .field{position:relative;}
 .form .field:after{clear:both;display:block;content:''}
 .form .field label,.form .field input,.form .field textarea{display:block;width:100%}
 .form .field label{margin-bottom:10px}

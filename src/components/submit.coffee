@@ -5,18 +5,23 @@ results  = require '../modules/results'
 state    = require '../modules/state'
 Issue    = require '../modules/issue'
 
-# A counter of requests as they are launched.
-# Helps us determing if a query results arrived too late.
+# A counter of search requests as they are launched.
+# Helps us determine if query results arrived too late.
 request_id = 0
 
-# Trigger a search if our value changes.
-search = can.compute ''
-search.bind 'change', (ev, value) ->
-    # Empty value? Just clear us.
-    return results.replace [] unless value
+# Trigger a search.
+search = (el, evt) ->
+    # Focus our box.
+    el.closest('.box').addClass 'focus'
+    # Save new text as a search query matching any of the words.
+    q = el.val().trim().split(/\s+/).join(' OR ')
+    # Empty query? Just clear us.
+    return results.replace [] unless q
     # Making a new request.
     our_id = ++request_id
-    github.search value, (err, res) ->
+    do (spinner = @element.find('.searching')).show
+    github.search q, (err, res) ->
+        do spinner.hide
         # If the input query has changed in the meantime
         #  ignore these results.
         return if our_id isnt request_id
@@ -24,13 +29,6 @@ search.bind 'change', (ev, value) ->
         return if err
         # Save the new results (or empty array).
         results.replace res.items
-
-# Update input text.
-input = (el, evt) ->
-    # Focus our box.
-    el.closest('.box').addClass 'focus'
-    # Save new text as a search query matching any of the words.
-    search el.val().trim().split(/\s+/).join(' OR ')
 
 # Are we submitting an issue right now?
 working = no
@@ -60,10 +58,10 @@ module.exports = can.Component.extend
             do firebase.logout
 
         # Make a debounced search after 200ms.
-        '.input.title keyup': _.debounce input, 2e2
+        '.input.title keyup': _.debounce search, 2e2
 
         # Make a search if we have content.
-        '.input.title focus': input
+        '.input.title focus': search
 
         '.input.title focusout': (el) ->
             el.closest('.box').removeClass 'focus'
