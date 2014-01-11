@@ -368,7 +368,7 @@
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
-      var Issue, errors, firebase, github, query, request_id, results, search, state, user, working;
+      var Issue, errors, firebase, github, preview, query, request_id, results, search, state, user, working;
       
       user = require('../modules/user');
       
@@ -414,6 +414,18 @@
       working = false;
       
       errors = new can.Map({});
+      
+      preview = function(a, b, c) {
+        a.toggleClass('closed eye eye-off');
+        b.toggle();
+        c.toggle();
+        c.height(b.height());
+        if (c.is(':visible')) {
+          return c.html(marked(b.val()));
+        } else {
+          return b.focus();
+        }
+      };
       
       module.exports = can.Component.extend({
         tag: 'app-submit',
@@ -491,14 +503,17 @@
             return el.height(el.prop('scrollHeight') + 'px');
           },
           '.preview click': function(el) {
-            var a, b;
-            el.toggleClass('closed eye eye-off');
-            (a = this.element.find('textarea.body')).toggle();
-            (b = this.element.find('#preview')).toggle();
-            b.height(a.height());
-            if (b.is(':visible')) {
-              return b.html(marked(a.val()));
-            }
+            var b, c;
+            b = this.element.find('.input.body');
+            c = this.element.find('#preview');
+            return preview(el, b, c);
+          },
+          '#preview dblclick': function() {
+            var a, b, c;
+            a = this.element.find('.preview');
+            b = this.element.find('.input.body');
+            c = this.element.find('#preview');
+            return preview(a, b, c);
           }
         }
       });

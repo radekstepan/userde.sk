@@ -42,6 +42,21 @@ working = no
 # Capture form errors here.
 errors = new can.Map({ })
 
+# Toggle and re-render the markup in body.
+preview = (a, b, c) ->
+    a.toggleClass 'closed eye eye-off'
+    do b.toggle ; do c.toggle
+
+    # Make sure preview is the same height.
+    c.height do b.height
+
+    # Render markdown.
+    if c.is(':visible')
+        c.html(marked(do b.val))
+    # Focus on the input.
+    else
+        do b.focus
+
 # Submit an issue form.
 module.exports = can.Component.extend
 
@@ -133,12 +148,12 @@ module.exports = can.Component.extend
 
         # Toggle the preview.
         '.preview click': (el) ->
-            el.toggleClass 'closed eye eye-off'
-            do (a = @element.find('textarea.body')).toggle
-            do (b = @element.find('#preview')).toggle
+            b = @element.find('.input.body')
+            c = @element.find('#preview')
+            preview el, b, c
 
-            # Make sure preview is the same height.
-            b.height do a.height
-
-            # Render markdown.
-            b.html(marked(do a.val)) if b.is(':visible')
+        '#preview dblclick': ->
+            a = @element.find('.preview')
+            b = @element.find('.input.body')
+            c = @element.find('#preview')
+            preview a, b, c
