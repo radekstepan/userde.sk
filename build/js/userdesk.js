@@ -368,7 +368,7 @@
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
-      var Issue, errors, firebase, github, request_id, results, search, state, user, working;
+      var Issue, errors, firebase, github, query, request_id, results, search, state, user, working;
       
       user = require('../modules/user');
       
@@ -382,6 +382,8 @@
       
       Issue = require('../modules/issue');
       
+      query = null;
+      
       request_id = 0;
       
       search = function(el, evt) {
@@ -391,9 +393,13 @@
         if (!q) {
           return results.replace([]);
         }
+        if (q === query) {
+          return;
+        }
+        query = q;
         our_id = ++request_id;
         (spinner = this.element.find('.searching')).show();
-        return github.search(q, function(err, res) {
+        return github.search(query, function(err, res) {
           spinner.hide();
           if (our_id !== request_id) {
             return;
@@ -431,7 +437,7 @@
           '.logout click': function() {
             return firebase.logout();
           },
-          '.input.title keyup': _.debounce(search, 2e2),
+          '.input.title keyup': _.debounce(search, 1e3),
           '.input.title focus': search,
           '.input.title focusout': function(el) {
             return el.closest('.box').removeClass('focus');

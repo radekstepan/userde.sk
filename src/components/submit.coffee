@@ -5,6 +5,9 @@ results  = require '../modules/results'
 state    = require '../modules/state'
 Issue    = require '../modules/issue'
 
+# The query.
+query = null
+
 # A counter of search requests as they are launched.
 # Helps us determine if query results arrived too late.
 request_id = 0
@@ -13,14 +16,17 @@ request_id = 0
 search = (el, evt) ->
     # Focus our box.
     el.closest('.box').addClass 'focus'
-    # Save new text as a search query matching any of the words.
+    # Query matching any of the words.
     q = el.val().trim().split(/\s+/).join(' OR ')
     # Empty query? Just clear us.
     return results.replace [] unless q
+    # The same as we already have?
+    return if q is query
+    query = q
     # Making a new request.
     our_id = ++request_id
     do (spinner = @element.find('.searching')).show
-    github.search q, (err, res) ->
+    github.search query, (err, res) ->
         do spinner.hide
         # If the input query has changed in the meantime
         #  ignore these results.
@@ -57,8 +63,8 @@ module.exports = can.Component.extend
         '.logout click': ->
             do firebase.logout
 
-        # Make a debounced search after 200ms.
-        '.input.title keyup': _.debounce search, 2e2
+        # Make a debounced search after 1s.
+        '.input.title keyup': _.debounce search, 1e3
 
         # Make a search if we have content.
         '.input.title focus': search
