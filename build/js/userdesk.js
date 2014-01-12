@@ -225,7 +225,7 @@
       
       github = require('./modules/github');
       
-      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result', 'components/error'];
+      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result', 'components/error', 'components/layout'];
       
       Routing = can.Control({
         init: function() {
@@ -273,13 +273,15 @@
     // header.coffee
     root.require.register('userde.sk/src/components/header.js', function(exports, require, module) {
     
-      var account, firebase, user;
+      var account, firebase, layout, user;
       
       account = require('../modules/account');
       
       user = require('../modules/user');
       
       firebase = require('../modules/firebase');
+      
+      layout = require('../modules/layout');
       
       module.exports = can.Component.extend({
         tag: 'app-header',
@@ -291,15 +293,42 @@
             },
             'user': {
               'value': user
-            }
+            },
+            'layout': layout
           };
         },
         events: {
           '#account .logout click': function() {
             return firebase.logout();
           },
-          '#account click': function() {
-            return $('#account .dropdown').toggle();
+          '#account .icon.user click': function(el, evt) {
+            layout.attr('showAccountDropdown', !layout.showAccountDropdown);
+            evt.preventDefault();
+            return false;
+          }
+        }
+      });
+      
+    });
+
+    
+    // layout.coffee
+    root.require.register('userde.sk/src/components/layout.js', function(exports, require, module) {
+    
+      var layout;
+      
+      layout = require('../modules/layout');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-layout',
+        events: {
+          'click': function(el, evt) {
+            var dropdown;
+            dropdown = this.element.find('#account .dropdown');
+            if (dropdown.is(evt.target) || dropdown.has(evt.target).length) {
+              return;
+            }
+            return layout.attr('showAccountDropdown', false);
           }
         }
       });
@@ -777,6 +806,16 @@
     });
 
     
+    // layout.coffee
+    root.require.register('userde.sk/src/modules/layout.js', function(exports, require, module) {
+    
+      module.exports = new can.Map({
+        'showAccountDropdown': false
+      });
+      
+    });
+
+    
     // render.coffee
     root.require.register('userde.sk/src/modules/render.js', function(exports, require, module) {
     
@@ -858,7 +897,7 @@
     // header.mustache
     root.require.register('userde.sk/src/templates/header.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div id=\"account\">","        {{ #isLoggedIn }}","            {{ user.value.displayName }} <a class=\"icon user\"></a>","            <div class=\"dropdown\">","                <div class=\"section profile\">","                    <div class=\"avatar\">","                        <!--<div class=\"icon user\"></div>-->","                        {{ avatar 40 }}","                    </div>","                    <div class=\"email\">","                        {{ user.value.email }}","                    </div>","                    <a class=\"primary button small settings\">Settings</a>","                </div>","                <ul class=\"section menu\">","                    <li>","                        <a class=\"logout\">Logout</a>","                    </li>","                </ul>","            </div>","        {{ /isLoggedIn }}","        </div>","        <div id=\"title\">userde.sk/{{ account.value }}</div>","        <div id=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div id=\"account\">","        {{ #isLoggedIn }}","            {{ user.value.displayName }} <a class=\"icon user\"></a>","            {{ #if layout.showAccountDropdown }}","            <div class=\"dropdown\">","                <div class=\"section profile\">","                    <div class=\"avatar\">","                        <!--<div class=\"icon user\"></div>-->","                        {{ avatar 40 }}","                    </div>","                    <div class=\"email\">","                        {{ user.value.email }}","                    </div>","                    <a class=\"primary button small settings\">Settings</a>","                </div>","                <ul class=\"section menu\">","                    <li>","                        <a class=\"logout\">Logout</a>","                    </li>","                </ul>","            </div>","            {{ /if }}","        {{ /isLoggedIn }}","        </div>","        <div id=\"title\">userde.sk/{{ account.value }}</div>","        <div id=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
     });
 
     
@@ -879,7 +918,7 @@
     // submit.mustache
     root.require.register('userde.sk/src/templates/page/submit.js', function(exports, require, module) {
     
-      module.exports = ["<app-notify></app-notify>","<app-header></app-header>","<app-submit></app-submit>"].join("\n");
+      module.exports = ["<app-layout>","    <app-notify></app-notify>","    <app-header></app-header>","    <app-submit></app-submit>","</app-layout>"].join("\n");
     });
 
     

@@ -13,6 +13,7 @@ load = [
     'components/results'
     'components/result'
     'components/error'
+    'components/layout'
 ]
 
 Routing = can.Control

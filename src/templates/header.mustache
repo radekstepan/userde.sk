@@ -3,6 +3,7 @@
         <div id="account">
         {{ #isLoggedIn }}
             {{ user.value.displayName }} <a class="icon user"></a>
+            {{ #if layout.showAccountDropdown }}
             <div class="dropdown">
                 <div class="section profile">
                     <div class="avatar">
@@ -20,6 +21,7 @@
                     </li>
                 </ul>
             </div>
+            {{ /if }}
         {{ /isLoggedIn }}
         </div>
         <div id="title">userde.sk/{{ account.value }}</div>
