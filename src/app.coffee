@@ -29,6 +29,7 @@ Routing = can.Control
     ':owner/:repo route': (data) ->
         # Set the account.
         account "#{data.owner}/#{data.repo}"
+        mixpanel.track('account', data)
 
         template = require './templates/page/submit'
         @render(template, {}, 'Submit an issue')
@@ -39,9 +40,12 @@ Routing = can.Control
         # Update title.
         document.title = if title then "#{title} - userde.sk" else 'userde.sk'
 
-module.exports = (opts) ->  
+module.exports = (opts) ->
     # New client.
     firebase.attr 'client', opts.firebase
+
+    # Start tracking.
+    mixpanel.init(opts.mixpanel)
 
     # Start routing.
     new Routing opts.el

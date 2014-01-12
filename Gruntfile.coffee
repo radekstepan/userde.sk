@@ -29,6 +29,7 @@ module.exports = (grunt) ->
                     'vendor/moment/moment.js'
                     'vendor/superagent/superagent.js'
                     'vendor/marked/lib/marked.js'
+                    'vendor/mixpanel/index.js'
 
                     'vendor/canjs/can.jquery-2.js'
                     'vendor/canjs/can.map.setter.js'

@@ -31,8 +31,11 @@ search = (el, evt) ->
         # If the input query has changed in the meantime
         #  ignore these results.
         return if our_id isnt request_id
-        # Ignore errors.
-        return if err
+        # Log errors.
+        return mixpanel.track('error', {
+            'where': 'github.search'
+            'what':  do err.toString
+        }) if err
         # Save the new results (or empty array).
         results.replace res.items
 
@@ -125,6 +128,7 @@ module.exports = can.Component.extend
 
             # Submit the issue then.
             state.load 'Sending'
+            mixpanel.track('submit')
             github.submit (do issue.attr), (err, res) ->
                 do done
                 return state.warn err if err

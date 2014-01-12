@@ -241,6 +241,7 @@
         ':owner/:repo route': function(data) {
           var template;
           account("" + data.owner + "/" + data.repo);
+          mixpanel.track('account', data);
           template = require('./templates/page/submit');
           return this.render(template, {}, 'Submit an issue');
         },
@@ -252,6 +253,7 @@
       
       module.exports = function(opts) {
         firebase.attr('client', opts.firebase);
+        mixpanel.init(opts.mixpanel);
         new Routing(opts.el);
         return can.route.ready();
       };
@@ -434,7 +436,10 @@
             return;
           }
           if (err) {
-            return;
+            return mixpanel.track('error', {
+              'where': 'github.search',
+              'what': err.toString()
+            });
           }
           return results.replace(res.items);
         });
@@ -516,6 +521,7 @@
               return done();
             }
             state.load('Sending');
+            mixpanel.track('submit');
             return github.submit(issue.attr(), function(err, res) {
               done();
               if (err) {
@@ -882,7 +888,17 @@
     // user.coffee
     root.require.register('userde.sk/src/modules/user.js', function(exports, require, module) {
     
-      module.exports = can.compute({});
+      var user;
+      
+      module.exports = user = can.compute({});
+      
+      user.bind('change', function(ev, obj) {
+        mixpanel.people.set({
+          '$email': obj.email,
+          'name': obj.displayName
+        });
+        return mixpanel.identify(obj.username);
+      });
       
     });
 

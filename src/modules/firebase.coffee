@@ -20,7 +20,6 @@ module.exports = new can.Map
 
             # Save user in memory.
             user obj
-
             state.info "#{obj.displayName} is logged in"
 
             # Call back.

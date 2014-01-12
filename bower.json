@@ -9,6 +9,7 @@
         "moment": "2.5.0",
         "superagent": "0.15.7",
         "marked": "0.3.0",
+        "mixpanel": "http://cdn.mxpnl.com/libs/mixpanel-2.2.js",
         "normalize-css": "2.1.3"
     }
 }
