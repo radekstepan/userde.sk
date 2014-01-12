@@ -1,4 +1,5 @@
-layout = require '../modules/layout'
+layout   = require '../modules/layout'
+firebase = require '../modules/firebase'
 
 # Layout.
 module.exports = can.Component.extend
@@ -11,3 +12,18 @@ module.exports = can.Component.extend
             dropdown = @element.find('#account .dropdown')
             return if dropdown.is(evt.target) or dropdown.has(evt.target).length
             layout.attr 'showAccountDropdown', no
+
+        # GitHub connect.
+        '.button.github click': ->
+            firebase.login (err) ->
+                if err
+                    # Log it.
+                    mixpanel.track('error', {
+                        'where': 'github.connect'
+                        'what':  text = do err.toString
+                    })
+                    state.warn text
+
+        # GitHub logout.
+        '.logout click': ->
+            do firebase.logout

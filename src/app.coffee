@@ -4,6 +4,7 @@ account  = require './modules/account'
 render   = require './modules/render'
 state    = require './modules/state'
 github   = require './modules/github'
+options  = require './modules/options'
 
 load = [
     'modules/helpers'
@@ -46,6 +47,9 @@ module.exports = (opts) ->
 
     # Start tracking.
     mixpanel.init(opts.mixpanel)
+
+    # Save all the options.
+    options.attr opts
 
     # Start routing.
     new Routing opts.el

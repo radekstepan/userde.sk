@@ -1,9 +1,8 @@
-user     = require '../modules/user'
-firebase = require '../modules/firebase'
-github   = require '../modules/github'
-results  = require '../modules/results'
-state    = require '../modules/state'
-Issue    = require '../modules/issue'
+user    = require '../modules/user'
+github  = require '../modules/github'
+results = require '../modules/results'
+state   = require '../modules/state'
+Issue   = require '../modules/issue'
 
 # The query.
 query = null
@@ -72,15 +71,6 @@ module.exports = can.Component.extend
         'errors': errors
 
     events:
-        # Login.
-        '.button.github click': ->
-            firebase.login (err) ->
-                throw err if err
-
-        # Logout.
-        '.logout click': ->
-            do firebase.logout
-
         # Make a debounced search after 1s.
         '.input.title keyup': _.debounce search, 1e3
 
@@ -131,19 +121,25 @@ module.exports = can.Component.extend
             mixpanel.track('submit')
             github.submit (do issue.attr), (err, res) ->
                 do done
-                return state.warn err if err
-                # Success message.
-                state.warn """
-                Submitted as <a
-                    class="link"
-                    target="_blank"
-                    href="#{res.html_url}"
-                >##{res.number}</a>
-                """
-                # Redirect.
-                setTimeout ->
-                    window.location.replace res.html_url
-                , 3e3
+                if err
+                    mixpanel.track('error', {
+                        'where': 'github.submit'
+                        'what':  text = do err.toString
+                    })
+                    state.warn text
+                else
+                    # Success message.
+                    state.info """
+                    Submitted as <a
+                        class="link"
+                        target="_blank"
+                        href="#{res.html_url}"
+                    >##{res.number}</a>
+                    """
+                    # Redirect.
+                    setTimeout ->
+                        window.location.replace res.html_url
+                    , 3e3
 
         # Auto-expand textarea.
         '.input.body keydown': (el) ->

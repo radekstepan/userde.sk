@@ -2,9 +2,9 @@
     <div class="wrapper">
         <div id="account">
         {{ #isLoggedIn }}
-            {{ user.value.displayName }} <a class="icon user"></a>
+            <a class="icon user">{{ user.value.displayName }}</a>
             {{ #if layout.showAccountDropdown }}
-            <div class="dropdown">
+            <div class="dropdown" style="right:{{ dropdownRight }}px">
                 <div class="section profile">
                     <div class="avatar">
                         <!--<div class="icon user"></div>-->
@@ -16,12 +16,15 @@
                     <a class="primary button small settings">Settings</a>
                 </div>
                 <ul class="section menu">
-                    <li>
-                        <a class="logout">Logout</a>
-                    </li>
+                {{ #isAdmin }}
+                    <li><a target="mixpanel" href="https://mixpanel.com/report/339487/">Analytics</a></li>
+                {{ /isAdmin }}
+                    <li><a class="logout">Logout</a></li>
                 </ul>
             </div>
             {{ /if }}
+        {{ else }}
+            <div class="icon button small github">Connect with GitHub</div>
         {{ /isLoggedIn }}
         </div>
         <div id="title">userde.sk/{{ account.value }}</div>

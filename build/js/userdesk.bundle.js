@@ -31225,7 +31225,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // app.coffee
     root.require.register('userde.sk/src/app.js', function(exports, require, module) {
     
-      var Routing, account, firebase, github, load, render, state, user;
+      var Routing, account, firebase, github, load, options, render, state, user;
       
       firebase = require('./modules/firebase');
       
@@ -31238,6 +31238,8 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       state = require('./modules/state');
       
       github = require('./modules/github');
+      
+      options = require('./modules/options');
       
       load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result', 'components/error', 'components/layout'];
       
@@ -31268,6 +31270,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       module.exports = function(opts) {
         firebase.attr('client', opts.firebase);
         mixpanel.init(opts.mixpanel);
+        options.attr(opts);
         new Routing(opts.el);
         return can.route.ready();
       };
@@ -31289,7 +31292,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // header.coffee
     root.require.register('userde.sk/src/components/header.js', function(exports, require, module) {
     
-      var account, firebase, layout, user;
+      var account, firebase, layout, options, user;
       
       account = require('../modules/account');
       
@@ -31298,6 +31301,8 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
       firebase = require('../modules/firebase');
       
       layout = require('../modules/layout');
+      
+      options = require('../modules/options');
       
       module.exports = can.Component.extend({
         tag: 'app-header',
@@ -31314,13 +31319,23 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           };
         },
         events: {
-          '#account .logout click': function() {
-            return firebase.logout();
-          },
-          '#account .icon.user click': function(el, evt) {
+          '.icon.user click': function(el, evt) {
             layout.attr('showAccountDropdown', !layout.showAccountDropdown);
             evt.preventDefault();
             return false;
+          }
+        },
+        helpers: {
+          dropdownRight: function(opts) {
+            return $('app-header .icon.user').outerWidth();
+          },
+          isAdmin: function(opts) {
+            var usr;
+            if ((usr = (user()).username) && usr === options.attr('admin')) {
+              return opts.fn(this);
+            } else {
+              return opts.inverse(this);
+            }
           }
         }
       });
@@ -31331,9 +31346,11 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // layout.coffee
     root.require.register('userde.sk/src/components/layout.js', function(exports, require, module) {
     
-      var layout;
+      var firebase, layout;
       
       layout = require('../modules/layout');
+      
+      firebase = require('../modules/firebase');
       
       module.exports = can.Component.extend({
         tag: 'app-layout',
@@ -31345,6 +31362,21 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
               return;
             }
             return layout.attr('showAccountDropdown', false);
+          },
+          '.button.github click': function() {
+            return firebase.login(function(err) {
+              var text;
+              if (err) {
+                mixpanel.track('error', {
+                  'where': 'github.connect',
+                  'what': text = err.toString()
+                });
+                return state.warn(text);
+              }
+            });
+          },
+          '.logout click': function() {
+            return firebase.logout();
           }
         }
       });
@@ -31413,11 +31445,9 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
-      var Issue, errors, firebase, github, preview, query, request_id, results, search, state, user, working;
+      var Issue, errors, github, preview, query, request_id, results, search, state, user, working;
       
       user = require('../modules/user');
-      
-      firebase = require('../modules/firebase');
       
       github = require('../modules/github');
       
@@ -31487,16 +31517,6 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           };
         },
         events: {
-          '.button.github click': function() {
-            return firebase.login(function(err) {
-              if (err) {
-                throw err;
-              }
-            });
-          },
-          '.logout click': function() {
-            return firebase.logout();
-          },
           '.input.title keyup': _.debounce(search, 1e3),
           '.input.title focus': search,
           '.input.title focusout': function(el) {
@@ -31537,14 +31557,20 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
             state.load('Sending');
             mixpanel.track('submit');
             return github.submit(issue.attr(), function(err, res) {
+              var text;
               done();
               if (err) {
-                return state.warn(err);
+                mixpanel.track('error', {
+                  'where': 'github.submit',
+                  'what': text = err.toString()
+                });
+                return state.warn(text);
+              } else {
+                state.info("Submitted as <a\n    class=\"link\"\n    target=\"_blank\"\n    href=\"" + res.html_url + "\"\n>#" + res.number + "</a>");
+                return setTimeout(function() {
+                  return window.location.replace(res.html_url);
+                }, 3e3);
               }
-              state.warn("Submitted as <a\n    class=\"link\"\n    target=\"_blank\"\n    href=\"" + res.html_url + "\"\n>#" + res.number + "</a>");
-              return setTimeout(function() {
-                return window.location.replace(res.html_url);
-              }, 3e3);
             });
           },
           '.input.body keydown': function(el) {
@@ -31836,6 +31862,14 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     });
 
     
+    // options.coffee
+    root.require.register('userde.sk/src/modules/options.js', function(exports, require, module) {
+    
+      module.exports = new can.Map({});
+      
+    });
+
+    
     // render.coffee
     root.require.register('userde.sk/src/modules/render.js', function(exports, require, module) {
     
@@ -31927,7 +31961,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // header.mustache
     root.require.register('userde.sk/src/templates/header.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div id=\"account\">","        {{ #isLoggedIn }}","            {{ user.value.displayName }} <a class=\"icon user\"></a>","            {{ #if layout.showAccountDropdown }}","            <div class=\"dropdown\">","                <div class=\"section profile\">","                    <div class=\"avatar\">","                        <!--<div class=\"icon user\"></div>-->","                        {{ avatar 40 }}","                    </div>","                    <div class=\"email\">","                        {{ user.value.email }}","                    </div>","                    <a class=\"primary button small settings\">Settings</a>","                </div>","                <ul class=\"section menu\">","                    <li>","                        <a class=\"logout\">Logout</a>","                    </li>","                </ul>","            </div>","            {{ /if }}","        {{ /isLoggedIn }}","        </div>","        <div id=\"title\">userde.sk/{{ account.value }}</div>","        <div id=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div id=\"account\">","        {{ #isLoggedIn }}","            <a class=\"icon user\">{{ user.value.displayName }}</a>","            {{ #if layout.showAccountDropdown }}","            <div class=\"dropdown\" style=\"right:{{ dropdownRight }}px\">","                <div class=\"section profile\">","                    <div class=\"avatar\">","                        <!--<div class=\"icon user\"></div>-->","                        {{ avatar 40 }}","                    </div>","                    <div class=\"email\">","                        {{ user.value.email }}","                    </div>","                    <a class=\"primary button small settings\">Settings</a>","                </div>","                <ul class=\"section menu\">","                {{ #isAdmin }}","                    <li><a target=\"mixpanel\" href=\"https://mixpanel.com/report/339487/\">Analytics</a></li>","                {{ /isAdmin }}","                    <li><a class=\"logout\">Logout</a></li>","                </ul>","            </div>","            {{ /if }}","        {{ else }}","            <div class=\"icon button small github\">Connect with GitHub</div>","        {{ /isLoggedIn }}","        </div>","        <div id=\"title\">userde.sk/{{ account.value }}</div>","        <div id=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
     });
 
     
@@ -31976,7 +32010,7 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     // submit.mustache
     root.require.register('userde.sk/src/templates/submit.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                {{ #errors.title }}","                <app-error></app-error>","                {{ /errors.title }}","                <span class=\"searching icon spin6\"></span>","                <input","                    class=\"input title {{ #if errors.title.length }}error{{ /if }}\"","                    data-key=\"title\"","                    type=\"text\"","                    placeholder=\"Type your question here\"","                    autofocus","                />","            </div>","            <app-results></app-results>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"icon eye preview closed\"></span>","                    <label>Describe the question you are asking. You can use <a target=\"_blank\" href=\"https://help.github.com/articles/github-flavored-markdown\" class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                {{ #errors.body }}","                <app-error></app-error>","                {{ /errors.body }}","                <textarea","                    class=\"input body {{ #if errors.body.length }}error{{ /if }}\"","                    data-key=\"body\"","                    placeholder=\"Make it simple and easy to understand\"","                ></textarea>","                <div id=\"preview\"></div>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}. <a class=\"link\">Logout</a>","                    <input","                        type=\"hidden\"","                        class=\"input contact\"","                        data-key=\"contact\"","                        value=\"{{ user.value.email }}\"","                    />","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"icon button github\">Connect with GitHub</div>","                    {{ #errors.contact }}","                    <app-error></app-error>","                    {{ /errors.contact }}","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary submit\">Finish</div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                {{ #errors.title }}","                <app-error></app-error>","                {{ /errors.title }}","                <span class=\"searching icon spin6\"></span>","                <input","                    class=\"input title {{ #if errors.title.length }}error{{ /if }}\"","                    data-key=\"title\"","                    type=\"text\"","                    placeholder=\"Type your question here\"","                    autofocus","                />","            </div>","            <app-results></app-results>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"icon eye preview closed\"></span>","                    <label>Describe the question you are asking. You can use <a target=\"_blank\" href=\"https://help.github.com/articles/github-flavored-markdown\" class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                {{ #errors.body }}","                <app-error></app-error>","                {{ /errors.body }}","                <textarea","                    class=\"input body {{ #if errors.body.length }}error{{ /if }}\"","                    data-key=\"body\"","                    placeholder=\"Make it simple and easy to understand\"","                ></textarea>","                <div id=\"preview\"></div>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}. <a class=\"link logout\">Logout</a>","                    <input","                        type=\"hidden\"","                        class=\"input contact\"","                        data-key=\"contact\"","                        value=\"{{ user.value.email }}\"","                    />","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"icon button github\">Connect with GitHub</div>","                    {{ #errors.contact }}","                    <app-error></app-error>","                    {{ /errors.contact }}","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary submit\">Finish</div>","    </div>","</div>"].join("\n");
     });
   })();
 

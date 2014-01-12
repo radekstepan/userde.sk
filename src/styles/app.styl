@@ -9,7 +9,6 @@ app-layout
 #header
     background: #FEDB27
     border-bottom: 1px solid #CDAC19
-    padding: $whitespace
 
     .wrapper
         width: 800px
@@ -21,6 +20,7 @@ app-layout
     #title
         font-weight: bold
         margin-right: $whitespace
+        padding: $whitespace 0
         color: #121004
         font-size: 20px
 
@@ -46,14 +46,23 @@ app-layout
         position: relative
         user-select: none
 
+        .github.button
+            margin: 21px 0
+
+        .icon.user
+            display: block
+            padding: 10px 0
+            margin: 12px 0
+
         .dropdown
             min-width: 245px
             background: #FFF
             border: 1px solid #AAA
             border-radius: 3px
             position: absolute
-            top: 27px
-            right: -7px
+            top: 50px
+            right: 0 // dynamically calculate based on display name
+            margin-right: -29px
             z-index: 3
 
             &:before
@@ -115,6 +124,8 @@ app-layout
                         display: block
                         padding: 0 10px
                         line-height: 26px
+                        text-decoration: none
+                        color: inherit
                         
                         &:hover
                             color: #FFF
