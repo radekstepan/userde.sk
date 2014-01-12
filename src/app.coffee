@@ -15,6 +15,7 @@ load = [
     'components/result'
     'components/error'
     'components/layout'
+    'components/tutorial'
 ]
 
 Routing = can.Control
@@ -61,7 +62,7 @@ module.exports = (opts) ->
     mixpanel.init(opts.mixpanel)
 
     # Save all the options.
-    options.attr opts
+    options.attr opts, no
 
     # Start routing.
     new Routing opts.el

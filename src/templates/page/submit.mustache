@@ -1,5 +1,8 @@
 <app-layout class="app">
     <app-notify></app-notify>
-    <app-header></app-header>
-    <app-submit></app-submit>
+    <app-tutorial></app-tutorial>
+    <div id="main" {{ #options.showTutorial }}class="tutorial"{{ /options.showTutorial }}>
+        <app-header></app-header>
+        <app-submit></app-submit>
+    </div>
 </app-layout>

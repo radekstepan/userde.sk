@@ -1,10 +1,14 @@
 layout   = require '../modules/layout'
 firebase = require '../modules/firebase'
+options  = require '../modules/options'
 
 # Layout.
 module.exports = can.Component.extend
 
     tag: 'app-layout'
+
+    scope: ->
+        { options }
 
     events:
         # Hide account dropdown?

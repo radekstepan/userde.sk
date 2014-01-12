@@ -1,1 +1,2 @@
-module.exports = new can.Map({ })
+module.exports = new can.Map
+    'showTutorial': yes

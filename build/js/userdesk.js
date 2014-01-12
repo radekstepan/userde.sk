@@ -227,7 +227,7 @@
       
       options = require('./modules/options');
       
-      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result', 'components/error', 'components/layout'];
+      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result', 'components/error', 'components/layout', 'components/tutorial'];
       
       Routing = can.Control({
         init: function() {
@@ -273,7 +273,7 @@
       module.exports = function(opts) {
         firebase.attr('client', opts.firebase);
         mixpanel.init(opts.mixpanel);
-        options.attr(opts);
+        options.attr(opts, false);
         new Routing(opts.el);
         return can.route.ready();
       };
@@ -349,14 +349,21 @@
     // layout.coffee
     root.require.register('userde.sk/src/components/layout.js', function(exports, require, module) {
     
-      var firebase, layout;
+      var firebase, layout, options;
       
       layout = require('../modules/layout');
       
       firebase = require('../modules/firebase');
       
+      options = require('../modules/options');
+      
       module.exports = can.Component.extend({
         tag: 'app-layout',
+        scope: function() {
+          return {
+            options: options
+          };
+        },
         events: {
           'click': function(el, evt) {
             var dropdown;
@@ -593,6 +600,24 @@
             c = this.element.find('#preview');
             return preview(a, b, c);
           }
+        }
+      });
+      
+    });
+
+    
+    // tutorial.coffee
+    root.require.register('userde.sk/src/components/tutorial.js', function(exports, require, module) {
+    
+      var options;
+      
+      options = require('../modules/options');
+      
+      module.exports = can.Component.extend({
+        tag: 'app-tutorial',
+        template: require('../templates/tutorial'),
+        scope: function() {
+          return options;
         }
       });
       
@@ -868,7 +893,9 @@
     // options.coffee
     root.require.register('userde.sk/src/modules/options.js', function(exports, require, module) {
     
-      module.exports = new can.Map({});
+      module.exports = new can.Map({
+        'showTutorial': true
+      });
       
     });
 
@@ -964,7 +991,7 @@
     // header.mustache
     root.require.register('userde.sk/src/templates/header.js', function(exports, require, module) {
     
-      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div id=\"account\">","        {{ #isLoggedIn }}","            <a class=\"icon user\">{{ user.value.displayName }}</a>","            {{ #if layout.showAccountDropdown }}","            <div class=\"dropdown\" style=\"right:{{ dropdownRight }}px\">","                <div class=\"section profile\">","                    <div class=\"avatar\">","                        <!--<div class=\"icon user\"></div>-->","                        {{ avatar 40 }}","                    </div>","                    <div class=\"email\">","                        {{ user.value.email }}","                    </div>","                    <a class=\"primary button small settings\">Settings</a>","                </div>","                <ul class=\"section menu\">","                {{ #isAdmin }}","                    <li><a target=\"mixpanel\" href=\"https://mixpanel.com/report/339487/\">Analytics</a></li>","                {{ /isAdmin }}","                    <li><a class=\"logout\">Logout</a></li>","                </ul>","            </div>","            {{ /if }}","        {{ else }}","            <div class=\"icon button secondary small github\">Connect with GitHub</div>","        {{ /isLoggedIn }}","        </div>","        <div id=\"title\">userde.sk/{{ account.value }}</div>","        <div id=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
+      module.exports = ["<div id=\"header\">","    <div class=\"wrapper\">","        <div id=\"account\">","        {{ #isLoggedIn }}","            <a class=\"icon user\">{{ user.value.displayName }}</a>","            {{ #if layout.showAccountDropdown }}","            <div class=\"dropdown\" style=\"right:{{ dropdownRight }}px\">","                <div class=\"section profile\">","                    <div class=\"avatar\">","                        <!--<div class=\"icon user\"></div>-->","                        {{ avatar 40 }}","                    </div>","                    <div class=\"email\">","                        {{ user.value.email }}","                    </div>","                    <a class=\"primary button small settings\">Settings</a>","                </div>","                <ul class=\"section menu\">","                {{ #isAdmin }}","                    <li><a target=\"mixpanel\" href=\"https://mixpanel.com/report/339487/\">Analytics</a></li>","                {{ /isAdmin }}","                    <li><a class=\"logout\">Logout</a></li>","                </ul>","            </div>","            {{ /if }}","        {{ else }}","            <div class=\"icon button secondary small github\">Connect with GitHub</div>","        {{ /isLoggedIn }}","        </div>","        <div id=\"title\">userde.sk@{{ account.value }}</div>","        <div id=\"menu\">","            <!--","            <ul>","                <li>","                    <a href=\"#\">Link</a>","                </li>","            </ul>","            -->","        </div>","    </div>","</div>"].join("\n");
     });
 
     
@@ -999,7 +1026,7 @@
     // submit.mustache
     root.require.register('userde.sk/src/templates/page/submit.js', function(exports, require, module) {
     
-      module.exports = ["<app-layout class=\"app\">","    <app-notify></app-notify>","    <app-header></app-header>","    <app-submit></app-submit>","</app-layout>"].join("\n");
+      module.exports = ["<app-layout class=\"app\">","    <app-notify></app-notify>","    <app-tutorial></app-tutorial>","    <div id=\"main\" {{ #options.showTutorial }}class=\"tutorial\"{{ /options.showTutorial }}>","        <app-header></app-header>","        <app-submit></app-submit>","    </div>","</app-layout>"].join("\n");
     });
 
     
@@ -1021,6 +1048,13 @@
     root.require.register('userde.sk/src/templates/submit.js', function(exports, require, module) {
     
       module.exports = ["<div id=\"content\" class=\"box\">","    <div class=\"header\">","        <h2>How can we help?</h2>","        <p>Send us bugs you have encountered or suggestions.</p>","    </div>","","    <div class=\"form\">","        <div class=\"box\">","            <div class=\"field\">","                <h3>1. Title</h3>","                <label>What question would you like to ask?</label>","                {{ #errors.title }}","                <app-error></app-error>","                {{ /errors.title }}","                <span class=\"searching icon spin6\"></span>","                <input","                    class=\"input title {{ #if errors.title.length }}error{{ /if }}\"","                    data-key=\"title\"","                    type=\"text\"","                    placeholder=\"Type your question here\"","                    autofocus","                />","            </div>","            <app-results></app-results>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>2. Description</h3>","                <div>","                    <span class=\"icon eye preview closed\"></span>","                    <label>Describe the question you are asking. You can use <a target=\"_blank\" href=\"https://help.github.com/articles/github-flavored-markdown\" class=\"link\">GitHub Flavored Markdown</a>.</label>","                </div>","                {{ #errors.body }}","                <app-error></app-error>","                {{ /errors.body }}","                <textarea","                    class=\"input body {{ #if errors.body.length }}error{{ /if }}\"","                    data-key=\"body\"","                    placeholder=\"Make it simple and easy to understand\"","                ></textarea>","                <div id=\"preview\"></div>","            </div>","        </div>","","        <div class=\"box\">","            <div class=\"field\">","                <h3>3. Contact</h3>","                {{ #isLoggedIn }}","                    Connected as {{ user.value.displayName }}. <a class=\"link logout\">Logout</a>","                    <input","                        type=\"hidden\"","                        class=\"input contact\"","                        data-key=\"contact\"","                        value=\"{{ user.value.email }}\"","                    />","                {{ else }}","                <!--","                    <label>Provide either an email or connect with <a class=\"link\">GitHub</a>.</label>","                    <div class=\"half first\">","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                    <div class=\"half second\">","                        <div class=\"button github\">Connect with GitHub</div>","                    </div>","                -->","                    <label>Connect with <a class=\"link\">GitHub</a>. Only your public profile is accessed.</label>","                    <div class=\"icon button secondary github\">Connect with GitHub</div>","                    {{ #errors.contact }}","                    <app-error></app-error>","                    {{ /errors.contact }}","                {{ /isLoggedIn }}","            </div>","        </div>","    </div>","","    <div class=\"footer\">","        <div class=\"button primary submit\">Finish</div>","    </div>","</div>"].join("\n");
+    });
+
+    
+    // tutorial.mustache
+    root.require.register('userde.sk/src/templates/tutorial.js', function(exports, require, module) {
+    
+      module.exports = ["{{ #showTutorial }}","<div id=\"tutorial\">","    <h2>Tutorial</h2>","    <h3><span class=\"active step\">1</span> Submit an issue</h3>","    <p>Bacon ipsum dolor sit amet rump fatback ground round, tail pork chop chuck beef andouille biltong corned beef. Frankfurter <a href=\"#\">flank pork</a>, meatloaf ribeye meatball jerky. Shankle salami tail meatball ball tip landjaeger pork belly.</p>","</div>","{{ /showTutorial }}"].join("\n");
     });
   })();
 
