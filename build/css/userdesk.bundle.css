@@ -441,7 +441,7 @@ h3{margin:0 0 10px 0}
 app-layout{display:block;min-height:100%;}
 app-layout.app{padding-bottom:40px;background:#f8f8f8 url("img/patterns/squairy_light.png")}
 app-layout.box{padding:1px 0 40px 0}
-app-layout.index{background:url("img/hires/leaves.jpg") no-repeat center center;-webkit-background-size:cover;-moz-background-size:cover;background-size:cover}
+app-layout.index{background:url("img/hires/frogs.jpg") no-repeat center center;-webkit-background-size:cover;-moz-background-size:cover;background-size:cover}
 #hero{padding:20px 0;margin:0 auto;width:800px;}
 #hero .title,#hero .subtitle{background:rgba(0,0,0,0.5);color:#fff;padding:6px 12px}
 #hero .title{font-size:34px;display:inline-block}
@@ -535,17 +535,19 @@ app-layout.index{background:url("img/hires/leaves.jpg") no-repeat center center;
 .form .field label{margin-bottom:10px}
 .form .field .message{font-size:11px;line-height:14px;}
 .form .field .message.error{color:#e74c3c}
-.input{padding:10px;box-sizing:border-box;border:1px solid #ccc;background:#fcfbf9;color:#374044;}
+.input{padding:10px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;border:1px solid #ccc;background:#fcfbf9;color:#374044;}
 .input.error{border-color:#e74c3c}
 .input:focus{outline:none;border:1px solid rgba(102,198,248,0.4);font-weight:bold;color:#0079ff}
-.button{background:rgba(255,255,255,0.75);padding:8px 22px;transition:opacity .1s;border:1px solid #bfbfbf;border-radius:2px;font-weight:bold;color:#374044;font-size:14px;cursor:pointer;display:inline-block;user-select:none;text-align:center;text-decoration:none;}
+.button{background:rgba(255,255,255,0.75);padding:8px 22px;-webkit-transition:opacity 0.1s;-moz-transition:opacity 0.1s;-o-transition:opacity 0.1s;-ms-transition:opacity 0.1s;transition:opacity 0.1s;border:1px solid #bfbfbf;-webkit-border-radius:2px;border-radius:2px;font-weight:bold;color:#374044;font-size:14px;cursor:pointer;display:inline-block;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;text-align:center;text-decoration:none;}
 .button:hover{background:rgba(0,0,0,0.05)}
-.button.primary{color:#fff;border-color:rgba(0,0,0,0.15);background:#0079ff;}
-.button.primary:hover{background:#006de6}
-.button.secondary,.button.github{color:#fff;border-color:rgba(0,0,0,0.15);background:#646464;}
-.button.secondary:hover,.button.github:hover{background:#535353}
+.button.primary{color:#fff;border-color:rgba(0,0,0,0.15);background:-webkit-linear-gradient(top, #1b9fff, #2180f0);background:-moz-linear-gradient(top, #1b9fff, #2180f0);background:-o-linear-gradient(top, #1b9fff, #2180f0);background:-ms-linear-gradient(top, #1b9fff, #2180f0);background:linear-gradient(to bottom, #1b9fff, #2180f0);}
+.button.primary:hover{background:-webkit-linear-gradient(top, #0194ff, #1073e8);background:-moz-linear-gradient(top, #0194ff, #1073e8);background:-o-linear-gradient(top, #0194ff, #1073e8);background:-ms-linear-gradient(top, #0194ff, #1073e8);background:linear-gradient(to bottom, #0194ff, #1073e8)}
+.button.primary:active{background:-webkit-linear-gradient(top, #1073e8, #008cf1);background:-moz-linear-gradient(top, #1073e8, #008cf1);background:-o-linear-gradient(top, #1073e8, #008cf1);background:-ms-linear-gradient(top, #1073e8, #008cf1);background:linear-gradient(to bottom, #1073e8, #008cf1)}
+.button.secondary{color:#374044;border-color:rgba(0,0,0,0.25);background:-webkit-linear-gradient(top, #fff, #f0f0f0);background:-moz-linear-gradient(top, #fff, #f0f0f0);background:-o-linear-gradient(top, #fff, #f0f0f0);background:-ms-linear-gradient(top, #fff, #f0f0f0);background:linear-gradient(to bottom, #fff, #f0f0f0);}
+.button.secondary:hover{background:-webkit-linear-gradient(top, #f2f2f2, #e3e3e3);background:-moz-linear-gradient(top, #f2f2f2, #e3e3e3);background:-o-linear-gradient(top, #f2f2f2, #e3e3e3);background:-ms-linear-gradient(top, #f2f2f2, #e3e3e3);background:linear-gradient(to bottom, #f2f2f2, #e3e3e3)}
+.button.secondary:active{background:-webkit-linear-gradient(top, #e3e3e3, #ebebeb);background:-moz-linear-gradient(top, #e3e3e3, #ebebeb);background:-o-linear-gradient(top, #e3e3e3, #ebebeb);background:-ms-linear-gradient(top, #e3e3e3, #ebebeb);background:linear-gradient(to bottom, #e3e3e3, #ebebeb)}
 .button.small{font-size:13px;padding:2px 12px}
-.button.large{min-width:100px;font-size:20px;padding:6px 24px}
+.button.large{min-width:100px;font-size:20px;padding:10px 24px}
 .button.disabled{color:rgba(255,255,255,0.55)}
 
 .icon:before{font-family:"Icons";font-style:normal;font-weight:normal;speak:none;display:inline-block;text-decoration:inherit;width:1em;margin-right:.2em;text-align:center;font-variant:normal;text-transform:none;line-height:1em;margin-left:.2em}

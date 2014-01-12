@@ -1,3 +1,5 @@
+@import 'nib'
+
 // Container.
 .form
     .box
@@ -68,19 +70,25 @@
     &.primary
         color: #FFF
         border-color: rgba(0,0,0,0.15)
-        background: #0079FF
+        background: linear-gradient(top, #1b9fff, #2180f0)
 
         &:hover
-            background: #006DE6
+            background: linear-gradient(top, #0194ff, #1073e8)
+
+        &:active
+            background: linear-gradient(top, #1073e8, #008cf1)
 
     // Secondary.
-    &.secondary, &.github
-        color: #FFF
-        border-color: rgba(0,0,0,0.15)
-        background: lighten(#535353, 10%)
+    &.secondary
+        color: #374044
+        border-color: rgba(0,0,0,0.25)
+        background: linear-gradient(top, #fff, #f0f0f0)
 
         &:hover
-            background: #535353
+            background: linear-gradient(top, #f2f2f2, #e3e3e3)
+
+        &:active
+            background: linear-gradient(top, #e3e3e3, #ebebeb)
 
     // Sizes.
     &.small
@@ -90,7 +98,7 @@
     &.large
         min-width: 100px
         font-size: 20px
-        padding: 6px 24px
+        padding: 10px 24px
 
     // Override all.
     &.disabled
