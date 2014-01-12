@@ -31253,7 +31253,11 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           }
           return _results;
         },
-        route: function() {},
+        route: function() {
+          var template;
+          template = require('./templates/page/index');
+          return this.render(template);
+        },
         ':owner/:repo route': function(data) {
           var template;
           account("" + data.owner + "/" + data.repo);
@@ -31261,7 +31265,20 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
           template = require('./templates/page/submit');
           return this.render(template, {}, 'Submit an issue');
         },
+        'signup route': function() {
+          var template;
+          template = require('./templates/page/signup');
+          return this.render(template);
+        },
+        'login route': function() {
+          var template;
+          template = require('./templates/page/login');
+          return this.render(template);
+        },
         render: function(template, ctx, title) {
+          if (ctx == null) {
+            ctx = {};
+          }
           this.element.html(render(template, ctx));
           return document.title = title ? "" + title + " - userde.sk" : 'userde.sk';
         }
@@ -31965,13 +31982,6 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     });
 
     
-    // login.mustache
-    root.require.register('userde.sk/src/templates/login.js', function(exports, require, module) {
-    
-      module.exports = ["<div id=\"promo\" class=\"login box\">","    <div class=\"left\">","        <div class=\"title\">userde.sk</div>","        <a class=\"link bottom\">About the service</a>","    </div>","","    <div class=\"right\">","        <div class=\"header\">","            <h1>Account Login</h1>","        </div>","        ","        <div class=\"button primary\">Login using GitHub</div>","        ","        <div class=\"bottom\">","            <a class=\"link\">New account</a>","            <a class=\"link\">Login problems?</a>","        </div>","    </div>","</div>"].join("\n");
-    });
-
-    
     // notify.mustache
     root.require.register('userde.sk/src/templates/notify.js', function(exports, require, module) {
     
@@ -31979,10 +31989,31 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     });
 
     
+    // index.mustache
+    root.require.register('userde.sk/src/templates/page/index.js', function(exports, require, module) {
+    
+      module.exports = ["<app-layout class=\"index\">","    <div id=\"hero\">","        <h1 class=\"title\">userde.sk</h1>","        <p class=\"subtitle\">Your better customer support through GitHub Issues.</p>","        <div class=\"buttons\">","            <a href=\"#!signup\" class=\"button large primary signup\">Signup</a>","            <div class=\"button large icon github\">Connect with GitHub</div>","        </div>","    </div>","</app-layout>"].join("\n");
+    });
+
+    
+    // login.mustache
+    root.require.register('userde.sk/src/templates/page/login.js', function(exports, require, module) {
+    
+      module.exports = ["<app-layout class=\"app box\">","    <div id=\"promo\" class=\"login box\">","        <div class=\"left\">","            <div class=\"title\">userde.sk</div>","            <a class=\"link bottom\">About the service</a>","        </div>","","        <div class=\"right\">","            <div class=\"header\">","                <h1>Account Login</h1>","            </div>","            ","            <div class=\"button primary\">Login using GitHub</div>","            ","            <div class=\"bottom\">","                <a class=\"link\">New account</a>","                <a class=\"link\">Login problems?</a>","            </div>","        </div>","    </div>","</app-layout>"].join("\n");
+    });
+
+    
+    // signup.mustache
+    root.require.register('userde.sk/src/templates/page/signup.js', function(exports, require, module) {
+    
+      module.exports = ["<app-layout class=\"app box\">","    <div id=\"promo\" class=\"signup box\">","        <div class=\"left\">","            <div class=\"title\">userde.sk</div>","            <a class=\"link bottom\">About the service</a>","        </div>","","        <div class=\"right\">","            <div class=\"header\">","                <h1>Signup</h1>","            </div>","            ","            <div class=\"form\">","                <div class=\"box\">","                    <div class=\"field\">","                        <h3>1. GitHub Username</h3>","                        <input class=\"input\" type=\"text\" placeholder=\"Type your username here\" value=\"@radekstepan\" autofocus />","                    </div>","                </div>","                ","                <div class=\"box\">","                    <div class=\"field\">","                        <h3>2. Contact</h3>","                        <label>Provide an email so that we can contact you when your account is ready.</label>","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                </div>","","                <div class=\"box\">","                    <div class=\"field\">","                        <h3>3. Message (optional)</h3>","                        <label>Do you have a special request? Anything we should know?</label>","                        <textarea class=\"input\" rows=4></textarea>","                    </div>","                </div>","            </div>","","            <div class=\"button primary\">Send</div>","","            <div class=\"bottom\">","                <a class=\"link\">Check application status</a>","            </div>","        </div>","    </div>","</app-layout>"].join("\n");
+    });
+
+    
     // submit.mustache
     root.require.register('userde.sk/src/templates/page/submit.js', function(exports, require, module) {
     
-      module.exports = ["<app-layout>","    <app-notify></app-notify>","    <app-header></app-header>","    <app-submit></app-submit>","</app-layout>"].join("\n");
+      module.exports = ["<app-layout class=\"app\">","    <app-notify></app-notify>","    <app-header></app-header>","    <app-submit></app-submit>","</app-layout>"].join("\n");
     });
 
     
@@ -31997,13 +32028,6 @@ return new FirebaseSimpleLogin(a,b,c)};goog.exportSymbol("FirebaseAuthClient",Fi
     root.require.register('userde.sk/src/templates/results.js', function(exports, require, module) {
     
       module.exports = ["{{ #if results.length }}","<div id=\"results\">","    <ul>","        {{ #results }}","        <li><app-result></app-result></li>","        {{ /results }}","    </ul>","</div>","{{ /if }}"].join("\n");
-    });
-
-    
-    // signup.mustache
-    root.require.register('userde.sk/src/templates/signup.js', function(exports, require, module) {
-    
-      module.exports = ["<div id=\"promo\" class=\"signup box\">","    <div class=\"left\">","        <div class=\"title\">userde.sk</div>","        <a class=\"link bottom\">About the service</a>","    </div>","","    <div class=\"right\">","        <div class=\"header\">","            <h1>Signup</h1>","        </div>","        ","        <div class=\"form\">","            <div class=\"box\">","                <div class=\"field\">","                    <h3>1. GitHub Username</h3>","                    <input class=\"input\" type=\"text\" placeholder=\"Type your username here\" value=\"@radekstepan\" autofocus />","                </div>","            </div>","            ","            <div class=\"box\">","                <div class=\"field\">","                    <h3>2. Contact</h3>","                    <label>Provide an email so that we can contact you when your account is ready.</label>","                    <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                </div>","            </div>","","            <div class=\"box\">","                <div class=\"field\">","                    <h3>3. Message (optional)</h3>","                    <label>Do you have a special request? Anything we should know?</label>","                    <textarea class=\"input\" rows=4></textarea>","                </div>","            </div>","        </div>","","        <div class=\"button primary\">Send</div>","","        <div class=\"bottom\">","            <a class=\"link\">Check application status</a>","        </div>","    </div>","</div>"].join("\n");
     });
 
     

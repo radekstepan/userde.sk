@@ -2,8 +2,48 @@
 
 $whitespace = 20px
 
+// So we can capture app-wide events.
 app-layout
     display: block
+    min-height: 100%
+    padding-bottom: 40px
+
+    // submit
+    &.app
+        background: #F8F8F8 url('img/patterns/squairy_light.png')
+
+    // signup, login
+    &.box
+        padding: 1px 0
+
+    // index
+    &.index
+        background: url('img/hires/fields.jpg') no-repeat center center
+        background-size: cover
+
+// Hero banner on the index page.
+#hero
+    padding: 20px 0
+    margin: 0 auto
+    width: 800px
+
+    .title, .subtitle
+        background: rgba(0,0,0,0.5)
+        color: #FFF
+        padding: 6px 12px
+
+    .title
+        font-size: 34px
+        display: inline-block
+
+    .subtitle
+        font-size: 27px
+        width: 332px
+        margin-bottom: 30px
+        text-align: justify
+
+    .button:not(:first-child)
+        margin-left: 10px
 
 // Header duh.
 #header
@@ -177,7 +217,7 @@ app-layout
 
 // Boxes without a header.
 #promo.box
-    margin-top: 80px
+    margin-top: 40px
     border-top: 3px solid #FEDB27
 
     $box_padding = 35px

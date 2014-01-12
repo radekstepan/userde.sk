@@ -25,6 +25,8 @@ Routing = can.Control
 
     # Index page.
     route: ->
+        template = require './templates/page/index'
+        @render template
 
     # Submit an issue.
     ':owner/:repo route': (data) ->
@@ -35,8 +37,18 @@ Routing = can.Control
         template = require './templates/page/submit'
         @render(template, {}, 'Submit an issue')
 
+    # Signup for a new account (NA).
+    'signup route': ->
+        template = require './templates/page/signup'
+        @render template
+
+    # Login to the account (NA).
+    'login route': ->
+        template = require './templates/page/login'
+        @render template
+
     # Render a page. Update the page title.
-    render: (template, ctx, title) ->
+    render: (template, ctx={}, title) ->
         @element.html(render(template, ctx))
         # Update title.
         document.title = if title then "#{title} - userde.sk" else 'userde.sk'
