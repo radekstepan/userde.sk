@@ -618,6 +618,11 @@
         template: require('../templates/tutorial'),
         scope: function() {
           return options;
+        },
+        events: {
+          '.icon.close click': function() {
+            return options.attr('showTutorial', false);
+          }
         }
       });
       
@@ -1054,7 +1059,7 @@
     // tutorial.mustache
     root.require.register('userde.sk/src/templates/tutorial.js', function(exports, require, module) {
     
-      module.exports = ["{{ #showTutorial }}","<div id=\"tutorial\">","    <h2>Tutorial</h2>","    <h3><span class=\"active step\">1</span> Submit an issue</h3>","    <p>Bacon ipsum dolor sit amet rump fatback ground round, tail pork chop chuck beef andouille biltong corned beef. Frankfurter <a href=\"#\">flank pork</a>, meatloaf ribeye meatball jerky. Shankle salami tail meatball ball tip landjaeger pork belly.</p>","</div>","{{ /showTutorial }}"].join("\n");
+      module.exports = ["{{ #showTutorial }}","<div id=\"tutorial\">","    <div class=\"head\">","        <span class=\"icon cancel-circled-outline close\"></span> <h2>Tutorial</h2>","    </div>","    <div class=\"step active\">","        <h3><span class=\"number\">1</span> Submit an issue</h3>","        <p>Bacon ipsum dolor sit amet rump fatback ground round, tail pork chop chuck beef andouille biltong corned beef. Frankfurter <a href=\"#\">flank pork</a>, meatloaf ribeye meatball jerky. Shankle salami tail meatball ball tip landjaeger pork belly.</p>","    </div>","    <div class=\"step\">","        <h3><span class=\"number\">2</span> Fill in the body</h3>","    </div>","    <div class=\"step\">","        <h3><span class=\"number\">3</span> Replies</h3>","    </div>","</div>","{{ /showTutorial }}"].join("\n");
     });
   })();
 

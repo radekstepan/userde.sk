@@ -41,14 +41,21 @@ app-layout.index{background:url("img/hires/frogs.jpg") no-repeat center center;-
 #header #account .dropdown .menu li a{width:100%;margin:0 -10px;display:block;padding:0 10px;line-height:26px;text-decoration:none;color:inherit;}
 #header #account .dropdown .menu li a:hover{color:#fff;background:#0079ff}
 #tutorial{position:absolute;top:0;right:0;bottom:0;left:auto;width:300px;background:#ececec;border-left:1px solid #d5d5d5;padding:0 15px;color:#777;}
-#tutorial h2{font-size:18px;line-height:53px;font-weight:normal;border-bottom:1px solid #dadada;margin:0 0 18px 0}
-#tutorial h3{font-size:18px;font-weight:normal;color:#374044;line-height:21px;}
-#tutorial h3 .step{width:18px;height:18px;line-height:17px;border:2px solid #374044;-webkit-border-radius:50%;border-radius:50%;display:block;float:left;text-align:center;font-weight:bold;font-size:14px;margin-right:10px;}
-#tutorial h3 .step.active{background:#374044;color:#fff}
+#tutorial .head h2{font-size:18px;line-height:53px;font-weight:normal;border-bottom:1px solid #dadada;margin:0 0 18px 0}
+#tutorial .head .icon{position:absolute;top:14px;right:15px;color:#999;cursor:pointer;font-size:22px;}
+#tutorial .head .icon:hover{color:#666}
+#tutorial .step{margin-bottom:25px;}
+#tutorial .step h3{color:#999;font-size:18px;font-weight:normal;line-height:21px;}
+#tutorial .step h3 span.number{width:18px;height:18px;line-height:17px;border:2px solid #999;-webkit-border-radius:50%;border-radius:50%;display:block;float:left;text-align:center;font-weight:bold;font-size:15px;margin-right:10px;color:#999}
+#tutorial .step p{margin-left:33px}
+#tutorial .step.active h3{color:#374044;}
+#tutorial .step.active h3 span.number{background:#374044;color:#fff;border-color:#374044}
 #tutorial p{font-size:14px;}
 #tutorial p a{color:#676767;}
 #tutorial p a:hover{color:#414141}
-#main.tutorial{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;padding-right:321px}
+#main{padding-right:0;}
+#main #header{width:100%}
+#main.tutorial{padding-right:330px}
 #notify{content:"";position:fixed;top:0;left:0;background:rgba(241,241,241,0.98);width:100%;height:100%;z-index:2;}
 #notify .message{position:fixed;left:50%;top:50%;}
 #notify .message .wrapper{position:relative;left:-50%;top:-50%;background:#fff;border:1px solid #cecece;margin:0 auto;}
@@ -118,15 +125,16 @@ app-layout.index{background:url("img/hires/frogs.jpg") no-repeat center center;-
 .input{padding:10px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;border:1px solid #ccc;background:#fcfbf9;color:#374044;}
 .input.error{border-color:#e74c3c}
 .input:focus{outline:none;border:1px solid rgba(102,198,248,0.4);font-weight:bold;color:#0079ff}
-.button{background:rgba(255,255,255,0.75);padding:8px 22px;-webkit-transition:opacity 0.1s;-moz-transition:opacity 0.1s;-o-transition:opacity 0.1s;-ms-transition:opacity 0.1s;transition:opacity 0.1s;border:1px solid #bfbfbf;-webkit-border-radius:2px;border-radius:2px;font-weight:bold;color:#374044;font-size:14px;cursor:pointer;display:inline-block;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;text-align:center;text-decoration:none;}
+.button{background:rgba(255,255,255,0.75);padding:8px 22px;-webkit-transition:opacity 0.1s;-moz-transition:opacity 0.1s;-o-transition:opacity 0.1s;-ms-transition:opacity 0.1s;transition:opacity 0.1s;border:1px solid #bfbfbf;-webkit-border-radius:2px;border-radius:2px;font-weight:bold;color:#374044;font-size:14px;cursor:pointer;display:inline-block;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;text-align:center;text-decoration:none;border-color:rgba(0,0,0,0.25);}
 .button:hover{background:rgba(0,0,0,0.05)}
-.button.primary{color:#fff;border-color:rgba(0,0,0,0.15);background:-webkit-linear-gradient(top, #1b9fff, #2180f0);background:-moz-linear-gradient(top, #1b9fff, #2180f0);background:-o-linear-gradient(top, #1b9fff, #2180f0);background:-ms-linear-gradient(top, #1b9fff, #2180f0);background:linear-gradient(to bottom, #1b9fff, #2180f0);}
+.button.icon:before{margin-right:6px}
+.button.primary{color:#fff;background:-webkit-linear-gradient(top, #1b9fff, #2180f0);background:-moz-linear-gradient(top, #1b9fff, #2180f0);background:-o-linear-gradient(top, #1b9fff, #2180f0);background:-ms-linear-gradient(top, #1b9fff, #2180f0);background:linear-gradient(to bottom, #1b9fff, #2180f0);}
 .button.primary:hover{background:-webkit-linear-gradient(top, #0194ff, #1073e8);background:-moz-linear-gradient(top, #0194ff, #1073e8);background:-o-linear-gradient(top, #0194ff, #1073e8);background:-ms-linear-gradient(top, #0194ff, #1073e8);background:linear-gradient(to bottom, #0194ff, #1073e8)}
 .button.primary:active{background:-webkit-linear-gradient(top, #1073e8, #008cf1);background:-moz-linear-gradient(top, #1073e8, #008cf1);background:-o-linear-gradient(top, #1073e8, #008cf1);background:-ms-linear-gradient(top, #1073e8, #008cf1);background:linear-gradient(to bottom, #1073e8, #008cf1)}
-.button.secondary{color:#374044;border-color:rgba(0,0,0,0.25);background:-webkit-linear-gradient(top, #fff, #f0f0f0);background:-moz-linear-gradient(top, #fff, #f0f0f0);background:-o-linear-gradient(top, #fff, #f0f0f0);background:-ms-linear-gradient(top, #fff, #f0f0f0);background:linear-gradient(to bottom, #fff, #f0f0f0);}
+.button.secondary{color:#374044;background:-webkit-linear-gradient(top, #fff, #f0f0f0);background:-moz-linear-gradient(top, #fff, #f0f0f0);background:-o-linear-gradient(top, #fff, #f0f0f0);background:-ms-linear-gradient(top, #fff, #f0f0f0);background:linear-gradient(to bottom, #fff, #f0f0f0);}
 .button.secondary:hover{background:-webkit-linear-gradient(top, #f2f2f2, #e3e3e3);background:-moz-linear-gradient(top, #f2f2f2, #e3e3e3);background:-o-linear-gradient(top, #f2f2f2, #e3e3e3);background:-ms-linear-gradient(top, #f2f2f2, #e3e3e3);background:linear-gradient(to bottom, #f2f2f2, #e3e3e3)}
 .button.secondary:active{background:-webkit-linear-gradient(top, #e3e3e3, #ebebeb);background:-moz-linear-gradient(top, #e3e3e3, #ebebeb);background:-o-linear-gradient(top, #e3e3e3, #ebebeb);background:-ms-linear-gradient(top, #e3e3e3, #ebebeb);background:linear-gradient(to bottom, #e3e3e3, #ebebeb)}
-.button.candlelight{color:#374044;border-color:rgba(0,0,0,0.15);background:#fedb27;}
+.button.candlelight{color:#374044;background:#fedb27;}
 .button.candlelight:hover{background:#fdcc1e}
 .button.candlelight:active{background:#f7c102}
 .button.small{font-size:13px;padding:2px 12px}
@@ -140,6 +148,7 @@ app-layout.index{background:url("img/hires/frogs.jpg") no-repeat center center;-
 .icon.github:before{content:'\e803'}
 .icon.spin6{-webkit-animation:spin 2s infinite linear;-moz-animation:spin 2s infinite linear;-o-animation:spin 2s infinite linear;-ms-animation:spin 2s infinite linear;animation:spin 2s infinite linear;}
 .icon.spin6:before{content:'\e804'}
+.icon.cancel-circled-outline:before{content:'\e805'}
 @-moz-keyframes spin{0%{-moz-transform:rotate(0)}
 100%{-moz-transform:rotate(360deg)}
 }@-webkit-keyframes spin{0%{-webkit-transform:rotate(0)}

@@ -62,14 +62,19 @@
     user-select: none
     text-align: center
     text-decoration: none
+    border-color: rgba(0,0,0,0.25)
 
     &:hover
         background: rgba(0,0,0,0.05)
 
+    // Icons.
+    &.icon
+        &:before
+            margin-right: 6px
+
     // Primary.
     &.primary
         color: #FFF
-        border-color: rgba(0,0,0,0.15)
         background: linear-gradient(top, #1b9fff, #2180f0)
 
         &:hover
@@ -81,7 +86,6 @@
     // Secondary.
     &.secondary
         color: #374044
-        border-color: rgba(0,0,0,0.25)
         background: linear-gradient(top, #fff, #f0f0f0)
 
         &:hover
@@ -93,7 +97,6 @@
     // Others.
     &.candlelight
         color: #374044
-        border-color: rgba(0,0,0,0.15)
         background: #fedb27
 
         &:hover

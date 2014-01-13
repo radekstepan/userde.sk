@@ -184,35 +184,59 @@ app-layout
     padding: 0 15px
     color: #777
 
-    h2
-        font-size: 18px
-        line-height: 53px // the same as header height
-        font-weight: normal
-        border-bottom: 1px solid #dadada
-        margin: 0 0 18px 0
+    .head
+        h2
+            font-size: 18px
+            line-height: 53px // the same as header height
+            font-weight: normal
+            border-bottom: 1px solid #dadada
+            margin: 0 0 18px 0
 
-    h3
-        font-size: 18px
-        font-weight: normal
-        color: #374044
-        line-height: 21px
+        .icon
+            position: absolute
+            top: 14px
+            right: 15px // tutorial padding
+            color: #999
+            cursor: pointer
+            font-size: 22px
 
-        .step
-            width: 18px
-            height: 18px
-            line-height: 17px
-            border: 2px solid #374044
-            border-radius: 50%
-            display: block
-            float: left
-            text-align: center
-            font-weight: bold
-            font-size: 14px
-            margin-right: 10px
+            &:hover
+                color: #666
 
-            &.active
-                background: #374044
-                color: #FFF
+    .step
+        margin-bottom: 25px
+
+        h3
+            color: #999
+            font-size: 18px
+            font-weight: normal
+            line-height: 21px
+            
+            span.number
+                width: 18px
+                height: 18px
+                line-height: 17px
+                border: 2px solid #999
+                border-radius: 50%
+                display: block
+                float: left
+                text-align: center
+                font-weight: bold
+                font-size: 15px
+                margin-right: 10px
+                color: #999
+
+        p
+            margin-left: 33px
+
+        &.active
+            h3
+                color: #374044
+                
+                span.number
+                    background: #374044
+                    color: #FFF
+                    border-color: #374044
 
     p
         font-size: 14px
@@ -224,9 +248,10 @@ app-layout
                 color: #414141
 
 #main
+    padding-right: 0
+
     &.tutorial
-        box-sizing: border-box
-        padding-right: 321px
+        padding-right: 330px // tutorial width and padding
 
 // Notifications, state.
 #notify
