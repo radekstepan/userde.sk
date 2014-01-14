@@ -227,7 +227,7 @@
       
       options = require('./modules/options');
       
-      load = ['modules/helpers', 'components/header', 'components/submit', 'components/notify', 'components/results', 'components/result', 'components/error', 'components/layout', 'components/tutorial'];
+      load = ['modules/helpers', 'components/error', 'components/header', 'components/layout', 'components/notify', 'components/result', 'components/results', 'components/signup', 'components/submit', 'components/tutorial'];
       
       Routing = can.Control({
         init: function() {
@@ -452,6 +452,84 @@
     });
 
     
+    // signup.coffee
+    root.require.register('userde.sk/src/components/signup.js', function(exports, require, module) {
+    
+      var Signup, errors, firebase, state, working;
+      
+      firebase = require('../modules/firebase');
+      
+      state = require('../modules/state');
+      
+      Signup = require('../modules/forms').Signup;
+      
+      working = false;
+      
+      errors = new can.Map({});
+      
+      module.exports = can.Component.extend({
+        tag: 'app-signup',
+        template: require('../templates/signup'),
+        scope: function() {
+          return {
+            errors: errors
+          };
+        },
+        events: {
+          '.button.send click': function(el, evt) {
+            var done, key, msg, signup, _ref;
+            done = function() {
+              working = false;
+              return el.removeClass('disabled');
+            };
+            if (working) {
+              return;
+            }
+            working = true;
+            el.addClass('disabled');
+            signup = new Signup();
+            this.element.find('.input').each(function(i, field) {
+              var key, val;
+              field = $(field);
+              key = field.data('key');
+              val = field.val();
+              errors.removeAttr(key);
+              return signup.attr(key, val);
+            });
+            _ref = signup.errors();
+            for (key in _ref) {
+              msg = _ref[key];
+              errors.attr(key, _.map(msg, function(text) {
+                return {
+                  text: text
+                };
+              }));
+            }
+            if (can.Map.keys(errors).length) {
+              return done();
+            }
+            state.load('Sending');
+            mixpanel.track('signup');
+            return firebase.signup(signup.attr(), function(err, res) {
+              var text;
+              done();
+              if (err) {
+                mixpanel.track('error', {
+                  'where': 'firebase.signup',
+                  'what': text = err.toString()
+                });
+                return state.warn(text);
+              } else {
+                return state.info('Thank you for signing up! Will be in touch shortly.');
+              }
+            });
+          }
+        }
+      });
+      
+    });
+
+    
     // submit.coffee
     root.require.register('userde.sk/src/components/submit.js', function(exports, require, module) {
     
@@ -465,7 +543,7 @@
       
       state = require('../modules/state');
       
-      Issue = require('../modules/issue');
+      Issue = require('../modules/forms').Issue;
       
       query = null;
       
@@ -687,8 +765,37 @@
           }
           user({});
           return state.info('You have logged out');
+        },
+        signup: function(data, cb) {
+          console.log(data);
+          return cb(null);
         }
       });
+      
+    });
+
+    
+    // forms.coffee
+    root.require.register('userde.sk/src/modules/forms.js', function(exports, require, module) {
+    
+      exports.Issue = can.Map.extend({
+        init: function() {
+          this.validatePresenceOf(['title'], {
+            'message': 'Field cannot be empty'
+          });
+          return this.validatePresenceOf(['contact'], {
+            'message': 'You need to connect with GitHub'
+          });
+        }
+      }, {});
+      
+      exports.Signup = can.Map.extend({
+        init: function() {
+          return this.validatePresenceOf(['username', 'email'], {
+            'message': 'Field cannot be empty'
+          });
+        }
+      }, {});
       
     });
 
@@ -868,23 +975,6 @@
     });
 
     
-    // issue.coffee
-    root.require.register('userde.sk/src/modules/issue.js', function(exports, require, module) {
-    
-      module.exports = can.Map.extend({
-        init: function() {
-          this.validatePresenceOf(['title'], {
-            'message': 'Field cannot be empty'
-          });
-          return this.validatePresenceOf(['contact'], {
-            'message': 'You need to connect with GitHub'
-          });
-        }
-      }, {});
-      
-    });
-
-    
     // layout.coffee
     root.require.register('userde.sk/src/modules/layout.js', function(exports, require, module) {
     
@@ -1024,7 +1114,7 @@
     // signup.mustache
     root.require.register('userde.sk/src/templates/page/signup.js', function(exports, require, module) {
     
-      module.exports = ["<app-layout class=\"app box\">","    <div id=\"promo\" class=\"signup box\">","        <div class=\"left\">","            <div class=\"title\">userde.sk</div>","            <a class=\"link bottom\">About the service</a>","        </div>","","        <div class=\"right\">","            <div class=\"header\">","                <h1>Signup</h1>","            </div>","            ","            <div class=\"form\">","                <div class=\"box\">","                    <div class=\"field\">","                        <h3>1. GitHub Username</h3>","                        <input class=\"input\" type=\"text\" placeholder=\"Type your username here\" value=\"@radekstepan\" autofocus />","                    </div>","                </div>","                ","                <div class=\"box\">","                    <div class=\"field\">","                        <h3>2. Contact</h3>","                        <label>Provide an email so that we can contact you when your account is ready.</label>","                        <input class=\"input\" type=\"text\" placeholder=\"Email address\" />","                    </div>","                </div>","","                <div class=\"box\">","                    <div class=\"field\">","                        <h3>3. Message (optional)</h3>","                        <label>Do you have a special request? Anything we should know?</label>","                        <textarea class=\"input\" rows=4></textarea>","                    </div>","                </div>","            </div>","","            <div class=\"button primary\">Send</div>","","            <div class=\"bottom\">","                <a class=\"link\">Check application status</a>","            </div>","        </div>","    </div>","</app-layout>"].join("\n");
+      module.exports = ["<app-layout class=\"app box\">","    <div id=\"promo\" class=\"signup box\">","        <div class=\"left\">","            <div class=\"title\">userde.sk</div>","            <a class=\"link bottom\">About the service</a>","        </div>","","        <div class=\"right\">","            <div class=\"header\">","                <h1>Signup</h1>","            </div>","            ","            <app-signup></app-signup>","","            <div class=\"bottom\">","                <a class=\"link\">Check application status</a>","            </div>","        </div>","    </div>","</app-layout>"].join("\n");
     });
 
     
@@ -1046,6 +1136,13 @@
     root.require.register('userde.sk/src/templates/results.js', function(exports, require, module) {
     
       module.exports = ["{{ #if results.length }}","<div id=\"results\">","    <ul>","        {{ #results }}","        <li><app-result></app-result></li>","        {{ /results }}","    </ul>","</div>","{{ /if }}"].join("\n");
+    });
+
+    
+    // signup.mustache
+    root.require.register('userde.sk/src/templates/signup.js', function(exports, require, module) {
+    
+      module.exports = ["<div class=\"form\">","    <div class=\"box\">","        <div class=\"field\">","            <h3>1. GitHub Username</h3>","            <input","                class=\"input {{ #if errors.username.length }}error{{ /if }}\"","                type=\"text\"","                data-key=\"username\"","                placeholder=\"Type your username here\"","                autofocus","            />","            {{ #errors.username }}","            <app-error></app-error>","            {{ /errors.username }}","        </div>","    </div>","    ","    <div class=\"box\">","        <div class=\"field\">","            <h3>2. Contact</h3>","            <label>Provide an email so that we can contact you when your account is ready.</label>","            <input","                class=\"input {{ #if errors.email.length }}error{{ /if }}\"","                type=\"text\"","                data-key=\"email\"","                placeholder=\"Email address\"","            />","            {{ #errors.email }}","            <app-error></app-error>","            {{ /errors.email }}","        </div>","    </div>","","    <div class=\"box\">","        <div class=\"field\">","            <h3>3. Message (optional)</h3>","            <label>Do you have a special request? Anything we should know?</label>","            <textarea class=\"input\" rows=4 data-key=\"message\"></textarea>","        </div>","    </div>","</div>","","<div class=\"button primary send\">Send</div>"].join("\n");
     });
 
     

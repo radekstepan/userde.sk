@@ -6,6 +6,7 @@ authCb = ->
 
 module.exports = new can.Map
 
+    # Ref server.
     setClient: (root, success, error) ->
         # Create a new instance pointing to a root.
         client = new Firebase "https://#{root}.firebaseio.com"
@@ -27,6 +28,7 @@ module.exports = new can.Map
 
         client
 
+    # Login a user.
     login: (cb, provider='github') ->
         return cb 'Client is not setup' unless @client
         
@@ -42,8 +44,14 @@ module.exports = new can.Map
             # TODO: access private repos as well
             'scope': 'public_repo'
 
+    # Logout a user.
     logout: ->
         do @auth?.logout
         user {}
         # TODO: fixme
         state.info 'You have logged out'
+
+    # Signup a new account.
+    signup: (data, cb) ->
+        console.log data
+        cb null

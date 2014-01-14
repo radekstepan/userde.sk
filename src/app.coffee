@@ -8,13 +8,14 @@ options  = require './modules/options'
 
 load = [
     'modules/helpers'
-    'components/header'
-    'components/submit'
-    'components/notify'
-    'components/results'
-    'components/result'
     'components/error'
+    'components/header'
     'components/layout'
+    'components/notify'
+    'components/result'
+    'components/results'
+    'components/signup'
+    'components/submit'
     'components/tutorial'
 ]
 
@@ -38,7 +39,7 @@ Routing = can.Control
         template = require './templates/page/submit'
         @render(template, {}, 'Submit an issue')
 
-    # Signup for a new account (NA).
+    # Signup for a new account.
     'signup route': ->
         template = require './templates/page/signup'
         @render template

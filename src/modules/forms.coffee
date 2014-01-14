@@ -1,11 +1,18 @@
-module.exports = can.Map.extend
+exports.Issue = can.Map.extend
 
     init: ->
-        # Simple validator, will not check for "whitespace empty".
         @validatePresenceOf [ 'title' ],
             'message': 'Field cannot be empty'
 
         @validatePresenceOf [ 'contact' ],
             'message': 'You need to connect with GitHub'
+
+, {}
+
+exports.Signup = can.Map.extend
+
+    init: ->
+        @validatePresenceOf [ 'username', 'email' ],
+            'message': 'Field cannot be empty'
 
 , {}

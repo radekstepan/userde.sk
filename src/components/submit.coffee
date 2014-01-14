@@ -1,8 +1,8 @@
-user    = require '../modules/user'
-github  = require '../modules/github'
-results = require '../modules/results'
-state   = require '../modules/state'
-Issue   = require '../modules/issue'
+user      = require '../modules/user'
+github    = require '../modules/github'
+results   = require '../modules/results'
+state     = require '../modules/state'
+{ Issue } = require '../modules/forms'
 
 # The query.
 query = null
@@ -118,7 +118,7 @@ module.exports = can.Component.extend
 
             # Submit the issue then.
             state.load 'Sending'
-            mixpanel.track('submit')
+            mixpanel.track 'submit'
             github.submit (do issue.attr), (err, res) ->
                 do done
                 if err
